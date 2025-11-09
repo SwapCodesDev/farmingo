@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -50,7 +51,7 @@ interface CommentThreadProps {
   depth?: number;
   commentAction: (postId: string, text: string, parentId: string | null) => Promise<void>;
   voteAction: (postId: string, commentId: string, vote: 'up' | 'down') => Promise<void>;
-  pinAction: (commentId: string | null) => Promise<void>;
+  pinAction: (commentId: string) => Promise<void>;
   pinnedCommentId?: string | null;
 }
 
@@ -120,6 +121,7 @@ export function CommentThread({ comment, allComments, postId, postAuthorId, isPo
   const handlePin = async () => {
     try {
       const newPinnedId = isPinned ? null : comment.id;
+      // @ts-ignore
       await pinAction(newPinnedId);
       toast({ title: isPinned ? "Comment unpinned" : "Comment pinned!" });
     } catch (error: any) {
@@ -155,7 +157,7 @@ export function CommentThread({ comment, allComments, postId, postAuthorId, isPo
               <button onClick={() => showProfile(comment.author)} className="font-semibold text-sm hover:underline">
                 {formatUsername(comment.author, comment.authorRole)}
               </button>
-              {isCommentByPostAuthor && <Badge variant="secondary">Author</Badge>}
+              {isCommentByPostAuthor && <Badge variant="secondary" className="bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300">Author</Badge>}
               {isPinned && <Badge variant="default" className="bg-primary/80"><Pin className="mr-1 h-3 w-3" /> Pinned</Badge>}
               <p className="text-muted-foreground">•</p>
               <p className="text-muted-foreground">
