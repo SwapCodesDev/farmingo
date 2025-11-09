@@ -142,7 +142,7 @@ export function CommentThread({ comment, allComments, postId, postAuthorId, isPo
 
   return (
     <>
-    <Collapsible open={isOpen} onOpenChange={setIsOpen} className={cn('flex gap-2 sm:gap-3', depth > 0 && 'ml-4 md:ml-6')}>
+    <Collapsible open={isOpen} onOpenChange={setIsOpen} className={cn('flex gap-2 sm:gap-3', depth > 0 && 'ml-2 sm:ml-4 md:ml-6')}>
       <div className="flex flex-col items-center">
         <Avatar className="h-8 w-8 cursor-pointer" onClick={() => showProfile(comment.author)}>
           <AvatarImage src={comment.authorPhotoURL} alt={comment.author} />
@@ -156,20 +156,20 @@ export function CommentThread({ comment, allComments, postId, postAuthorId, isPo
       </div>
 
       <div className="flex-1">
-        <div className={cn("p-3 rounded-lg", depth % 2 === 0 ? "bg-muted/50" : "bg-muted/25", isPinned && "border-2 border-primary/50")}>
+        <div className={cn("p-3 rounded-lg", depth % 2 === 0 ? "bg-muted/50" : "bg-muted/25", isPinned && !isBaseComment && "border-2 border-primary/50")}>
           <div className="flex justify-between items-center text-xs">
             <div className="flex items-center gap-2 flex-wrap">
               <button onClick={() => showProfile(comment.author)} className="font-semibold text-sm hover:underline">
                 {formatUsername(comment.author, comment.authorRole)}
               </button>
               {isCommentByPostAuthor && <Badge variant="secondary">Author</Badge>}
+              {isPinned && isBaseComment && <Badge variant="default" className="bg-primary/80"><Pin className="h-3 w-3 mr-1" /> Pinned</Badge>}
               <p className="text-muted-foreground">•</p>
               <p className="text-muted-foreground">
                 {formatTimestamp(comment.createdAt)}
               </p>
             </div>
             <div className="flex items-center">
-              {isPinned && <Pin className="h-4 w-4 text-primary mr-2" />}
               <CollapsibleTrigger asChild>
                 <span className="cursor-pointer text-muted-foreground hover:text-primary mr-2">
                   {isOpen ? '[-]' : `[+${childComments.length}]`}
