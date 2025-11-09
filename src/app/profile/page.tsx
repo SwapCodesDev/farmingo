@@ -18,11 +18,10 @@ import {
 } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Calendar, Edit, Loader2 } from 'lucide-react';
-import { format } from 'date-fns';
 import { PostCard } from '@/components/features/post-card';
 import { useAuthActions } from '@/hooks/use-auth-actions';
 import Link from 'next/link';
-import { formatUsername } from '@/lib/utils';
+import { formatUsername, formatTimestamp } from '@/lib/utils';
 import type { UserProfile } from '@/types';
 import type { Post } from '@/lib/actions/community';
 import Image from 'next/image';
@@ -116,7 +115,7 @@ export default function ProfilePage() {
                 </p>
                 <div className="flex items-center justify-center pt-2 text-sm text-muted-foreground">
                     <Calendar className="mr-2 h-4 w-4" />
-                    Joined on {format(userProfile.createdAt.toDate(), 'MMMM d, yyyy')}
+                    Joined on {formatTimestamp(userProfile.createdAt, { format: 'full', addSuffix: false })}
                 </div>
             </div>
         </CardHeader>

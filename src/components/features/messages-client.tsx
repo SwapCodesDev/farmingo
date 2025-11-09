@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { cn } from '@/lib/utils';
+import { cn, formatTimestamp } from '@/lib/utils';
 import { Search, Users } from 'lucide-react';
 import Link from 'next/link';
 import { Card } from '../ui/card';
@@ -13,7 +13,6 @@ import type { User } from 'firebase/auth';
 import { useFirestore } from '@/firebase';
 import { collection, query, where, Timestamp } from 'firebase/firestore';
 import { useCollection } from '@/firebase/firestore/use-collection';
-import { formatDistanceToNow } from 'date-fns';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 
@@ -140,7 +139,7 @@ export function MessagesClient({ currentUser }: MessagesClientProps) {
                 <div className="flex justify-between items-center">
                     <p className={cn("font-semibold truncate", isUnread && "text-primary")}>{otherParticipantDetails.username}</p>
                     <p className="text-xs text-muted-foreground flex-shrink-0 ml-2">
-                        {formatDistanceToNow(lastMessageDate, { addSuffix: true })}
+                        {formatTimestamp(conv.lastMessage.createdAt)}
                     </p>
                 </div>
                 <div className="flex justify-between items-start gap-2">

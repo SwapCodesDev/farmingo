@@ -8,7 +8,6 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { PostCard } from './post-card';
 import type { Post } from '@/lib/actions/community';
 import { MessageCircle, UserPlus, Loader2, Calendar } from 'lucide-react';
-import { format } from 'date-fns';
 import { Timestamp } from 'firebase/firestore';
 import { Button } from '../ui/button';
 import { getOrCreateConversation } from '@/lib/actions/messages';
@@ -16,7 +15,7 @@ import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { useUserProfileDialog } from '@/context/user-profile-dialog-provider';
 import { useAuthActions } from '@/hooks/use-auth-actions';
-import { formatUsername } from '@/lib/utils';
+import { formatUsername, formatTimestamp } from '@/lib/utils';
 import type { UserProfile } from '@/types';
 
 
@@ -121,7 +120,7 @@ export function UserProfileClient({ username }: UserProfileClientProps) {
                 </p>
                 <div className="flex items-center justify-center pt-2 text-xs sm:text-sm text-muted-foreground">
                     <Calendar className="mr-2 h-4 w-4" />
-                    Joined on {format(joinDate, 'MMMM d, yyyy')}
+                    Joined on {formatTimestamp(userProfile.createdAt, { format: 'full', addSuffix: false })}
                 </div>
             </div>
              {!isOwnProfile && currentUser && (

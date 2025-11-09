@@ -5,10 +5,9 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { useUser } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
-import { formatDistanceToNow } from 'date-fns';
 import { Timestamp } from 'firebase/firestore';
 import { MessageSquare, MoreVertical, Trash2, Edit, Share2 } from 'lucide-react';
-import { cn, formatUsername } from '@/lib/utils';
+import { cn, formatUsername, formatTimestamp } from '@/lib/utils';
 import { useAuthActions } from '@/hooks/use-auth-actions';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -64,12 +63,6 @@ export function PostCard({ post, voteAction }: PostCardProps) {
   const getInitials = (name: string) => {
     if (!name) return '';
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
-  }
-
-  const formatTimestamp = (timestamp: any) => {
-    if (!timestamp) return 'Just now';
-    const date = timestamp instanceof Timestamp ? timestamp.toDate() : new Date(timestamp);
-    return formatDistanceToNow(date, { addSuffix: true });
   }
 
   const isOwner = user?.uid === post.uid;

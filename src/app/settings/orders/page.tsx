@@ -6,9 +6,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
-import { format } from 'date-fns';
 import { Loader2, Package, PackageCheck, PackageX, ShoppingBag } from 'lucide-react';
 import type { Product } from '@/components/features/marketplace-client';
+import { formatTimestamp } from '@/lib/utils';
 
 type OrderItem = Product & { quantity: number };
 
@@ -85,7 +85,7 @@ export default function MyOrdersPage() {
                                 <div>
                                     <CardTitle className="text-base font-medium">Order #{order.id.slice(0, 8).toUpperCase()}</CardTitle>
                                     <CardDescription>
-                                        Placed on {format(order.createdAt.toDate(), 'PPP')}
+                                        Placed on {formatTimestamp(order.createdAt, { format: 'full', addSuffix: false })}
                                     </CardDescription>
                                 </div>
                                 <div className="text-right">

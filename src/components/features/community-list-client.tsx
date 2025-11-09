@@ -28,9 +28,8 @@ import {
 } from '@/components/ui/alert-dialog';
 import { useAuthActions } from '@/hooks/use-auth-actions';
 import { useToast } from '@/hooks/use-toast';
-import { formatDistanceToNow } from 'date-fns';
 import { useUserProfileDialog } from '@/context/user-profile-dialog-provider';
-import { formatUsername } from '@/lib/utils';
+import { formatUsername, formatTimestamp } from '@/lib/utils';
 import type { UserProfile } from '@/types';
 
 type Community = {
@@ -62,12 +61,6 @@ export function CommunityListClient() {
     }, [firestore]);
 
     const { data: communities, loading } = useCollection<Community>(communitiesQuery);
-
-    const formatTimestamp = (timestamp: any) => {
-        if (!timestamp) return 'Just now';
-        const date = timestamp instanceof Timestamp ? timestamp.toDate() : new Date(timestamp);
-        return formatDistanceToNow(date, { addSuffix: true });
-      }
 
     const handleDelete = async () => {
         if (!communityToDelete) return;

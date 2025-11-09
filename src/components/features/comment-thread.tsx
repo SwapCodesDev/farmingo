@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { formatDistanceToNow } from 'date-fns';
 import { Timestamp } from 'firebase/firestore';
 import type { Comment } from '@/lib/actions/community';
 import { useUser } from '@/firebase';
@@ -11,7 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Loader2, MessageSquare, MoreVertical, Edit, Trash2, Pin, PinOff } from 'lucide-react';
-import { cn, formatUsername } from '@/lib/utils';
+import { cn, formatUsername, formatTimestamp } from '@/lib/utils';
 import {
   Collapsible,
   CollapsibleContent,
@@ -132,12 +131,6 @@ export function CommentThread({ comment, allComments, postId, postAuthorId, isPo
   const getInitials = (name: string) => {
     if (!name) return '';
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
-  };
-
-  const formatTimestamp = (timestamp: any) => {
-    if (!timestamp) return 'Just now';
-    const date = timestamp instanceof Timestamp ? timestamp.toDate() : new Date(timestamp);
-    return formatDistanceToNow(date, { addSuffix: true });
   };
 
   return (

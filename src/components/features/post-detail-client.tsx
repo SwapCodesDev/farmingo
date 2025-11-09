@@ -8,7 +8,6 @@ import { useMemo, useState, useRef, useEffect } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { formatDistanceToNow } from 'date-fns';
 import { useAuthActions } from '@/hooks/use-auth-actions';
 import { Loader2, MessageSquare, Share2, ArrowLeft, MoreVertical, Edit, Trash2, Pin } from 'lucide-react';
 import Image from 'next/image';
@@ -36,7 +35,7 @@ import { EditPostDialog } from './edit-post-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { useUserProfileDialog } from '@/context/user-profile-dialog-provider';
-import { formatUsername } from '@/lib/utils';
+import { formatUsername, formatTimestamp } from '@/lib/utils';
 import type { UserProfile } from '@/types';
 import { Separator } from '../ui/separator';
 import ReactMarkdown from 'react-markdown';
@@ -134,12 +133,6 @@ export function PostDetailClient({ postId }: PostDetailClientProps) {
   const getInitials = (name: string) => {
     if (!name) return '';
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
-  };
-
-  const formatTimestamp = (timestamp: any) => {
-    if (!timestamp) return 'Just now';
-    const date = timestamp instanceof Timestamp ? timestamp.toDate() : new Date(timestamp);
-    return formatDistanceToNow(date, { addSuffix: true });
   };
   
   if (postLoading || commentsLoading) {

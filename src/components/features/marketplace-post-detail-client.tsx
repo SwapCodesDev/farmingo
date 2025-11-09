@@ -7,7 +7,6 @@ import { useMemo, useState, useRef, useEffect } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { formatDistanceToNow } from 'date-fns';
 import { Loader2, ArrowLeft, MoreVertical, Edit, Trash2, Tag, Tractor, Wrench, MessageSquare, Share2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -38,7 +37,7 @@ import {
     AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { EditMarketplacePostDialog } from './edit-marketplace-post-dialog';
-import { formatUsername } from '@/lib/utils';
+import { formatUsername, formatTimestamp } from '@/lib/utils';
 import type { UserProfile } from '@/types';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -124,12 +123,6 @@ export function MarketplacePostDetailClient({ postId }: MarketplacePostDetailCli
   const getInitials = (name: string) => {
     if (!name) return '';
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
-  };
-
-  const formatTimestamp = (timestamp: any) => {
-    if (!timestamp) return 'Just now';
-    const date = timestamp instanceof Timestamp ? timestamp.toDate() : new Date(timestamp);
-    return formatDistanceToNow(date, { addSuffix: true });
   };
 
   const getConditionIcon = () => {
