@@ -22,8 +22,11 @@ export function UserProfileDialog({
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl h-[90vh] flex flex-col p-0">
+        <DialogHeader>
+            <DialogTitle className="sr-only">{username}'s Profile</DialogTitle>
+        </DialogHeader>
         <ScrollArea className="flex-grow">
-            <div className="p-6">
+            <div className="p-6 pt-0">
                 {username && <UserProfileClient username={username} />}
             </div>
         </ScrollArea>
