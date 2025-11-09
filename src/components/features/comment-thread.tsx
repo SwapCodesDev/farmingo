@@ -74,7 +74,7 @@ export function CommentThread({ comment, allComments, postId, postAuthorId, isPo
   const isPinned = pinnedCommentId === comment.id;
   const isOwner = user?.uid === comment.uid;
   const isCommentByPostAuthor = comment.uid === postAuthorId;
-  const isBaseComment = !comment.parentId;
+  
 
   const childComments = useMemo(() => {
     return allComments.filter(c => c.parentId === comment.id);
@@ -163,7 +163,7 @@ export function CommentThread({ comment, allComments, postId, postAuthorId, isPo
                 {formatUsername(comment.author, comment.authorRole)}
               </button>
               {isCommentByPostAuthor && <Badge variant="secondary">Author</Badge>}
-              {isPinned && <Badge variant="default" className="bg-primary/80"><Pin className="h-3 w-3 mr-1" /> Pinned</Badge>}
+              {isPinned && <Badge variant="default" className="bg-primary/80"><Pin className="mr-1 h-3 w-3" /> Pinned</Badge>}
               <p className="text-muted-foreground">•</p>
               <p className="text-muted-foreground">
                 {formatTimestamp(comment.createdAt)}
@@ -175,7 +175,7 @@ export function CommentThread({ comment, allComments, postId, postAuthorId, isPo
                   {isOpen ? '[-]' : `[+${childComments.length}]`}
                 </span>
               </CollapsibleTrigger>
-                {(isOwner || (isPostAuthor && isBaseComment)) && (
+                {(isOwner || isPostAuthor) && (
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="icon" className="h-6 w-6">
@@ -183,7 +183,7 @@ export function CommentThread({ comment, allComments, postId, postAuthorId, isPo
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                            {isPostAuthor && isBaseComment && (
+                            {isPostAuthor && (
                                 <DropdownMenuItem onClick={handlePin}>
                                     {isPinned ? <PinOff className="mr-2 h-4 w-4" /> : <Pin className="mr-2 h-4 w-4" />}
                                     <span>{isPinned ? 'Unpin' : 'Pin'} Comment</span>
@@ -325,3 +325,5 @@ export function CommentThread({ comment, allComments, postId, postAuthorId, isPo
     </>
   );
 }
+
+    

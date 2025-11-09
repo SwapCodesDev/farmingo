@@ -91,7 +91,7 @@ export function PostDetailClient({ postId }: PostDetailClientProps) {
     return query(collection(firestore, `posts/${postId}/comments`), orderBy('createdAt', 'asc'));
   }, [firestore, postId]);
 
-  const { data: comments } = useCollection<Comment & { createdAt: Timestamp | Date | string, parentId: string | null, id: string, commentCount?: number, authorRole?: UserProfile['role'] }>(commentsQuery);
+  const { data: comments, loading: commentsLoading } = useCollection<Comment & { createdAt: Timestamp | Date | string, parentId: string | null, id: string, commentCount?: number, authorRole?: UserProfile['role'] }>(commentsQuery);
 
   const isPostAuthor = user?.uid === post?.uid;
   
@@ -154,7 +154,7 @@ export function PostDetailClient({ postId }: PostDetailClientProps) {
     return formatDistanceToNow(date, { addSuffix: true });
   };
   
-  if (postLoading) {
+  if (postLoading || commentsLoading) {
     return <p>Loading post...</p>
   }
   
@@ -342,3 +342,5 @@ export function PostDetailClient({ postId }: PostDetailClientProps) {
     </div>
   );
 }
+
+    
