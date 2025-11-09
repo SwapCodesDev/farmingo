@@ -151,6 +151,7 @@ export async function addComment(
   const newCommentRef = doc(commentsCollection);
 
   const newComment = {
+    id: newCommentRef.id,
     uid: user.uid,
     author: username,
     authorPhotoURL: user.photoURL || '',
