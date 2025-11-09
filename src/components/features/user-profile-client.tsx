@@ -99,11 +99,11 @@ export function UserProfileClient({ username }: UserProfileClientProps) {
   return (
     <div className="space-y-8">
        <Card className="overflow-hidden">
-        <div className="relative h-36 w-full bg-muted">
+        <div className="relative h-24 sm:h-36 w-full bg-muted">
              {/* Banner Image can be added here */}
         </div>
-        <CardContent className="relative flex flex-col items-center justify-center pt-0 pb-6 -mt-16 text-center">
-            <Avatar className="h-32 w-32 border-4 border-background">
+        <CardContent className="relative flex flex-col items-center justify-center pt-0 pb-6 -mt-12 sm:-mt-16 text-center">
+            <Avatar className="h-24 w-24 sm:h-32 sm:w-32 border-4 border-background">
               <AvatarImage
                 src={userProfile.photoURL ?? undefined}
                 alt={userProfile.displayName}
@@ -113,24 +113,24 @@ export function UserProfileClient({ username }: UserProfileClientProps) {
               </AvatarFallback>
             </Avatar>
             <div className="mt-4">
-                <h1 className="text-3xl font-bold font-headline">
+                <h1 className="text-2xl sm:text-3xl font-bold font-headline">
                     {userProfile.displayName}
                 </h1>
-                <p className="text-base text-muted-foreground">
+                <p className="text-sm sm:text-base text-muted-foreground">
                     {formatUsername(userProfile.username, userProfile.role)}
                 </p>
-                <div className="flex items-center justify-center pt-2 text-sm text-muted-foreground">
+                <div className="flex items-center justify-center pt-2 text-xs sm:text-sm text-muted-foreground">
                     <Calendar className="mr-2 h-4 w-4" />
                     Joined on {format(joinDate, 'MMMM d, yyyy')}
                 </div>
             </div>
              {!isOwnProfile && currentUser && (
                 <div className='flex items-center gap-2 mt-4'>
-                    <Button>
+                    <Button size="sm">
                         <UserPlus className='mr-2 h-4 w-4' />
                         Follow
                     </Button>
-                    <Button variant='outline' onClick={handleStartConversation} disabled={isCreatingConversation}>
+                    <Button size="sm" variant='outline' onClick={handleStartConversation} disabled={isCreatingConversation}>
                         {isCreatingConversation ? (
                             <Loader2 className='mr-2 h-4 w-4 animate-spin' />
                         ) : (

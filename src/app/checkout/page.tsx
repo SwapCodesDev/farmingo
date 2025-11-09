@@ -130,8 +130,8 @@ export default function CheckoutPage() {
           <p className="text-muted-foreground">Complete your order by providing the details below.</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="md:col-span-2">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2">
             <Card>
               <CardHeader>
                 <CardTitle>Shipping & Payment</CardTitle>
@@ -320,7 +320,7 @@ export default function CheckoutPage() {
               </CardContent>
             </Card>
           </div>
-          <div className="md:col-span-1">
+          <div className="lg:col-span-1">
             <Card className="sticky top-20">
               <CardHeader>
                 <CardTitle>Order Summary</CardTitle>

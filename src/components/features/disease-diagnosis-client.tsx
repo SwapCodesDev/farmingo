@@ -62,7 +62,7 @@ export function DiseaseDiagnosisClient() {
   };
 
   return (
-    <div className="grid gap-8 md:grid-cols-2">
+    <div className="grid gap-8 lg:grid-cols-2">
       <Card className="flex flex-col">
         <CardHeader>
           <CardTitle className="font-headline">Upload Crop Photo</CardTitle>
@@ -133,7 +133,7 @@ export function DiseaseDiagnosisClient() {
         {result && (
           <Card className="w-full animate-in fade-in-50">
             <CardHeader>
-              <CardTitle className="font-headline text-2xl flex items-center justify-between">
+              <CardTitle className="font-headline text-2xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                 <span>Diagnosis Result</span>
                 <Badge variant="outline" className="text-base">{(result.confidence * 100).toFixed(0)}% Confident</Badge>
               </CardTitle>

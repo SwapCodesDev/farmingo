@@ -105,8 +105,8 @@ export function MarketplacePostCard({ post, voteAction }: MarketplacePostCardPro
                         {formatUsername(post.author, post.authorRole)}
                     </button>
                 </span>
-                <span>•</span>
-                <span>{formatTimestamp(post.createdAt)}</span>
+                <span className="hidden sm:inline">•</span>
+                <span className="hidden sm:inline">{formatTimestamp(post.createdAt)}</span>
                 {isOwner && (
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -133,7 +133,7 @@ export function MarketplacePostCard({ post, voteAction }: MarketplacePostCardPro
 
             <Link href={postUrl} className='cursor-pointer group flex-grow'>
                 <h2 className="font-bold text-lg mt-2 group-hover:underline">{post.itemName}</h2>
-                <div className='flex items-center gap-4 my-2 text-sm'>
+                <div className='flex items-center gap-2 flex-wrap my-2 text-sm'>
                     <Badge variant="outline" className="flex items-center gap-2">
                         {getConditionIcon()}
                         {post.condition}

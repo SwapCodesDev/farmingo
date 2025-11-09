@@ -1,25 +1,49 @@
-// This is now a Server Component
+'use client';
 import { ConversationClient } from '@/components/features/conversation-client';
+import { MessagesClient } from '@/components/features/messages-client';
+import { useUser } from '@/firebase';
+import { cn } from '@/lib/utils';
 import { Suspense } from 'react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
-// The page component is now async and receives params directly.
-export default async function ConversationPage({
+export default function ConversationPage({
   params,
 }: {
   params: { conversationId: string };
 }) {
+    const { user, loading } = useUser();
+    const isMobile = useIsMobile();
 
-  // We are removing the user check from this component.
-  // The user check will now happen inside the ConversationClient component,
-  // which is more appropriate for a client-side concern.
+    if (loading) {
+        return <p>Loading...</p>
+    }
 
+    if (!user) {
+        return null;
+    }
+
+    if (isMobile) {
+        return (
+            <div className="h-[calc(100vh-8.5rem)]">
+              <Suspense fallback={<p>Loading conversation...</p>}>
+                <ConversationClient conversationId={params.conversationId} />
+              </Suspense>
+            </div>
+        );
+    }
+  
   return (
-    <div className="h-[calc(100vh-8.5rem)]">
-      <Suspense fallback={<p>Loading conversation...</p>}>
-        {/* We pass the conversationId directly to the client component.
-            The currentUser will be fetched via the useUser hook within ConversationClient. */}
-        <ConversationClient conversationId={params.conversationId} />
-      </Suspense>
+    <div className="h-[calc(100vh-8.5rem)] md:grid md:grid-cols-3 lg:grid-cols-4 md:gap-4">
+        <div className="md:col-span-1">
+            <Suspense fallback={<p>Loading conversations...</p>}>
+                <MessagesClient currentUser={user} />
+            </Suspense>
+        </div>
+        <div className="md:col-span-2 lg:col-span-3 h-full">
+            <Suspense fallback={<p>Loading conversation...</p>}>
+                <ConversationClient conversationId={params.conversationId} />
+            </Suspense>
+        </div>
     </div>
   );
 }

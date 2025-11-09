@@ -1,5 +1,5 @@
 'use client';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -14,6 +14,8 @@ import { useFirestore } from '@/firebase';
 import { collection, query, where, Timestamp } from 'firebase/firestore';
 import { useCollection } from '@/firebase/firestore/use-collection';
 import { formatDistanceToNow } from 'date-fns';
+import { useIsMobile } from '@/hooks/use-mobile';
+
 
 type ConversationDoc = {
     id: string;
@@ -34,6 +36,8 @@ interface MessagesClientProps {
 export function MessagesClient({ currentUser }: MessagesClientProps) {
   const pathname = usePathname();
   const firestore = useFirestore();
+  const [searchTerm, setSearchTerm] = useState('');
+  const isMobile = useIsMobile();
 
   const conversationsQuery = useMemo(() => {
     if (!firestore) return null;
@@ -45,14 +49,22 @@ export function MessagesClient({ currentUser }: MessagesClientProps) {
 
   const { data: conversations, loading } = useCollection<ConversationDoc>(conversationsQuery);
   
-  const sortedConversations = useMemo(() => {
+  const sortedAndFilteredConversations = useMemo(() => {
     if (!conversations) return [];
-    return [...conversations].sort((a, b) => {
+    
+    const filtered = conversations.filter(conv => {
+        const otherParticipantId = conv.participants.find(p => p !== currentUser.uid);
+        if (!otherParticipantId) return false;
+        const otherDetails = conv.participantDetails[otherParticipantId];
+        return otherDetails.username.toLowerCase().includes(searchTerm.toLowerCase());
+    });
+
+    return filtered.sort((a, b) => {
         const dateA = a.lastMessage.createdAt instanceof Timestamp ? a.lastMessage.createdAt.toDate() : new Date();
         const dateB = b.lastMessage.createdAt instanceof Timestamp ? b.lastMessage.createdAt.toDate() : new Date();
         return dateB.getTime() - dateA.getTime();
     });
-  }, [conversations]);
+  }, [conversations, currentUser.uid, searchTerm]);
 
 
   const getInitials = (name: string) => {
@@ -61,9 +73,19 @@ export function MessagesClient({ currentUser }: MessagesClientProps) {
   };
 
   const selectedConvId = pathname.split('/').pop();
+  
+  if (!isMobile && selectedConvId === 'messages') {
+    return (
+        <div className="hidden md:flex flex-col items-center justify-center h-full text-center text-muted-foreground p-8">
+            <MessageSquare className="h-16 w-16 mb-4" />
+            <h2 className="text-xl font-semibold">Select a conversation</h2>
+            <p>Choose from your existing conversations on the left, or start a new one.</p>
+        </div>
+    )
+  }
 
   return (
-    <Card className="overflow-hidden">
+    <Card className="overflow-hidden h-full">
       <div className="p-4 border-b">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-bold font-headline">Conversations</h2>
@@ -73,15 +95,17 @@ export function MessagesClient({ currentUser }: MessagesClientProps) {
         </div>
         <div className="relative mt-4">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Search messages..." className="pl-9" />
+          <Input placeholder="Search messages..." className="pl-9" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
         </div>
       </div>
       <ScrollArea className="h-[calc(100vh-22rem)]">
         {loading && <p className="p-4 text-center text-muted-foreground">Loading conversations...</p>}
-        {!loading && sortedConversations?.length === 0 && (
-            <p className="p-4 text-center text-muted-foreground">You have no conversations yet.</p>
+        {!loading && sortedAndFilteredConversations?.length === 0 && (
+            <p className="p-4 text-center text-muted-foreground">
+                {searchTerm ? `No conversations found for "${searchTerm}".` : "You have no conversations yet."}
+            </p>
         )}
-        {sortedConversations?.map((conv) => {
+        {sortedAndFilteredConversations?.map((conv) => {
             const otherParticipantId = conv.participants.find(p => p !== currentUser.uid);
             const otherParticipantDetails = otherParticipantId ? conv.participantDetails[otherParticipantId] : null;
 
@@ -115,7 +139,7 @@ export function MessagesClient({ currentUser }: MessagesClientProps) {
                 <div className="flex-1 overflow-hidden">
                 <div className="flex justify-between items-center">
                     <p className={cn("font-semibold truncate", isUnread && "text-primary")}>{otherParticipantDetails.username}</p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-muted-foreground flex-shrink-0 ml-2">
                         {formatDistanceToNow(lastMessageDate, { addSuffix: true })}
                     </p>
                 </div>
