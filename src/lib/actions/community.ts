@@ -191,6 +191,57 @@ export async function addComment(
   });
 }
 
+export function updateComment(
+    firestore: Firestore,
+    postId: string,
+    commentId: string,
+    text: string
+) {
+    const commentRef = doc(firestore, 'posts', postId, 'comments', commentId);
+    const updateData = { text, updatedAt: serverTimestamp() };
+
+    updateDoc(commentRef, updateData).catch(async (serverError) => {
+        const permissionError = new FirestorePermissionError({
+            path: commentRef.path,
+            operation: 'update',
+            requestResourceData: updateData,
+        });
+        errorEmitter.emit('permission-error', permissionError);
+        throw serverError;
+    });
+}
+
+export function deleteComment(firestore: Firestore, postId: string, commentId: string) {
+    const commentRef = doc(firestore, 'posts', postId, 'comments', commentId);
+    const postRef = doc(firestore, 'posts', postId);
+
+    runTransaction(firestore, async (transaction) => {
+        const commentDoc = await transaction.get(commentRef);
+        if (!commentDoc.exists()) {
+            throw new Error("Comment does not exist");
+        }
+
+        const commentData = commentDoc.data();
+        transaction.delete(commentRef);
+
+        // If it was a top-level comment, decrement the post's comment count
+        if (!commentData.parentId) {
+            transaction.update(postRef, { commentCount: increment(-1) });
+        } else {
+            // If it was a reply, decrement the parent's replyCount
+            const parentCommentRef = doc(firestore, 'posts', postId, 'comments', commentData.parentId);
+            transaction.update(parentCommentRef, { replyCount: increment(-1) });
+        }
+    }).catch((serverError) => {
+        const permissionError = new FirestorePermissionError({
+            path: commentRef.path,
+            operation: 'delete',
+        });
+        errorEmitter.emit('permission-error', permissionError);
+        throw serverError;
+    });
+}
+
 export function voteOnPost(
   firestore: Firestore,
   userId: string,

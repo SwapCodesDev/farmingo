@@ -10,15 +10,33 @@ import { useUserProfileDialog } from '@/context/user-profile-dialog-provider';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Loader2, MessageSquare } from 'lucide-react';
+import { Loader2, MessageSquare, MoreVertical, Edit, Trash2 } from 'lucide-react';
 import { cn, formatUsername } from '@/lib/utils';
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { CommentVoteControl } from './comment-vote-control';
 import type { UserProfile } from '@/types';
+import { useAuthActions } from '@/hooks/use-auth-actions';
+import { useToast } from '@/hooks/use-toast';
 
 
 type CommentWithId = Comment & { id: string; createdAt: Timestamp | Date | string; parentId: string | null; upvotes?: string[]; downvotes?: string[]; authorRole?: UserProfile['role'] };
@@ -36,10 +54,20 @@ interface CommentThreadProps {
 export function CommentThread({ comment, allComments, postId, commentAction, voteAction, depth = 0 }: CommentThreadProps) {
   const { user } = useUser();
   const { showProfile } = useUserProfileDialog();
+  const { updateComment, deleteComment } = useAuthActions();
+  const { toast } = useToast();
+
   const [isReplying, setIsReplying] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  
   const [replyText, setReplyText] = useState('');
+  const [editText, setEditText] = useState(comment.text);
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isOpen, setIsOpen] = useState(true);
+
+  const isOwner = user?.uid === comment.uid;
 
   const childComments = useMemo(() => {
     return allComments.filter(c => c.parentId === comment.id);
@@ -59,6 +87,30 @@ export function CommentThread({ comment, allComments, postId, commentAction, vot
     }
   };
 
+  const handleEditSubmit = async () => {
+    if (!editText.trim()) return;
+    setIsSubmitting(true);
+    try {
+        await updateComment(postId, comment.id, editText);
+        setIsEditing(false);
+        toast({ title: "Comment updated!" });
+    } catch (error: any) {
+        toast({ variant: 'destructive', title: "Failed to update comment", description: error.message });
+    } finally {
+        setIsSubmitting(false);
+    }
+  }
+
+  const handleDelete = async () => {
+    try {
+        await deleteComment(postId, comment.id);
+        toast({ title: "Comment deleted" });
+    } catch(error: any) {
+        toast({ variant: 'destructive', title: "Failed to delete comment", description: error.message });
+    }
+    setIsDeleting(false);
+  }
+
   const getInitials = (name: string) => {
     if (!name) return '';
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
@@ -71,6 +123,7 @@ export function CommentThread({ comment, allComments, postId, commentAction, vot
   };
 
   return (
+    <>
     <Collapsible open={isOpen} onOpenChange={setIsOpen} className={cn('flex gap-3', depth > 0 && 'ml-6')}>
       <div className="flex flex-col items-center">
         <Avatar className="h-8 w-8 cursor-pointer" onClick={() => showProfile(comment.author)}>
@@ -96,28 +149,82 @@ export function CommentThread({ comment, allComments, postId, commentAction, vot
                 {formatTimestamp(comment.createdAt)}
               </p>
             </div>
-            <CollapsibleTrigger asChild>
-              <span className="cursor-pointer text-muted-foreground hover:text-primary">
-                {isOpen ? '[-]' : `[+${childComments.length}]`}
-              </span>
-            </CollapsibleTrigger>
+            <div className="flex items-center">
+              <CollapsibleTrigger asChild>
+                <span className="cursor-pointer text-muted-foreground hover:text-primary mr-2">
+                  {isOpen ? '[-]' : `[+${childComments.length}]`}
+                </span>
+              </CollapsibleTrigger>
+                {isOwner && (
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-6 w-6">
+                                <MoreVertical className="h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => { setIsEditing(true); setIsReplying(false) }}>
+                                <Edit className="mr-2 h-4 w-4" />
+                                <span>Edit</span>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setIsDeleting(true)} className="text-destructive">
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                <span>Delete</span>
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                )}
+            </div>
           </div>
 
           <CollapsibleContent>
-            <p className="text-sm mt-2">{comment.text}</p>
-            <div className="flex items-center gap-2 mt-3 text-muted-foreground -ml-1">
-               <CommentVoteControl postId={postId} comment={comment} voteAction={voteAction} />
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-auto px-3 py-1 text-xs bg-muted/50 hover:bg-muted rounded-full"
-                onClick={() => setIsReplying(!isReplying)}
-                disabled={!user}
-              >
-                <MessageSquare className="mr-1 h-3 w-3" />
-                Reply
-              </Button>
-            </div>
+            {isEditing ? (
+                 <div className="mt-3 flex flex-col gap-2">
+                    <Textarea
+                        value={editText}
+                        onChange={(e) => setEditText(e.target.value)}
+                        rows={2}
+                        className="text-sm"
+                    />
+                    <div className="flex justify-end gap-2">
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setIsEditing(false)}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            size="sm"
+                            onClick={handleEditSubmit}
+                            disabled={isSubmitting || !editText.trim()}
+                        >
+                            {isSubmitting && (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            )}
+                            Save
+                        </Button>
+                    </div>
+                </div>
+            ) : (
+                <>
+                <p className="text-sm mt-2">{comment.text}</p>
+                <div className="flex items-center gap-2 mt-3 text-muted-foreground -ml-1">
+                <CommentVoteControl postId={postId} comment={comment} voteAction={voteAction} />
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-auto px-3 py-1 text-xs bg-muted/50 hover:bg-muted rounded-full"
+                    onClick={() => { setIsReplying(!isReplying); setIsEditing(false); }}
+                    disabled={!user}
+                >
+                    <MessageSquare className="mr-1 h-3 w-3" />
+                    Reply
+                </Button>
+                </div>
+                </>
+            )}
+
             {isReplying && (
               <div className="mt-3 flex flex-col gap-2">
                 <Textarea
@@ -165,5 +272,22 @@ export function CommentThread({ comment, allComments, postId, commentAction, vot
         </div>
       </div>
     </Collapsible>
+     <AlertDialog open={isDeleting} onOpenChange={setIsDeleting}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure you want to delete this comment?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }

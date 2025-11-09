@@ -7,6 +7,8 @@ import {
   voteOnPost as voteOnPostAction,
   deletePost as deletePostAction,
   voteOnComment as voteOnCommentAction,
+  updateComment as updateCommentAction,
+  deleteComment as deleteCommentAction,
   createCommunity as createCommunityAction,
   updateCommunity as updateCommunityAction,
   deleteCommunity as deleteCommunityAction,
@@ -66,6 +68,37 @@ export function useAuthActions() {
     },
     [user, firestore, toast]
   );
+
+  const updateComment = useCallback(
+    async (postId: string, commentId: string, text: string) => {
+      if (!user || !firestore) {
+        toast({
+          variant: 'destructive',
+          title: 'Not authenticated',
+          description: 'You must be logged in to update a comment.',
+        });
+        throw new Error('User not authenticated');
+      }
+      return updateCommentAction(firestore, postId, commentId, text);
+    },
+    [user, firestore, toast]
+  );
+
+  const deleteComment = useCallback(
+    async (postId: string, commentId: string) => {
+      if (!user || !firestore) {
+        toast({
+          variant: 'destructive',
+          title: 'Not authenticated',
+          description: 'You must be logged in to delete a comment.',
+        });
+        throw new Error('User not authenticated');
+      }
+      return deleteCommentAction(firestore, postId, commentId);
+    },
+    [user, firestore, toast]
+  );
+
 
   const voteOnPost = useCallback(
     async (postId: string, vote: 'up' | 'down') => {
@@ -158,5 +191,5 @@ export function useAuthActions() {
   );
 
 
-  return { createPost, updatePost, addComment, voteOnPost, deletePost, voteOnComment, createCommunity, updateCommunity, deleteCommunity };
+  return { createPost, updatePost, addComment, voteOnPost, deletePost, voteOnComment, updateComment, deleteComment, createCommunity, updateCommunity, deleteCommunity };
 }
