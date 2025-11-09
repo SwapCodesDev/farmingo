@@ -154,28 +154,58 @@ export function ProfileSettings() {
 
   return (
     <div className="space-y-6">
-       <Card>
-          <CardHeader>
-            <CardTitle>Profile</CardTitle>
-            <CardDescription>This is how others will see you on the site.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-6"
-              >
-                <FormField
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          <Card>
+            <CardHeader>
+              <CardTitle>Profile</CardTitle>
+              <CardDescription>This is how others will see you on the site.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <FormField
+                control={form.control}
+                name="username"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Username</FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          placeholder="your_username"
+                          className="pl-9"
+                          {...field}
+                        />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="displayName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Display Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Your Name" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
                   control={form.control}
-                  name="username"
+                  name="region"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Username</FormLabel>
+                      <FormLabel>Region</FormLabel>
                       <FormControl>
                         <div className="relative">
-                          <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                          <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                           <Input
-                            placeholder="your_username"
+                            placeholder="e.g., Punjab"
                             className="pl-9"
                             {...field}
                           />
@@ -185,52 +215,21 @@ export function ProfileSettings() {
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="displayName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Display Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Your Name" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
+            </CardContent>
+            <CardFooter>
+              <Button
+                  type="submit"
+                  disabled={isLoading || !form.formState.isDirty}
+                >
+                  {isLoading && (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   )}
-                />
-                <FormField
-                    control={form.control}
-                    name="region"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Region</FormLabel>
-                        <FormControl>
-                          <div className="relative">
-                            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                            <Input
-                              placeholder="e.g., Punjab"
-                              className="pl-9"
-                              {...field}
-                            />
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                 <Button
-                    type="submit"
-                    disabled={isLoading || !form.formState.isDirty}
-                  >
-                    {isLoading && (
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    )}
-                    Update profile
-                  </Button>
-              </form>
-            </Form>
-          </CardContent>
-       </Card>
+                  Update profile
+              </Button>
+            </CardFooter>
+          </Card>
+        </form>
+      </Form>
 
         <Card>
         <CardHeader>
