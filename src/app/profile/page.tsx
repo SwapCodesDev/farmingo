@@ -16,8 +16,6 @@ import {
   Card,
   CardContent,
   CardHeader,
-  CardTitle,
-  CardDescription,
 } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Calendar, Edit, Loader2 } from 'lucide-react';
@@ -28,6 +26,7 @@ import Link from 'next/link';
 import { formatUsername } from '@/lib/utils';
 import type { UserProfile } from '@/types';
 import type { Post } from '@/lib/actions/community';
+import Image from 'next/image';
 
 export default function ProfilePage() {
   const { user, loading: userLoading } = useUser();
@@ -91,36 +90,44 @@ export default function ProfilePage() {
 
   return (
     <div className="space-y-8">
-      <Card>
-        <CardHeader className="relative p-6">
-          <div className="flex items-center space-x-6">
-            <Avatar className="h-24 w-24 border-4 border-background">
-              <AvatarImage
-                src={userProfile.photoURL ?? undefined}
-                alt={userProfile.displayName}
-              />
-              <AvatarFallback className="text-3xl">
-                {getInitials(userProfile.displayName)}
-              </AvatarFallback>
-            </Avatar>
-            <div className="space-y-1">
-              <CardTitle className="text-3xl font-headline">
-                {userProfile.displayName}
-              </CardTitle>
-              <CardDescription className="text-base">
-                {formatUsername(userProfile.username, userProfile.role)}
-              </CardDescription>
-              <div className="flex items-center pt-2 text-sm text-muted-foreground">
-                <Calendar className="mr-2 h-4 w-4" />
-                Joined on {format(userProfile.createdAt.toDate(), 'MMMM d, yyyy')}
-              </div>
-            </div>
-          </div>
-           <Button asChild variant="outline" size="icon" className="absolute top-4 right-4">
+      <Card className="overflow-hidden">
+        <div className="relative h-48 w-full bg-muted">
+            <Image 
+                src="https://picsum.photos/seed/profilebanner/1200/400"
+                alt="Profile banner"
+                layout="fill"
+                objectFit="cover"
+                className="object-cover"
+                data-ai-hint="landscape abstract"
+            />
+             <Button asChild variant="outline" size="icon" className="absolute top-4 right-4 bg-background/50 backdrop-blur-sm hover:bg-background/75">
               <Link href="/settings/profile">
                 <Edit className="h-4 w-4" />
               </Link>
             </Button>
+        </div>
+        <CardHeader className="relative flex flex-col items-center justify-center pt-0 pb-6 -mt-16">
+            <Avatar className="h-32 w-32 border-4 border-background">
+              <AvatarImage
+                src={userProfile.photoURL ?? undefined}
+                alt={userProfile.displayName}
+              />
+              <AvatarFallback className="text-4xl">
+                {getInitials(userProfile.displayName)}
+              </AvatarFallback>
+            </Avatar>
+            <div className="text-center mt-4">
+                <h1 className="text-3xl font-bold font-headline">
+                    {userProfile.displayName}
+                </h1>
+                <p className="text-base text-muted-foreground">
+                    {formatUsername(userProfile.username, userProfile.role)}
+                </p>
+                <div className="flex items-center justify-center pt-2 text-sm text-muted-foreground">
+                    <Calendar className="mr-2 h-4 w-4" />
+                    Joined on {format(userProfile.createdAt.toDate(), 'MMMM d, yyyy')}
+                </div>
+            </div>
         </CardHeader>
       </Card>
 
