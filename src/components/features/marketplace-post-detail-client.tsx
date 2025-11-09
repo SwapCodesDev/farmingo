@@ -177,14 +177,14 @@ export function MarketplacePostDetailClient({ postId }: MarketplacePostDetailCli
 
   return (
     <div className="max-w-4xl mx-auto">
-        <Button asChild variant="ghost" className="mb-4">
+        <Button asChild variant="ghost" className="mb-4 -ml-4">
             <Link href="/marketplace">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Back to Marketplace
             </Link>
         </Button>
         <Card>
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
                  <div className="flex flex-col md:flex-row items-start gap-6">
                     <div className="w-full md:w-1/2">
                         <div className="relative aspect-square w-full">
@@ -192,7 +192,7 @@ export function MarketplacePostDetailClient({ postId }: MarketplacePostDetailCli
                         </div>
                     </div>
                     <div className="w-full md:w-1/2">
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground mb-4">
+                        <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground mb-4">
                             <div className="flex items-center gap-2 bg-muted/50 hover:bg-muted rounded-full p-1 pr-2">
                                 <Avatar className="h-5 w-5 cursor-pointer" onClick={() => showProfile(post.author)}>
                                 <AvatarImage src={post.authorPhotoURL} alt={post.author} />
@@ -290,8 +290,11 @@ export function MarketplacePostDetailClient({ postId }: MarketplacePostDetailCli
                         comment={{...comment, parentId: comment.parentId || null }}
                         allComments={comments || []}
                         postId={post.id}
+                        postAuthorId={post.uid}
+                        isPostAuthor={isOwner}
                         commentAction={async (postId, text, parentId) => { handleAddComment(text, parentId) }}
                         voteAction={async (postId, commentId, vote) => { handleVoteOnComment(commentId, vote)}}
+                        pinAction={async () => { /* Not implemented for marketplace */}}
                     />
                 ))}
             </div>

@@ -47,15 +47,15 @@ interface CommentThreadProps {
   allComments: CommentWithId[];
   postId: string;
   postAuthorId: string;
-  isPinned?: boolean;
   isPostAuthor: boolean;
   depth?: number;
   commentAction: (postId: string, text: string, parentId: string | null) => Promise<void>;
   voteAction: (postId: string, commentId: string, vote: 'up' | 'down') => Promise<void>;
   pinAction: (postId: string, commentId: string | null) => Promise<void>;
+  pinnedCommentId?: string | null;
 }
 
-export function CommentThread({ comment, allComments, postId, postAuthorId, isPinned = false, isPostAuthor, commentAction, voteAction, pinAction, depth = 0 }: CommentThreadProps) {
+export function CommentThread({ comment, allComments, postId, postAuthorId, isPostAuthor, pinnedCommentId, commentAction, voteAction, pinAction, depth = 0 }: CommentThreadProps) {
   const { user } = useUser();
   const { showProfile } = useUserProfileDialog();
   const { updateComment, deleteComment } = useAuthActions();
@@ -71,8 +71,10 @@ export function CommentThread({ comment, allComments, postId, postAuthorId, isPi
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isOpen, setIsOpen] = useState(true);
 
+  const isPinned = pinnedCommentId === comment.id;
   const isOwner = user?.uid === comment.uid;
   const isCommentByPostAuthor = comment.uid === postAuthorId;
+  const isBaseComment = !comment.parentId;
 
   const childComments = useMemo(() => {
     return allComments.filter(c => c.parentId === comment.id);
@@ -140,7 +142,7 @@ export function CommentThread({ comment, allComments, postId, postAuthorId, isPi
 
   return (
     <>
-    <Collapsible open={isOpen} onOpenChange={setIsOpen} className={cn('flex gap-3', depth > 0 && 'ml-6')}>
+    <Collapsible open={isOpen} onOpenChange={setIsOpen} className={cn('flex gap-2 sm:gap-3', depth > 0 && 'ml-4 md:ml-6')}>
       <div className="flex flex-col items-center">
         <Avatar className="h-8 w-8 cursor-pointer" onClick={() => showProfile(comment.author)}>
           <AvatarImage src={comment.authorPhotoURL} alt={comment.author} />
@@ -156,7 +158,7 @@ export function CommentThread({ comment, allComments, postId, postAuthorId, isPi
       <div className="flex-1">
         <div className={cn("p-3 rounded-lg", depth % 2 === 0 ? "bg-muted/50" : "bg-muted/25", isPinned && "border-2 border-primary/50")}>
           <div className="flex justify-between items-center text-xs">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <button onClick={() => showProfile(comment.author)} className="font-semibold text-sm hover:underline">
                 {formatUsername(comment.author, comment.authorRole)}
               </button>
@@ -173,7 +175,7 @@ export function CommentThread({ comment, allComments, postId, postAuthorId, isPi
                   {isOpen ? '[-]' : `[+${childComments.length}]`}
                 </span>
               </CollapsibleTrigger>
-                {(isOwner || isPostAuthor) && (
+                {(isOwner || (isPostAuthor && isBaseComment)) && (
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="icon" className="h-6 w-6">
@@ -181,7 +183,7 @@ export function CommentThread({ comment, allComments, postId, postAuthorId, isPi
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                            {isPostAuthor && (
+                            {isPostAuthor && isBaseComment && (
                                 <DropdownMenuItem onClick={handlePin}>
                                     {isPinned ? <PinOff className="mr-2 h-4 w-4" /> : <Pin className="mr-2 h-4 w-4" />}
                                     <span>{isPinned ? 'Unpin' : 'Pin'} Comment</span>
@@ -292,6 +294,7 @@ export function CommentThread({ comment, allComments, postId, postAuthorId, isPi
                   postId={postId}
                   postAuthorId={postAuthorId}
                   isPostAuthor={isPostAuthor}
+                  pinnedCommentId={pinnedCommentId}
                   commentAction={commentAction}
                   voteAction={voteAction}
                   pinAction={pinAction}

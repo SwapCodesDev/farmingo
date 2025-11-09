@@ -177,17 +177,17 @@ export function PostDetailClient({ postId }: PostDetailClientProps) {
 
   return (
     <div className="max-w-4xl mx-auto">
-        <Button asChild variant="ghost" className="mb-4">
+        <Button asChild variant="ghost" className="mb-4 -ml-4">
             <Link href={`/c/${post.communityId}`}>
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Back to c/{post.communityId}
             </Link>
         </Button>
         <Card>
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
                  <div className="flex items-start gap-3">
                 <div className="w-full">
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground mb-4">
+                    <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground mb-4">
                         <div className="flex items-center gap-2 bg-muted/50 hover:bg-muted rounded-full p-1 pr-2">
                             <Avatar className="h-5 w-5 cursor-pointer" onClick={() => showProfile(post.author)}>
                               <AvatarImage src={post.authorPhotoURL} alt={post.author} />
@@ -283,8 +283,8 @@ export function PostDetailClient({ postId }: PostDetailClientProps) {
                             allComments={comments || []}
                             postId={post.id}
                             postAuthorId={post.uid}
-                            isPinned={true}
                             isPostAuthor={isPostAuthor}
+                            pinnedCommentId={post.pinnedCommentId}
                             commentAction={async (postId, text, parentId) => { handleAddComment(text, parentId) }}
                             voteAction={async (postId, commentId, vote) => { handleVoteOnComment(commentId, vote)}}
                             pinAction={handlePinComment}
@@ -301,6 +301,7 @@ export function PostDetailClient({ postId }: PostDetailClientProps) {
                         postId={post.id}
                         postAuthorId={post.uid}
                         isPostAuthor={isPostAuthor}
+                        pinnedCommentId={post.pinnedCommentId}
                         commentAction={async (postId, text, parentId) => { handleAddComment(text, parentId) }}
                         voteAction={async (postId, commentId, vote) => { handleVoteOnComment(commentId, vote)}}
                         pinAction={handlePinComment}
