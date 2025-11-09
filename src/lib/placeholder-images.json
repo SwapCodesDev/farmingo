@@ -1,0 +1,46 @@
+{
+  "placeholderImages": [
+    {
+      "id": "price-prediction-card",
+      "description": "A chart showing price predictions.",
+      "imageUrl": "https://images.unsplash.com/photo-1584291527908-033f4d6542c8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxkYXRhJTIwY2hhcnR8ZW58MHx8fHwxNzYxNzQxOTE5fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "data chart"
+    },
+    {
+      "id": "disease-diagnosis-card",
+      "description": "A close-up of a sick plant leaf.",
+      "imageUrl": "https://images.unsplash.com/photo-1758614307700-1e8ed56dd032?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxzaWNrJTIwcGxhbnR8ZW58MHx8fHwxNzYxNjg1NjM3fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "sick plant"
+    },
+    {
+      "id": "product-1",
+      "description": "Fresh organic tomatoes",
+      "imageUrl": "https://images.unsplash.com/photo-1683008952520-1e32a56a4f40?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxmcmVzaCUyMHRvbWF0b2VzfGVufDB8fHx8MTc2MTcxODgxNXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "fresh tomatoes"
+    },
+    {
+      "id": "product-2",
+      "description": "Crisp lettuce heads",
+      "imageUrl": "https://images.unsplash.com/photo-1697862446263-2ae694814ccc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxjcmlzcCUyMGxldHR1Y2V8ZW58MHx8fHwxNzYxNzcxNjkzfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "crisp lettuce"
+    },
+    {
+      "id": "product-3",
+      "description": "Handmade wooden crate",
+      "imageUrl": "https://images.unsplash.com/photo-1546864831-f1ca1eaf4e2a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHx3b29kZW4lMjBjcmF0ZXxlbnwwfHx8fDE3NjE2NjIwNjl8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "wooden crate"
+    },
+    {
+      "id": "product-4",
+      "description": "High-quality fertilizer",
+      "imageUrl": "https://images.unsplash.com/photo-1757840981839-6d71bb4ba3cd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxmZXJ0aWxpemVyJTIwYmFnfGVufDB8fHx8MTc2MTcwMzA1M3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "fertilizer bag"
+    },
+    {
+      "id": "product-5",
+      "description": "Sturdy gardening gloves",
+      "imageUrl": "https://images.unsplash.com/photo-1599778150914-88e98e0c3a3e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxnYXJkZW5pbmclMjBnbG92ZXN8ZW58MHx8fHwxNzYxNzQ3MDQzfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "gardening gloves"
+    }
+  ]
+}

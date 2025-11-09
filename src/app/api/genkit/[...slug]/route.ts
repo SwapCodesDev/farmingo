@@ -1,0 +1,7 @@
+import { nextPlugin } from '@genkit-ai/next';
+import { ai } from '@/ai/genkit';
+import '@/ai/flows/crop-disease-diagnosis';
+import '@/ai/flows/crop-price-prediction';
+import '@/ai/flows/weather-prediction';
+
+export const { GET, POST } = nextPlugin(ai);
