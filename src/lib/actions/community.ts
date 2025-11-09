@@ -79,7 +79,7 @@ export async function createPost(
   const postsCollection = collection(firestore, 'posts');
   const newPostRef = doc(postsCollection);
   const newPost = {
-    id: newPostRef.id, // Save the document ID as a field
+    id: newPostRef.id,
     uid: user.uid,
     author: username,
     authorPhotoURL: user.photoURL || '',
