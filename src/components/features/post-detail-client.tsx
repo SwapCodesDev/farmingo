@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { formatDistanceToNow } from 'date-fns';
 import { useAuthActions } from '@/hooks/use-auth-actions';
-import { Loader2, MessageSquare, Share2, ArrowLeft, MoreVertical, Edit, Trash2 } from 'lucide-react';
+import { Loader2, MessageSquare, Share2, ArrowLeft, MoreVertical, Edit, Trash2, Pin } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { CommentThread } from './comment-thread';
@@ -38,6 +38,7 @@ import { useRouter } from 'next/navigation';
 import { useUserProfileDialog } from '@/context/user-profile-dialog-provider';
 import { formatUsername } from '@/lib/utils';
 import type { UserProfile } from '@/types';
+import { Separator } from '../ui/separator';
 
 
 interface PostDetailClientProps {
@@ -62,7 +63,7 @@ export function PostDetailClient({ postId }: PostDetailClientProps) {
   const { user } = useUser();
   const firestore = useFirestore();
   const router = useRouter();
-  const { addComment, deletePost, voteOnComment, voteOnPost } = useAuthActions();
+  const { addComment, deletePost, voteOnComment, voteOnPost, pinComment } = useAuthActions();
   const { toast } = useToast();
   const { showProfile } = useUserProfileDialog();
   const [commentText, setCommentText] = useState('');
@@ -83,7 +84,7 @@ export function PostDetailClient({ postId }: PostDetailClientProps) {
     return doc(firestore, 'posts', postId);
   }, [firestore, postId]);
   
-  const { data: post, loading: postLoading } = useDoc<Post & { createdAt: Timestamp | Date | string; upvotes?: string[]; downvotes?: string[], commentCount?: number, communityId?: string, authorRole?: UserProfile['role'] }>(postRef);
+  const { data: post, loading: postLoading } = useDoc<Post & { createdAt: Timestamp | Date | string; upvotes?: string[]; downvotes?: string[], commentCount?: number, communityId?: string, authorRole?: UserProfile['role'], pinnedCommentId?: string }>(postRef);
 
   const commentsQuery = useMemo(() => {
     if (!firestore) return null;
@@ -92,7 +93,18 @@ export function PostDetailClient({ postId }: PostDetailClientProps) {
 
   const { data: comments } = useCollection<Comment & { createdAt: Timestamp | Date | string, parentId: string | null, id: string, commentCount?: number, authorRole?: UserProfile['role'] }>(commentsQuery);
 
-  const topLevelComments = useMemo(() => comments?.filter(comment => !comment.parentId) || [], [comments]);
+  const isPostAuthor = user?.uid === post?.uid;
+  
+  const pinnedComment = useMemo(() => {
+    if (!post?.pinnedCommentId || !comments) return null;
+    return comments.find(c => c.id === post.pinnedCommentId);
+  }, [post, comments]);
+  
+  const topLevelComments = useMemo(() => {
+    if (!comments) return [];
+    return comments.filter(comment => !comment.parentId && comment.id !== post?.pinnedCommentId);
+  }, [comments, post]);
+
   
   const handleAddComment = async (text: string, parentId: string | null = null) => {
     if (!text.trim() || !post) return;
@@ -112,6 +124,11 @@ export function PostDetailClient({ postId }: PostDetailClientProps) {
   const handleVoteOnComment = async (commentId: string, vote: 'up' | 'down') => {
     if (!post) return;
     voteOnComment(postId, commentId, vote);
+  }
+
+  const handlePinComment = async (commentId: string | null) => {
+    if (!post) return;
+    pinComment(postId, commentId);
   }
 
   const handleDelete = async () => {
@@ -254,14 +271,39 @@ export function PostDetailClient({ postId }: PostDetailClientProps) {
             )}
 
             <div className="w-full space-y-4 pt-4 border-t">
+                {pinnedComment && (
+                    <div>
+                        <h3 className="font-headline text-lg font-bold flex items-center gap-2 mb-2">
+                            <Pin className="h-5 w-5 text-primary" />
+                            Pinned Comment
+                        </h3>
+                        <CommentThread
+                            key={pinnedComment.id}
+                            comment={{...pinnedComment, parentId: pinnedComment.parentId || null }}
+                            allComments={comments || []}
+                            postId={post.id}
+                            postAuthorId={post.uid}
+                            isPinned={true}
+                            isPostAuthor={isPostAuthor}
+                            commentAction={async (postId, text, parentId) => { handleAddComment(text, parentId) }}
+                            voteAction={async (postId, commentId, vote) => { handleVoteOnComment(commentId, vote)}}
+                            pinAction={handlePinComment}
+                        />
+                         <Separator className="my-6" />
+                    </div>
+                )}
+                <h3 className="font-headline text-lg font-bold">{topLevelComments.length} Comments</h3>
                 {topLevelComments.map(comment => (
                     <CommentThread
                         key={comment.id}
-                        comment={comment}
+                        comment={{...comment, parentId: comment.parentId || null }}
                         allComments={comments || []}
                         postId={post.id}
+                        postAuthorId={post.uid}
+                        isPostAuthor={isPostAuthor}
                         commentAction={async (postId, text, parentId) => { handleAddComment(text, parentId) }}
-                        voteAction={async (postId, commentId, vote) => { handleVoteOnComment(commentId, vote) }}
+                        voteAction={async (postId, commentId, vote) => { handleVoteOnComment(commentId, vote)}}
+                        pinAction={handlePinComment}
                     />
                 ))}
             </div>

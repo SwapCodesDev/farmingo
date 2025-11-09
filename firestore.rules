@@ -49,7 +49,7 @@ service cloud.firestore {
       allow update: if request.auth != null && (
         (resource.data.uid == request.auth.uid) ||
         (
-            request.resource.data.diff(resource.data).changedKeys().hasOnly(['upvotes', 'downvotes', 'commentCount']) &&
+            request.resource.data.diff(resource.data).changedKeys().hasOnly(['upvotes', 'downvotes', 'commentCount', 'pinnedCommentId']) &&
             request.resource.data.upvotes is list &&
             request.resource.data.downvotes is list &&
             request.resource.data.commentCount is number

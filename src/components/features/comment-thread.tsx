@@ -10,7 +10,7 @@ import { useUserProfileDialog } from '@/context/user-profile-dialog-provider';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Loader2, MessageSquare, MoreVertical, Edit, Trash2 } from 'lucide-react';
+import { Loader2, MessageSquare, MoreVertical, Edit, Trash2, Pin, PinOff } from 'lucide-react';
 import { cn, formatUsername } from '@/lib/utils';
 import {
   Collapsible,
@@ -37,6 +37,7 @@ import { CommentVoteControl } from './comment-vote-control';
 import type { UserProfile } from '@/types';
 import { useAuthActions } from '@/hooks/use-auth-actions';
 import { useToast } from '@/hooks/use-toast';
+import { Badge } from '../ui/badge';
 
 
 type CommentWithId = Comment & { id: string; createdAt: Timestamp | Date | string; parentId: string | null; upvotes?: string[]; downvotes?: string[]; authorRole?: UserProfile['role'] };
@@ -45,13 +46,16 @@ interface CommentThreadProps {
   comment: CommentWithId;
   allComments: CommentWithId[];
   postId: string;
+  postAuthorId: string;
+  isPinned?: boolean;
+  isPostAuthor: boolean;
   depth?: number;
-  // This prop allows us to pass the correct action for adding a comment
   commentAction: (postId: string, text: string, parentId: string | null) => Promise<void>;
   voteAction: (postId: string, commentId: string, vote: 'up' | 'down') => Promise<void>;
+  pinAction: (postId: string, commentId: string | null) => Promise<void>;
 }
 
-export function CommentThread({ comment, allComments, postId, commentAction, voteAction, depth = 0 }: CommentThreadProps) {
+export function CommentThread({ comment, allComments, postId, postAuthorId, isPinned = false, isPostAuthor, commentAction, voteAction, pinAction, depth = 0 }: CommentThreadProps) {
   const { user } = useUser();
   const { showProfile } = useUserProfileDialog();
   const { updateComment, deleteComment } = useAuthActions();
@@ -68,6 +72,7 @@ export function CommentThread({ comment, allComments, postId, commentAction, vot
   const [isOpen, setIsOpen] = useState(true);
 
   const isOwner = user?.uid === comment.uid;
+  const isCommentByPostAuthor = comment.uid === postAuthorId;
 
   const childComments = useMemo(() => {
     return allComments.filter(c => c.parentId === comment.id);
@@ -111,6 +116,17 @@ export function CommentThread({ comment, allComments, postId, commentAction, vot
     setIsDeleting(false);
   }
 
+  const handlePin = async () => {
+    try {
+      const newPinnedId = isPinned ? null : comment.id;
+      await pinAction(postId, newPinnedId);
+      toast({ title: isPinned ? "Comment unpinned" : "Comment pinned!" });
+    } catch (error: any) {
+        toast({ variant: 'destructive', title: "Failed to update pin", description: error.message });
+    }
+  }
+
+
   const getInitials = (name: string) => {
     if (!name) return '';
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
@@ -138,24 +154,26 @@ export function CommentThread({ comment, allComments, postId, commentAction, vot
       </div>
 
       <div className="flex-1">
-        <div className={cn("p-3 rounded-lg", depth % 2 === 0 ? "bg-muted/50" : "bg-muted/25")}>
+        <div className={cn("p-3 rounded-lg", depth % 2 === 0 ? "bg-muted/50" : "bg-muted/25", isPinned && "border-2 border-primary/50")}>
           <div className="flex justify-between items-center text-xs">
             <div className="flex items-center gap-2">
               <button onClick={() => showProfile(comment.author)} className="font-semibold text-sm hover:underline">
                 {formatUsername(comment.author, comment.authorRole)}
               </button>
+              {isCommentByPostAuthor && <Badge variant="secondary">Author</Badge>}
               <p className="text-muted-foreground">•</p>
               <p className="text-muted-foreground">
                 {formatTimestamp(comment.createdAt)}
               </p>
             </div>
             <div className="flex items-center">
+              {isPinned && <Pin className="h-4 w-4 text-primary mr-2" />}
               <CollapsibleTrigger asChild>
                 <span className="cursor-pointer text-muted-foreground hover:text-primary mr-2">
                   {isOpen ? '[-]' : `[+${childComments.length}]`}
                 </span>
               </CollapsibleTrigger>
-                {isOwner && (
+                {(isOwner || isPostAuthor) && (
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="icon" className="h-6 w-6">
@@ -163,14 +181,24 @@ export function CommentThread({ comment, allComments, postId, commentAction, vot
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => { setIsEditing(true); setIsReplying(false) }}>
-                                <Edit className="mr-2 h-4 w-4" />
-                                <span>Edit</span>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => setIsDeleting(true)} className="text-destructive">
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                <span>Delete</span>
-                            </DropdownMenuItem>
+                            {isPostAuthor && (
+                                <DropdownMenuItem onClick={handlePin}>
+                                    {isPinned ? <PinOff className="mr-2 h-4 w-4" /> : <Pin className="mr-2 h-4 w-4" />}
+                                    <span>{isPinned ? 'Unpin' : 'Pin'} Comment</span>
+                                </DropdownMenuItem>
+                            )}
+                            {isOwner && (
+                                <>
+                                <DropdownMenuItem onClick={() => { setIsEditing(true); setIsReplying(false) }}>
+                                    <Edit className="mr-2 h-4 w-4" />
+                                    <span>Edit</span>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => setIsDeleting(true)} className="text-destructive">
+                                    <Trash2 className="mr-2 h-4 w-4" />
+                                    <span>Delete</span>
+                                </DropdownMenuItem>
+                                </>
+                            )}
                         </DropdownMenuContent>
                     </DropdownMenu>
                 )}
@@ -262,8 +290,11 @@ export function CommentThread({ comment, allComments, postId, commentAction, vot
                   comment={child}
                   allComments={allComments}
                   postId={postId}
+                  postAuthorId={postAuthorId}
+                  isPostAuthor={isPostAuthor}
                   commentAction={commentAction}
                   voteAction={voteAction}
+                  pinAction={pinAction}
                   depth={depth + 1}
                 />
               ))}

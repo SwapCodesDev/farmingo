@@ -9,6 +9,7 @@ import {
   voteOnComment as voteOnCommentAction,
   updateComment as updateCommentAction,
   deleteComment as deleteCommentAction,
+  pinComment as pinCommentAction,
   createCommunity as createCommunityAction,
   updateCommunity as updateCommunityAction,
   deleteCommunity as deleteCommunityAction,
@@ -130,6 +131,20 @@ export function useAuthActions() {
     [user, firestore, toast]
   );
 
+  const pinComment = useCallback(
+    async (postId: string, commentId: string | null) => {
+      if (!user || !firestore) {
+        toast({
+          variant: 'destructive',
+          title: 'Not authenticated',
+          description: 'You must be logged in to pin a comment.',
+        });
+        throw new Error('User not authenticated');
+      }
+      return pinCommentAction(firestore, postId, commentId);
+    }, [user, firestore, toast]
+  );
+
   const deletePost = useCallback(
     async (postId: string) => {
         if (!user || !firestore) {
@@ -191,5 +206,5 @@ export function useAuthActions() {
   );
 
 
-  return { createPost, updatePost, addComment, voteOnPost, deletePost, voteOnComment, updateComment, deleteComment, createCommunity, updateCommunity, deleteCommunity };
+  return { createPost, updatePost, addComment, voteOnPost, deletePost, voteOnComment, updateComment, deleteComment, pinComment, createCommunity, updateCommunity, deleteCommunity };
 }

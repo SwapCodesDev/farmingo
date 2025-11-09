@@ -153,6 +153,10 @@
                 "commentCount": {
                     "type": "number",
                     "description": "The number of top-level comments on the post."
+                },
+                "pinnedCommentId": {
+                    "type": "string",
+                    "description": "The ID of the comment pinned by the author."
                 }
             },
             "required": ["uid", "author", "title", "text", "communityId", "createdAt"]

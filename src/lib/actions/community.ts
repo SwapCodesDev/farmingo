@@ -39,6 +39,7 @@ export type Post = {
   commentCount?: number;
   upvotes?: string[];
   downvotes?: string[];
+  pinnedCommentId?: string;
 };
 
 export type Comment = {
@@ -90,6 +91,7 @@ export async function createPost(
     upvotes: [],
     downvotes: [],
     commentCount: 0,
+    pinnedCommentId: null,
   };
   batch.set(newPostRef, newPost);
 
@@ -352,6 +354,19 @@ export function voteOnComment(
       requestResourceData: commentDoc.data(),
     } satisfies SecurityRuleContext);
     errorEmitter.emit('permission-error', permissionError);
+  });
+}
+
+export function pinComment(firestore: Firestore, postId: string, commentId: string | null) {
+  const postRef = doc(firestore, 'posts', postId);
+  updateDoc(postRef, { pinnedCommentId: commentId }).catch((serverError) => {
+    const permissionError = new FirestorePermissionError({
+      path: postRef.path,
+      operation: 'update',
+      requestResourceData: { pinnedCommentId: commentId },
+    });
+    errorEmitter.emit('permission-error', permissionError);
+    throw serverError;
   });
 }
 
