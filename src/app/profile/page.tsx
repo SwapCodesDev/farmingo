@@ -1,4 +1,3 @@
-
 'use client';
 import { useMemo } from 'react';
 import { useFirestore, useUser, useCollection } from '@/firebase';
@@ -92,14 +91,6 @@ export default function ProfilePage() {
     <div className="space-y-8">
       <Card className="overflow-hidden">
         <div className="relative h-48 w-full bg-muted">
-            <Image 
-                src="https://picsum.photos/seed/profilebanner/1200/400"
-                alt="Profile banner"
-                layout="fill"
-                objectFit="cover"
-                className="object-cover"
-                data-ai-hint="landscape abstract"
-            />
              <Button asChild variant="outline" size="icon" className="absolute top-4 right-4 bg-background/50 backdrop-blur-sm hover:bg-background/75">
               <Link href="/settings/profile">
                 <Edit className="h-4 w-4" />
