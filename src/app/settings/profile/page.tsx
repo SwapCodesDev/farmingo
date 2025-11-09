@@ -41,7 +41,7 @@ const profileSchema = z.object({
     region: z.string().min(1, 'Region is required.'),
 });
 
-export function ProfileSettings() {
+export default function ProfileSettingsPage() {
   const { user, loading: userLoading } = useUser();
   const firestore = useFirestore();
   const auth = useAuth();
@@ -101,7 +101,7 @@ export function ProfileSettings() {
 
       await updateUserProfile(firestore, user, values);
       setInitialUsername(values.username);
-      form.reset(values); // This will mark the form as not dirty
+      form.reset(values, { keepIsDirty: false });
       toast({
         title: 'Profile Updated',
         description: 'Your changes have been saved successfully.',
@@ -154,14 +154,17 @@ export function ProfileSettings() {
 
   return (
     <div className="space-y-6">
+       <div>
+        <h3 className="text-lg font-medium">Profile</h3>
+        <p className="text-sm text-muted-foreground">
+          This is how others will see you on the site.
+        </p>
+      </div>
+      <Separator />
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <Card>
-            <CardHeader>
-              <CardTitle>Profile</CardTitle>
-              <CardDescription>This is how others will see you on the site.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="pt-6 space-y-6">
               <FormField
                 control={form.control}
                 name="username"
@@ -200,12 +203,12 @@ export function ProfileSettings() {
                   name="region"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Region</FormLabel>
+                      <FormLabel>Default Region</FormLabel>
                       <FormControl>
                         <div className="relative">
                           <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                           <Input
-                            placeholder="e.g., Punjab"
+                            placeholder="e.g., Punjab, India"
                             className="pl-9"
                             {...field}
                           />
@@ -227,14 +230,21 @@ export function ProfileSettings() {
                   Update profile
               </Button>
             </CardFooter>
+          </Card>
+        </form>
+      </Form>
+      
+      <Separator />
 
-            <Separator className="my-6" />
+      <div>
+        <h3 className="text-lg font-medium">Account</h3>
+        <p className="text-sm text-muted-foreground">
+          Manage your account security and identification.
+        </p>
+      </div>
 
-            <CardHeader>
-              <CardTitle>Account</CardTitle>
-              <CardDescription>Manage your account security and identification.</CardDescription>
-            </CardHeader>
-            <CardContent className='space-y-6'>
+      <Card>
+        <CardContent className='pt-6 space-y-6'>
               <div className="space-y-2">
                 <FormLabel>User ID</FormLabel>
                 <div className="flex items-center justify-between p-3 rounded-md bg-muted mt-2">
@@ -258,16 +268,15 @@ export function ProfileSettings() {
                 variant="outline"
                 disabled={isResetting}
               >
-                <KeyRound className="mr-2 h-4 w-4" />
                 {isResetting ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                ) : null}
+                ) : (
+                    <KeyRound className="mr-2 h-4 w-4" />
+                )}
                 Send Password Reset Email
               </Button>
             </CardFooter>
-          </Card>
-        </form>
-      </Form>
+      </Card>
 
     </div>
   );

@@ -8,7 +8,7 @@ import { buttonVariants } from '@/components/ui/button';
 const sidebarNavItems = [
   {
     title: 'Profile',
-    href: '/settings',
+    href: '/settings/profile',
   },
   {
     title: 'Appearance',
@@ -35,7 +35,7 @@ export function SettingsNav() {
           href={item.href}
           className={cn(
             buttonVariants({ variant: 'ghost' }),
-            (pathname === item.href || (item.href === '/settings' && pathname === '/settings/profile'))
+            pathname === item.href
               ? 'bg-muted hover:bg-muted'
               : 'hover:bg-transparent hover:underline',
             'justify-start'

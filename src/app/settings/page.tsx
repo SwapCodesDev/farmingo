@@ -1,6 +1,6 @@
-import { ProfileSettings } from './profile/page';
+import { redirect } from 'next/navigation';
 
-// The default page for /settings will show the profile settings.
+// The default page for /settings should redirect to the profile settings.
 export default function SettingsPage() {
-  return <ProfileSettings />;
+  redirect('/settings/profile');
 }
