@@ -1,6 +1,6 @@
 import { ProfileSettings } from './profile/page';
 
+// The default page for /settings will show the profile settings.
 export default function SettingsPage() {
-  // The default page for /settings will show the profile settings.
   return <ProfileSettings />;
 }

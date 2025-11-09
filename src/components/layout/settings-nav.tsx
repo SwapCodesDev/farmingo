@@ -11,10 +11,6 @@ const sidebarNavItems = [
     href: '/settings',
   },
   {
-    title: 'Account',
-    href: '/settings/account',
-  },
-  {
     title: 'Appearance',
     href: '/settings/appearance',
   },

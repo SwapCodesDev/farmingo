@@ -13,7 +13,7 @@ export default function SettingsLayout({
           Settings
         </h1>
         <p className="text-muted-foreground">
-          Manage your account settings and set e-mail preferences.
+          Manage your account settings, profile, and preferences.
         </p>
       </div>
       <Separator />

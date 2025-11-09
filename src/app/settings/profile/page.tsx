@@ -8,7 +8,7 @@ import {
   query,
   where,
 } from 'firebase/firestore';
-import { Loader2, User as UserIcon, MapPin } from 'lucide-react';
+import { Loader2, User as UserIcon, MapPin, KeyRound, Copy } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -22,11 +22,11 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { useFirestore, useUser } from '@/firebase';
+import { useFirestore, useUser, useAuth } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
-import { updateUserProfile } from '@/lib/actions/profile';
+import { updateUserProfile, sendPasswordReset } from '@/lib/actions/profile';
 import { Separator } from '@/components/ui/separator';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 
 const profileSchema = z.object({
   displayName: z.string().min(1, 'Display name is required.'),
@@ -44,8 +44,10 @@ const profileSchema = z.object({
 export function ProfileSettings() {
   const { user, loading: userLoading } = useUser();
   const firestore = useFirestore();
+  const auth = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
   const [initialUsername, setInitialUsername] = useState('');
 
   const form = useForm<z.infer<typeof profileSchema>>({
@@ -115,88 +117,158 @@ export function ProfileSettings() {
     }
   };
 
+  const handlePasswordReset = async () => {
+    if (!auth || !user?.email) return;
+    setIsResetting(true);
+    try {
+      await sendPasswordReset(auth, user.email);
+      toast({
+        title: 'Password Reset Email Sent',
+        description: 'Check your inbox for instructions to reset your password.',
+      });
+    } catch (error: any) {
+      toast({
+        variant: 'destructive',
+        title: 'Reset Failed',
+        description: error.message || 'An unknown error occurred.',
+      });
+    } finally {
+      setIsResetting(false);
+    }
+  };
+
+  const handleCopyUid = () => {
+    if (user?.uid) {
+      navigator.clipboard.writeText(user.uid);
+      toast({
+        title: 'Copied to clipboard!',
+        description: 'Your User ID has been copied.',
+      });
+    }
+  };
+
+
   if (userLoading) {
     return <p>Loading profile...</p>;
   }
 
   return (
     <div className="space-y-6">
-      <div>
-        <h3 className="text-lg font-medium">Profile</h3>
-        <p className="text-sm text-muted-foreground">
-          This is how others will see you on the site.
-        </p>
-      </div>
-      <Separator />
-       <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-8"
+       <Card>
+          <CardHeader>
+            <CardTitle>Profile</CardTitle>
+            <CardDescription>This is how others will see you on the site.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-6"
+              >
+                <FormField
+                  control={form.control}
+                  name="username"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Username</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                          <Input
+                            placeholder="your_username"
+                            className="pl-9"
+                            {...field}
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="displayName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Display Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Your Name" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                    control={form.control}
+                    name="region"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Region</FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <Input
+                              placeholder="e.g., Punjab"
+                              className="pl-9"
+                              {...field}
+                            />
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                 <Button
+                    type="submit"
+                    disabled={isLoading || !form.formState.isDirty}
+                  >
+                    {isLoading && (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    )}
+                    Update profile
+                  </Button>
+              </form>
+            </Form>
+          </CardContent>
+       </Card>
+
+        <Card>
+        <CardHeader>
+          <CardTitle>Account</CardTitle>
+          <CardDescription>Manage your account security and identification.</CardDescription>
+        </CardHeader>
+        <CardContent className='space-y-6'>
+          <div>
+            <FormLabel>User ID</FormLabel>
+             <div className="flex items-center justify-between p-3 rounded-md bg-muted mt-2">
+                <code className="text-sm text-muted-foreground truncate">{user?.uid}</code>
+                <Button variant="ghost" size="icon" onClick={handleCopyUid}>
+                    <Copy className="h-4 w-4" />
+                </Button>
+            </div>
+          </div>
+          <div>
+            <FormLabel>Email Address</FormLabel>
+             <p className="text-sm text-muted-foreground mt-2">
+                Your email address is {user?.email}. This cannot be changed.
+            </p>
+          </div>
+        </CardContent>
+        <CardFooter>
+          <Button
+            onClick={handlePasswordReset}
+            variant="outline"
+            disabled={isResetting}
           >
-            <FormField
-              control={form.control}
-              name="username"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Username</FormLabel>
-                  <FormControl>
-                    <div className="relative">
-                      <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        placeholder="your_username"
-                        className="pl-9"
-                        {...field}
-                      />
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="displayName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Display Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Your Name" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-                control={form.control}
-                name="region"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Region</FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input
-                          placeholder="e.g., Punjab"
-                          className="pl-9"
-                          {...field}
-                        />
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            <Button
-              type="submit"
-              disabled={isLoading || !form.formState.isDirty}
-            >
-              {isLoading && (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              )}
-              Update profile
-            </Button>
-          </form>
-        </Form>
+            <KeyRound className="mr-2 h-4 w-4" />
+            {isResetting ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : null}
+            Send Password Reset Email
+          </Button>
+        </CardFooter>
+      </Card>
+
     </div>
   );
 }
