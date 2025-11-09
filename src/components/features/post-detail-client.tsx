@@ -342,5 +342,3 @@ export function PostDetailClient({ postId }: PostDetailClientProps) {
     </div>
   );
 }
-
-    

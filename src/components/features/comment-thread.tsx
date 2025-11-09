@@ -51,7 +51,7 @@ interface CommentThreadProps {
   depth?: number;
   commentAction: (postId: string, text: string, parentId: string | null) => Promise<void>;
   voteAction: (postId: string, commentId: string, vote: 'up' | 'down') => Promise<void>;
-  pinAction: (postId: string, commentId: string | null) => Promise<void>;
+  pinAction: (commentId: string | null) => Promise<void>;
   pinnedCommentId?: string | null;
 }
 
@@ -121,7 +121,7 @@ export function CommentThread({ comment, allComments, postId, postAuthorId, isPo
   const handlePin = async () => {
     try {
       const newPinnedId = isPinned ? null : comment.id;
-      await pinAction(postId, newPinnedId);
+      await pinAction(newPinnedId);
       toast({ title: isPinned ? "Comment unpinned" : "Comment pinned!" });
     } catch (error: any) {
         toast({ variant: 'destructive', title: "Failed to update pin", description: error.message });
@@ -325,5 +325,3 @@ export function CommentThread({ comment, allComments, postId, postAuthorId, isPo
     </>
   );
 }
-
-    
