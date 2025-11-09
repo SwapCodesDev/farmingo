@@ -39,25 +39,13 @@ import { useUserProfileDialog } from '@/context/user-profile-dialog-provider';
 import { formatUsername } from '@/lib/utils';
 import type { UserProfile } from '@/types';
 import { Separator } from '../ui/separator';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 
 interface PostDetailClientProps {
   postId: string;
 }
-
-const MarkdownRenderer = ({ content }: { content: string }) => {
-  let html = content.replace(/>!([^>!]*)!</g, '<span class="bg-foreground text-foreground hover:bg-transparent rounded px-1 cursor-pointer transition-colors" onclick="this.classList.toggle(\'bg-foreground\'); this.classList.toggle(\'text-foreground\');">$1</span>');
-  html = html.split('\n').map(line => {
-    if (line.startsWith('> ')) {
-      return `<blockquote class="border-l-4 border-primary pl-4 italic my-2">${line.substring(2)}</blockquote>`;
-    }
-    return line;
-  }).join('\n');
-  html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-  html = html.replace(/(?<!\*)\*(.*?)\*(?!\*)/g, '<em>$1</em>');
-  html = html.replace(/`(.*?)`/g, '<code class="bg-muted text-muted-foreground font-mono text-sm px-1 py-0.5 rounded">$1</code>');
-  return <div className="whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: html.replace(/\n/g, '<br />') }} />;
-};
 
 export function PostDetailClient({ postId }: PostDetailClientProps) {
   const { user } = useUser();
@@ -227,13 +215,13 @@ export function PostDetailClient({ postId }: PostDetailClientProps) {
 
                     <h1 className="text-2xl font-bold font-headline mb-4">{post.title}</h1>
 
-                    <div className="space-y-4">
+                    <div className="space-y-4 prose">
                         {post.imageUrl && (
                             <div className="relative aspect-video w-full">
                                 <Image src={post.imageUrl} alt={post.title} layout="fill" objectFit="contain" className="rounded-md border" />
                             </div>
                         )}
-                        <MarkdownRenderer content={post.text} />
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>{post.text}</ReactMarkdown>
                     </div>
                 </div>
             </div>

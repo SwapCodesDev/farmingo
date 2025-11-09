@@ -32,6 +32,8 @@ import { EditPostDialog } from './edit-post-dialog';
 import { VoteControl } from './vote-control';
 import { useUserProfileDialog } from '@/context/user-profile-dialog-provider';
 import type { UserProfile } from '@/types';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 
 interface PostCardProps {
@@ -40,33 +42,6 @@ interface PostCardProps {
 }
 
 const TRUNCATE_LENGTH = 400;
-
-// Basic markdown to HTML renderer
-const MarkdownRenderer = ({ content }: { content: string }) => {
-  // Process spoiler tags: >!text!<
-  let html = content.replace(/>!([^>!]*)!</g, '<span class="bg-foreground text-foreground hover:bg-transparent rounded px-1 cursor-pointer transition-colors" onclick="this.classList.toggle(\'bg-foreground\'); this.classList.toggle(\'text-foreground\');">$1</span>');
-
-  // Process blockquotes: > text
-  html = html.split('\n').map(line => {
-    if (line.startsWith('> ')) {
-      return `<blockquote class="border-l-4 border-primary pl-4 italic my-2">${line.substring(2)}</blockquote>`;
-    }
-    return line;
-  }).join('\n');
-  
-  // Process bold: **text**
-  html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-  
-  // Process italic: *text*
-  html = html.replace(/(?<!\*)\*(.*?)\*(?!\*)/g, '<em>$1</em>');
-
-  // Process code: `text`
-  html = html.replace(/`(.*?)`/g, '<code class="bg-muted text-muted-foreground font-mono text-sm px-1 py-0.5 rounded">$1</code>');
-
-  // Since we process line by line for blockquotes, we need to wrap the whole thing to preserve line breaks.
-  return <div className="whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: html.replace(/\n/g, '<br />') }} />;
-};
-
 
 export function PostCard({ post, voteAction }: PostCardProps) {
   const { user } = useUser();
@@ -158,8 +133,10 @@ export function PostCard({ post, voteAction }: PostCardProps) {
                       <Image src={post.imageUrl} alt={post.title} layout="fill" objectFit="contain" className="rounded-md border" />
                   </div>
               )}
-              <div className={cn(isLongPost && 'mask-gradient')}>
-                <MarkdownRenderer content={truncatedText} />
+              <div className={cn('prose', isLongPost && 'mask-gradient')}>
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  {truncatedText}
+                </ReactMarkdown>
               </div>
                {isLongPost && (
                <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-card to-transparent pointer-events-none" />

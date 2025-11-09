@@ -76,6 +76,23 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  .prose {
+    @apply text-foreground text-sm;
+  }
+  .prose h1 { @apply text-2xl font-bold mb-4; }
+  .prose h2 { @apply text-xl font-semibold mb-3; }
+  .prose h3 { @apply text-lg font-semibold mb-2; }
+  .prose a { @apply text-primary underline; }
+  .prose ul { @apply list-disc list-inside; }
+  .prose ol { @apply list-decimal list-inside; }
+  .prose li { @apply mb-1; }
+  .prose blockquote { @apply border-l-4 border-primary pl-4 italic my-2 text-muted-foreground; }
+  .prose code { @apply bg-muted text-muted-foreground font-mono text-sm px-1 py-0.5 rounded; }
+  .prose pre { @apply bg-muted p-4 rounded-md overflow-x-auto; }
+  .prose table { @apply w-full my-4; }
+  .prose th { @apply border px-4 py-2 font-semibold; }
+  .prose td { @apply border px-4 py-2; }
 }
 
 @layer utilities {
