@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { PostCard } from './post-card';
 import type { Post } from '@/lib/actions/community';
-import { MessageCircle, UserPlus, Loader2 } from 'lucide-react';
+import { MessageCircle, UserPlus, Loader2, Calendar } from 'lucide-react';
 import { format } from 'date-fns';
 import { Timestamp } from 'firebase/firestore';
 import { Button } from '../ui/button';
@@ -81,12 +81,12 @@ export function UserProfileClient({ username }: UserProfileClientProps) {
   };
 
   if (userLoading) {
-    return <div className="text-center">Loading profile...</div>;
+    return <div className="flex items-center justify-center h-96"><Loader2 className="h-8 w-8 animate-spin" /></div>;
   }
 
   if (!userProfile) {
     return (
-      <div className="text-center">
+      <div className="text-center p-8">
         <h1 className="text-2xl font-bold">User not found</h1>
         <p className="text-muted-foreground">The user `u/{username}` does not exist.</p>
       </div>
@@ -97,29 +97,35 @@ export function UserProfileClient({ username }: UserProfileClientProps) {
   const isOwnProfile = currentUser?.uid === userProfile.uid;
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-      <div className="md:col-span-1">
-        <Card>
-            <CardHeader>
-                <div className="flex flex-col items-center text-center">
-                    <Avatar className="h-24 w-24 mb-4">
-                        <AvatarImage src={userProfile.photoURL} alt={userProfile.displayName} />
-                        <AvatarFallback className="text-3xl">
-                            {getInitials(userProfile.displayName || userProfile.email || '')}
-                        </AvatarFallback>
-                    </Avatar>
-                    <h2 className="text-2xl font-bold font-headline">{userProfile.displayName}</h2>
-                    <p className="text-lg text-muted-foreground">{formatUsername(userProfile.username, userProfile.role)}</p>
-                </div>
-            </CardHeader>
-          <CardContent className="space-y-4">
-            <div className='text-sm text-muted-foreground space-y-2'>
-                <div className='flex items-center justify-center gap-2 bg-muted p-3 rounded-lg'>
-                    <span>Joined {format(joinDate, 'MMMM yyyy')}</span>
+    <div className="space-y-8">
+       <Card className="overflow-hidden">
+        <div className="relative h-36 w-full bg-muted">
+             {/* Banner Image can be added here */}
+        </div>
+        <CardContent className="relative flex flex-col items-center justify-center pt-0 pb-6 -mt-16 text-center">
+            <Avatar className="h-32 w-32 border-4 border-background">
+              <AvatarImage
+                src={userProfile.photoURL ?? undefined}
+                alt={userProfile.displayName}
+              />
+              <AvatarFallback className="text-4xl">
+                {getInitials(userProfile.displayName)}
+              </AvatarFallback>
+            </Avatar>
+            <div className="mt-4">
+                <h1 className="text-3xl font-bold font-headline">
+                    {userProfile.displayName}
+                </h1>
+                <p className="text-base text-muted-foreground">
+                    {formatUsername(userProfile.username, userProfile.role)}
+                </p>
+                <div className="flex items-center justify-center pt-2 text-sm text-muted-foreground">
+                    <Calendar className="mr-2 h-4 w-4" />
+                    Joined on {format(joinDate, 'MMMM d, yyyy')}
                 </div>
             </div>
-            {!isOwnProfile && currentUser && (
-                <div className='flex flex-col gap-2'>
+             {!isOwnProfile && currentUser && (
+                <div className='flex items-center gap-2 mt-4'>
                     <Button>
                         <UserPlus className='mr-2 h-4 w-4' />
                         Follow
@@ -134,16 +140,21 @@ export function UserProfileClient({ username }: UserProfileClientProps) {
                     </Button>
                 </div>
             )}
-          </CardContent>
-        </Card>
-      </div>
-      <div className="md:col-span-2 space-y-6">
-        <h3 className="font-headline text-2xl font-bold tracking-tight">Posts</h3>
-        {postsLoading && <p>Loading posts...</p>}
+        </CardContent>
+      </Card>
+      
+      <div className="space-y-6">
+        <h3 className="font-headline text-2xl font-bold tracking-tight px-6 md:px-0">Posts</h3>
+        {postsLoading && <div className="text-center"><Loader2 className="h-6 w-6 animate-spin"/></div>}
         {posts && posts.length > 0 ? (
-          posts.map((post) => <PostCard key={post.id} post={post} voteAction={(vote) => voteOnPost(post.id, vote)} />)
+          posts.map((post) => <PostCard key={post.id} post={{...post, authorRole: userProfile.role}} voteAction={(vote) => voteOnPost(post.id, vote)} />)
         ) : (
-          !postsLoading && <p className="text-muted-foreground">This user hasn't posted anything yet.</p>
+          !postsLoading && (
+            <div className="text-center py-12 text-muted-foreground border-2 border-dashed rounded-lg">
+                <p className="font-semibold text-lg">No posts yet.</p>
+                <p className="mt-1">This user hasn't posted anything.</p>
+            </div>
+          )
         )}
       </div>
     </div>
