@@ -153,29 +153,61 @@ export default function ProfileSettingsPage() {
   }
 
   return (
-    <div className="space-y-6">
-       <div>
-        <h3 className="text-lg font-medium">Profile</h3>
-        <p className="text-sm text-muted-foreground">
-          This is how others will see you on the site.
-        </p>
-      </div>
-      <Separator />
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
-          <Card>
-            <CardContent className="pt-6 space-y-6">
-              <FormField
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <div>
+          <h3 className="text-lg font-medium">Profile</h3>
+          <p className="text-sm text-muted-foreground">
+            This is how others will see you on the site.
+          </p>
+        </div>
+        <Separator />
+        <Card>
+          <CardContent className="pt-6 space-y-6">
+            <FormField
+              control={form.control}
+              name="username"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Username</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        placeholder="your_username"
+                        className="pl-9"
+                        {...field}
+                      />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="displayName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Display Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Your Name" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
                 control={form.control}
-                name="username"
+                name="region"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Username</FormLabel>
+                    <FormLabel>Default Region</FormLabel>
                     <FormControl>
                       <div className="relative">
-                        <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input
-                          placeholder="your_username"
+                          placeholder="e.g., Punjab, India"
                           className="pl-9"
                           {...field}
                         />
@@ -185,99 +217,64 @@ export default function ProfileSettingsPage() {
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name="displayName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Display Name</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Your Name" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                  control={form.control}
-                  name="region"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Default Region</FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                          <Input
-                            placeholder="e.g., Punjab, India"
-                            className="pl-9"
-                            {...field}
-                          />
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-            </CardContent>
-            <CardFooter>
-              <Button
-                  type="submit"
-                  disabled={isLoading || !form.formState.isDirty}
-                >
-                  {isLoading && (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  )}
-                  Update profile
-              </Button>
-            </CardFooter>
-          </Card>
-        </form>
-      </Form>
-      
-      <Separator />
-
-      <div>
-        <h3 className="text-lg font-medium">Account</h3>
-        <p className="text-sm text-muted-foreground">
-          Manage your account security and identification.
-        </p>
-      </div>
-
-      <Card>
-        <CardContent className='pt-6 space-y-6'>
-              <div className="space-y-2">
-                <FormLabel>User ID</FormLabel>
-                <div className="flex items-center justify-between p-3 rounded-md bg-muted mt-2">
-                    <code className="text-sm text-muted-foreground truncate">{user?.uid}</code>
-                    <Button type="button" variant="ghost" size="icon" onClick={handleCopyUid}>
-                        <Copy className="h-4 w-4" />
-                    </Button>
-                </div>
-              </div>
-              <div className="space-y-2">
-                <FormLabel>Email Address</FormLabel>
-                <p className="text-sm text-muted-foreground mt-2">
-                    Your email address is {user?.email}. This cannot be changed.
-                </p>
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Button
-                type="button"
-                onClick={handlePasswordReset}
-                variant="outline"
-                disabled={isResetting}
+          </CardContent>
+          <CardFooter>
+            <Button
+                type="submit"
+                disabled={isLoading || !form.formState.isDirty}
               >
-                {isResetting ? (
+                {isLoading && (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                ) : (
-                    <KeyRound className="mr-2 h-4 w-4" />
                 )}
-                Send Password Reset Email
-              </Button>
-            </CardFooter>
-      </Card>
+                Update profile
+            </Button>
+          </CardFooter>
+        </Card>
+        
+        <Separator />
 
-    </div>
+        <div>
+          <h3 className="text-lg font-medium">Account</h3>
+          <p className="text-sm text-muted-foreground">
+            Manage your account security and identification.
+          </p>
+        </div>
+
+        <Card>
+          <CardContent className='pt-6 space-y-6'>
+                <div className="space-y-2">
+                  <FormLabel>User ID</FormLabel>
+                  <div className="flex items-center justify-between p-3 rounded-md bg-muted mt-2">
+                      <code className="text-sm text-muted-foreground truncate">{user?.uid}</code>
+                      <Button type="button" variant="ghost" size="icon" onClick={handleCopyUid}>
+                          <Copy className="h-4 w-4" />
+                      </Button>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <FormLabel>Email Address</FormLabel>
+                  <p className="text-sm text-muted-foreground mt-2">
+                      Your email address is {user?.email}. This cannot be changed.
+                  </p>
+                </div>
+              </CardContent>
+              <CardFooter>
+                <Button
+                  type="button"
+                  onClick={handlePasswordReset}
+                  variant="outline"
+                  disabled={isResetting}
+                >
+                  {isResetting ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                      <KeyRound className="mr-2 h-4 w-4" />
+                  )}
+                  Send Password Reset Email
+                </Button>
+              </CardFooter>
+        </Card>
+      </form>
+    </Form>
   );
 }
