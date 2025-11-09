@@ -227,46 +227,47 @@ export function ProfileSettings() {
                   Update profile
               </Button>
             </CardFooter>
+
+            <Separator className="my-6" />
+
+            <CardHeader>
+              <CardTitle>Account</CardTitle>
+              <CardDescription>Manage your account security and identification.</CardDescription>
+            </CardHeader>
+            <CardContent className='space-y-6'>
+              <div className="space-y-2">
+                <FormLabel>User ID</FormLabel>
+                <div className="flex items-center justify-between p-3 rounded-md bg-muted mt-2">
+                    <code className="text-sm text-muted-foreground truncate">{user?.uid}</code>
+                    <Button type="button" variant="ghost" size="icon" onClick={handleCopyUid}>
+                        <Copy className="h-4 w-4" />
+                    </Button>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <FormLabel>Email Address</FormLabel>
+                <p className="text-sm text-muted-foreground mt-2">
+                    Your email address is {user?.email}. This cannot be changed.
+                </p>
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Button
+                type="button"
+                onClick={handlePasswordReset}
+                variant="outline"
+                disabled={isResetting}
+              >
+                <KeyRound className="mr-2 h-4 w-4" />
+                {isResetting ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : null}
+                Send Password Reset Email
+              </Button>
+            </CardFooter>
           </Card>
         </form>
       </Form>
-
-        <Card>
-        <CardHeader>
-          <CardTitle>Account</CardTitle>
-          <CardDescription>Manage your account security and identification.</CardDescription>
-        </CardHeader>
-        <CardContent className='space-y-6'>
-          <div>
-            <FormLabel>User ID</FormLabel>
-             <div className="flex items-center justify-between p-3 rounded-md bg-muted mt-2">
-                <code className="text-sm text-muted-foreground truncate">{user?.uid}</code>
-                <Button variant="ghost" size="icon" onClick={handleCopyUid}>
-                    <Copy className="h-4 w-4" />
-                </Button>
-            </div>
-          </div>
-          <div>
-            <FormLabel>Email Address</FormLabel>
-             <p className="text-sm text-muted-foreground mt-2">
-                Your email address is {user?.email}. This cannot be changed.
-            </p>
-          </div>
-        </CardContent>
-        <CardFooter>
-          <Button
-            onClick={handlePasswordReset}
-            variant="outline"
-            disabled={isResetting}
-          >
-            <KeyRound className="mr-2 h-4 w-4" />
-            {isResetting ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : null}
-            Send Password Reset Email
-          </Button>
-        </CardFooter>
-      </Card>
 
     </div>
   );
