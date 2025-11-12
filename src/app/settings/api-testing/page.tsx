@@ -40,21 +40,25 @@ export default function ApiTestingPage() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      crop: 'Wheat',
-      region: 'North',
-      date: new Date().toISOString().split('T')[0],
+      crop: 'wheat',
+      region: 'kolhapur',
+      date: '2025-11-11',
     },
   });
 
   const currentValues = form.watch();
-  const curlCommand = `curl -X POST "${window.location.origin}/api/genkit/flows/predictCropPriceFlow" \\
-     -H "Content-Type: application/json" \\
-     -d '${JSON.stringify({ input: { ...currentValues, variety: '' }})}'`;
+  // Correctly format the cURL command based on user feedback
+  const curlCommand = `curl -X 'POST' \\
+  'http://127.0.0.1:8000/crop_price' \\
+  -H 'accept: application/json' \\
+  -H 'Content-Type: application/json' \\
+  -d '${JSON.stringify(currentValues, null, 2)}'`;
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
     setResponse(null);
     try {
+      // The testApi action now uses the correct endpoint and body structure
       const result = await testApi(values);
       setResponse(result);
       toast({
@@ -101,7 +105,7 @@ export default function ApiTestingPage() {
                     <FormItem>
                       <FormLabel>Crop</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g., Wheat" {...field} />
+                        <Input placeholder="e.g., wheat" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -114,7 +118,7 @@ export default function ApiTestingPage() {
                     <FormItem>
                       <FormLabel>Region</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g., Punjab" {...field} />
+                        <Input placeholder="e.g., kolhapur" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -127,7 +131,7 @@ export default function ApiTestingPage() {
                     <FormItem>
                       <FormLabel>Date</FormLabel>
                       <FormControl>
-                        <Input placeholder="YYYY-MM-DD" {...field} />
+                        <Input type="date" placeholder="YYYY-MM-DD" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

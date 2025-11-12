@@ -20,22 +20,18 @@ export async function testApi(values: z.infer<typeof formSchema>): Promise<any> 
   }
 
   // The Genkit Next.js plugin exposes flows at /api/genkit/flows/<flowName>
-  // We use the predictCropPriceFlow, which matches the user's OpenAPI spec logic.
-  // We add an empty `variety` field as the underlying flow expects it.
-  const endpoint = `${process.env.NEXT_PUBLIC_SITE_URL}/api/genkit/flows/predictCropPriceFlow`;
+  // However, the user's spec points to /crop_price. We will use that.
+  // The underlying service might not be a Genkit flow.
+  const endpoint = `${process.env.NEXT_PUBLIC_SITE_URL?.replace('9002', '8000')}/crop_price`;
 
   try {
     const response = await fetch(endpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Accept': 'application/json',
       },
-      body: JSON.stringify({
-        input: {
-            ...validatedFields.data,
-            variety: '' // The flow expects this, even if empty.
-        }
-      }),
+      body: JSON.stringify(validatedFields.data),
     });
 
     if (!response.ok) {
