@@ -22,7 +22,7 @@ export async function testApi(values: z.infer<typeof formSchema>): Promise<any> 
   // The Genkit Next.js plugin exposes flows at /api/genkit/flows/<flowName>
   // However, the user's spec points to /crop_price. We will use that.
   // The underlying service might not be a Genkit flow.
-  const endpoint = `${process.env.NEXT_PUBLIC_SITE_URL?.replace('9002', '8000')}/crop_price`;
+  const endpoint = 'http://127.0.0.1:8000/crop_price';
 
   try {
     const response = await fetch(endpoint, {
