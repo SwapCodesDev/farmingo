@@ -22,6 +22,10 @@ const sidebarNavItems = [
     title: 'My Orders',
     href: '/settings/orders',
   },
+  {
+    title: 'API Testing',
+    href: '/settings/api-testing',
+  },
 ];
 
 export function SettingsNav() {
