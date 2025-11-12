@@ -19,9 +19,7 @@ export async function testApi(values: z.infer<typeof formSchema>): Promise<any> 
     throw new Error('Invalid input.');
   }
 
-  // The Genkit Next.js plugin exposes flows at /api/genkit/flows/<flowName>
-  // However, the user's spec points to /crop_price. We will use that.
-  // The underlying service might not be a Genkit flow.
+  // Use the explicit IP address for server-side fetch.
   const endpoint = 'http://127.0.0.1:8000/crop_price';
 
   try {
