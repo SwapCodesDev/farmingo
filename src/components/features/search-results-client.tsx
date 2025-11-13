@@ -28,6 +28,9 @@ import Image from 'next/image';
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from '../ui/card';
 import { formatTimestamp, formatUsername } from '@/lib/utils';
 import { useUserProfileDialog } from '@/context/user-profile-dialog-provider';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
+
 
 interface SearchResultsClientProps {
   query: string;
@@ -149,41 +152,77 @@ export function SearchResultsClient({
       // 1. Search Posts
       if (searchAll || searchType === 'posts') {
         const postsRef = collection(firestore, 'posts');
-        const postsSnapshot = await getDocs(postsRef);
-        fetchedPosts = postsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Post));
-        
-        fetchedPosts = fetchedPosts.filter(post => 
-            post.title.toLowerCase().includes(initialQuery.toLowerCase()) ||
-            post.text.toLowerCase().includes(initialQuery.toLowerCase())
-        );
+        try {
+            const postsSnapshot = await getDocs(postsRef);
+            fetchedPosts = postsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Post));
+            
+            fetchedPosts = fetchedPosts.filter(post => 
+                post.title.toLowerCase().includes(initialQuery.toLowerCase()) ||
+                post.text.toLowerCase().includes(initialQuery.toLowerCase())
+            );
+        } catch (e: any) {
+            if (e.code === 'permission-denied') {
+                const permissionError = new FirestorePermissionError({
+                    path: postsRef.path,
+                    operation: 'list',
+                });
+                errorEmitter.emit('permission-error', permissionError);
+            } else {
+                throw e;
+            }
+        }
       }
 
       // 2. Search Communities
       if (searchAll || searchType === 'communities') {
         const communitiesRef = collection(firestore, 'communities');
-        const communitiesSnapshot = await getDocs(communitiesRef);
-        fetchedCommunities = communitiesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Community));
+        try {
+            const communitiesSnapshot = await getDocs(communitiesRef);
+            fetchedCommunities = communitiesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Community));
 
-        fetchedCommunities = fetchedCommunities.filter(community =>
-            community.name.toLowerCase().includes(initialQuery.toLowerCase()) ||
-            community.description.toLowerCase().includes(initialQuery.toLowerCase())
-        );
+            fetchedCommunities = fetchedCommunities.filter(community =>
+                community.name.toLowerCase().includes(initialQuery.toLowerCase()) ||
+                community.description.toLowerCase().includes(initialQuery.toLowerCase())
+            );
+        } catch (e: any) {
+             if (e.code === 'permission-denied') {
+                const permissionError = new FirestorePermissionError({
+                    path: communitiesRef.path,
+                    operation: 'list',
+                });
+                errorEmitter.emit('permission-error', permissionError);
+            } else {
+                throw e;
+            }
+        }
       }
 
       // 3. Search Comments
       if (searchAll || searchType === 'comments') {
         const commentsRef = collectionGroup(firestore, 'comments');
-        const commentsSnapshot = await getDocs(commentsRef);
-        
-        const allComments = commentsSnapshot.docs.map(doc => {
-            const path = doc.ref.path.split('/');
-            const postId = path[path.indexOf('posts') + 1];
-            return { id: doc.id, postId, ...doc.data() } as Comment & { postId: string };
-        });
+        try {
+            const commentsSnapshot = await getDocs(commentsRef);
+            
+            const allComments = commentsSnapshot.docs.map(doc => {
+                const path = doc.ref.path.split('/');
+                const postId = path[path.indexOf('posts') + 1];
+                return { id: doc.id, postId, ...doc.data() } as Comment & { postId: string };
+            });
 
-        fetchedComments = allComments.filter(comment =>
-            comment.text.toLowerCase().includes(initialQuery.toLowerCase())
-        );
+            fetchedComments = allComments.filter(comment =>
+                comment.text.toLowerCase().includes(initialQuery.toLowerCase())
+            );
+        } catch (e: any) {
+            if (e.code === 'permission-denied') {
+                const permissionError = new FirestorePermissionError({
+                    path: '[ALL]/comments',
+                    operation: 'list',
+                });
+                errorEmitter.emit('permission-error', permissionError);
+            } else {
+                throw e;
+            }
+        }
       }
 
       // 4. Filter by time (only for posts and comments for now)
