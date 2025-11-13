@@ -139,10 +139,10 @@ export function CommentThread({ comment, allComments, postId, postAuthorId, isPo
   const handleTranslate = async (targetLanguage: string) => {
     if (isTranslating) return;
     setIsTranslating(true);
-    const { success, translatedText: newText, error } = await getTranslation({ text: comment.text, targetLanguage });
+    const { success, translatedTexts, error } = await getTranslation({ texts: [comment.text], targetLanguage });
     setIsTranslating(false);
-    if (success && newText) {
-      setTranslatedText(newText);
+    if (success && translatedTexts && translatedTexts.length > 0) {
+      setTranslatedText(translatedTexts[0]);
     } else {
       toast({ variant: 'destructive', title: 'Translation failed', description: error });
     }

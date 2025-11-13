@@ -12,7 +12,7 @@ import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 
 const TranslateTextInputSchema = z.object({
-  text: z.string().describe('The text to be translated.'),
+  texts: z.array(z.string()).describe('The texts to be translated.'),
   targetLanguage: z
     .string()
     .describe('The target language to translate the text into (e.g., "Hindi", "Marathi", "English").'),
@@ -20,7 +20,7 @@ const TranslateTextInputSchema = z.object({
 export type TranslateTextInput = z.infer<typeof TranslateTextInputSchema>;
 
 const TranslateTextOutputSchema = z.object({
-  translatedText: z.string().describe('The translated text.'),
+  translatedTexts: z.array(z.string()).describe('The translated texts, in the same order as the input.'),
 });
 export type TranslateTextOutput = z.infer<typeof TranslateTextOutputSchema>;
 
@@ -34,12 +34,14 @@ const translateTextPrompt = ai.definePrompt({
   name: 'translateTextPrompt',
   input: { schema: TranslateTextInputSchema },
   output: { schema: TranslateTextOutputSchema },
-  prompt: `Translate the following text to {{{targetLanguage}}}.
+  prompt: `Translate each of the following texts to {{{targetLanguage}}}.
+Respond with a JSON object containing a "translatedTexts" array with the translated strings in the exact same order.
 
-Text:
-{{{text}}}
-
-Only return the translated text.`,
+Texts:
+{{#each texts}}
+- "{{{this}}}"
+{{/each}}
+`,
 });
 
 const translateTextFlow = ai.defineFlow(

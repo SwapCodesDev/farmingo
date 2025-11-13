@@ -7,7 +7,7 @@ import {
 import { z } from 'zod';
 
 const formSchema = z.object({
-  text: z.string().min(1, 'Text is required.'),
+  texts: z.array(z.string().min(1)).min(1, 'At least one text is required.'),
   targetLanguage: z.string().min(1, 'Target language is required.'),
 });
 
@@ -15,7 +15,7 @@ export async function getTranslation(
   values: z.infer<typeof formSchema>
 ): Promise<{
   success: boolean;
-  translatedText?: string;
+  translatedTexts?: string[];
   error?: string;
 }> {
   const validatedFields = formSchema.safeParse(values);
@@ -27,7 +27,7 @@ export async function getTranslation(
 
   try {
     const result = await translateText(input);
-    return { success: true, translatedText: result.translatedText };
+    return { success: true, translatedTexts: result.translatedTexts };
   } catch (e) {
     console.error(e);
     return {

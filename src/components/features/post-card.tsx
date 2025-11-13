@@ -54,6 +54,8 @@ export function PostCard({ post, voteAction, isDetailView = false }: PostCardPro
   const { showProfile } = useUserProfileDialog();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  
+  const [translatedTitle, setTranslatedTitle] = useState<string | null>(null);
   const [translatedText, setTranslatedText] = useState<string | null>(null);
   const [isTranslating, setIsTranslating] = useState(false);
 
@@ -79,19 +81,27 @@ export function PostCard({ post, voteAction, isDetailView = false }: PostCardPro
   
   const postUrl = `/community/${post.id}`;
   
+  const displayedTitle = translatedTitle || post.title;
   const displayedText = translatedText || truncatedText;
+  const hasTranslation = translatedTitle || translatedText;
 
   const handleTranslate = async (targetLanguage: string) => {
     if (isTranslating) return;
     setIsTranslating(true);
-    const { success, translatedText: newText, error } = await getTranslation({ text: post.text, targetLanguage });
+    const { success, translatedTexts, error } = await getTranslation({ texts: [post.title, post.text], targetLanguage });
     setIsTranslating(false);
-    if (success && newText) {
-      setTranslatedText(newText);
+    if (success && translatedTexts && translatedTexts.length === 2) {
+      setTranslatedTitle(translatedTexts[0]);
+      setTranslatedText(translatedTexts[1]);
     } else {
       toast({ variant: 'destructive', title: 'Translation failed', description: error || 'Failed to get translation from AI model.' });
     }
   };
+
+  const clearTranslation = () => {
+    setTranslatedTitle(null);
+    setTranslatedText(null);
+  }
 
   return (
     <>
@@ -153,7 +163,7 @@ export function PostCard({ post, voteAction, isDetailView = false }: PostCardPro
         </div>
 
         <Link href={postUrl} className='cursor-pointer group'>
-            <h2 className="font-bold text-lg mt-2 group-hover:underline">{post.title}</h2>
+            <h2 className="font-bold text-lg mt-2 group-hover:underline">{isTranslating && !hasTranslation ? 'Translating title...' : displayedTitle}</h2>
             
             <div 
                 className={cn("mt-2 text-sm relative overflow-hidden", !isDetailView && "max-h-[250px]")}
@@ -165,7 +175,7 @@ export function PostCard({ post, voteAction, isDetailView = false }: PostCardPro
               )}
               <div className={cn('prose', isLongPost && 'mask-gradient')}>
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                  {isTranslating ? "Translating..." : displayedText}
+                  {isTranslating ? "Translating content..." : displayedText}
                 </ReactMarkdown>
               </div>
               {isLongPost && (
@@ -173,8 +183,8 @@ export function PostCard({ post, voteAction, isDetailView = false }: PostCardPro
               )}
             </div>
         </Link>
-        {translatedText && (
-          <Button variant="link" className="p-0 h-auto text-xs justify-start mt-1" onClick={() => setTranslatedText(null)}>
+        {hasTranslation && (
+          <Button variant="link" className="p-0 h-auto text-xs justify-start mt-1" onClick={clearTranslation}>
             Show original
           </Button>
         )}
