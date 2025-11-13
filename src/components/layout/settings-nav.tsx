@@ -23,6 +23,10 @@ const sidebarNavItems = [
     href: '/settings/orders',
   },
   {
+    title: 'Crop Recommendation',
+    href: '/settings/crop-recommendation',
+  },
+  {
     title: 'API Testing',
     href: '/settings/api-testing',
   },
