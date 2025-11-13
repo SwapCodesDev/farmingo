@@ -19,11 +19,14 @@ import { signOut } from 'firebase/auth';
 import { ThemeToggle } from './theme-toggle';
 import LanguageSwitcher from './LanguageSwitcher';
 import { usePathname } from 'next/navigation';
+import { Input } from '../ui/input';
+import { useSearch } from '@/context/search-provider';
 
 export function Header() {
   const { user } = useUser();
   const auth = useAuth();
   const pathname = usePathname();
+  const { searchTerm, setSearchTerm } = useSearch();
 
   const handleLogout = async () => {
     if (auth) {
@@ -31,20 +34,24 @@ export function Header() {
     }
   };
 
-  const showSearch = pathname !== '/dashboard';
+  // Only show the search bar on the dashboard page
+  const showSearch = pathname === '/dashboard';
 
   return (
     <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-background/80 px-4 backdrop-blur-sm sm:px-6">
       <SidebarTrigger />
 
-      {showSearch && (
+      {showSearch ? (
          <div className="relative flex-1">
-          {/* This is a placeholder for a global search which can be implemented later */}
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <span className="absolute left-9 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">Search...</span>
+          <Input
+            placeholder="Search dashboard features..."
+            className="pl-9"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
         </div>
-      )}
-      {!showSearch && <div className="flex-1" />}
+      ) : <div className="flex-1" /> }
 
       <div className="flex items-center gap-2">
         <ThemeToggle />

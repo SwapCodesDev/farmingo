@@ -7,6 +7,7 @@ import { FirebaseClientProvider } from '@/firebase/client-provider';
 import { ThemeProvider } from '@/components/layout/theme-provider';
 import { UserProfileDialogProvider } from '@/context/user-profile-dialog-provider';
 import { CartProvider } from '@/context/cart-provider';
+import { SearchProvider } from '@/context/search-provider';
 
 export const metadata: Metadata = {
   title: 'Farmingo: Grow Together',
@@ -43,7 +44,9 @@ export default function RootLayout({
           <FirebaseClientProvider>
             <UserProfileDialogProvider>
               <CartProvider>
-                <AppLayout>{children}</AppLayout>
+                <SearchProvider>
+                  <AppLayout>{children}</AppLayout>
+                </SearchProvider>
               </CartProvider>
             </UserProfileDialogProvider>
           </FirebaseClientProvider>

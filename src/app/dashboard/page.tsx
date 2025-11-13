@@ -25,8 +25,8 @@ import {
 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useState, useMemo } from 'react';
-import { Input } from '@/components/ui/input';
+import { useMemo } from 'react';
+import { useSearch } from '@/context/search-provider';
 
 const allAiTools = [
   {
@@ -71,7 +71,7 @@ const allPlatformFeatures = [
 
 export default function DashboardPage() {
   const { user, loading } = useUser();
-  const [searchTerm, setSearchTerm] = useState('');
+  const { searchTerm } = useSearch();
 
   const welcomeMessage = () => {
     if (loading) {
@@ -112,16 +112,6 @@ export default function DashboardPage() {
           today?
         </p>
       </div>
-
-       <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search dashboard features..."
-            className="pl-9"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
 
       <section className="space-y-6">
         <div className="flex items-center gap-4">
