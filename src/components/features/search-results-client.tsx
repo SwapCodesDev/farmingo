@@ -26,7 +26,7 @@ import { useAuthActions } from '@/hooks/use-auth-actions';
 import type { UserProfile } from '@/types';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from '../ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../ui/card';
 import { formatTimestamp, formatUsername } from '@/lib/utils';
 import { useUserProfileDialog } from '@/context/user-profile-dialog-provider';
 import { errorEmitter } from '@/firebase/error-emitter';
