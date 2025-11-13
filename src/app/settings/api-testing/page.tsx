@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -22,16 +22,24 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
-import { Loader2, Send, MapPin, Cloudy, Sun, Droplets, Wind, Waves, Thermometer } from 'lucide-react';
+import { Loader2, Send, MapPin, Cloudy, Sun, Droplets, Wind, Waves, Thermometer, Image as ImageIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { testApi } from '@/app/actions/test-api';
 import { recommendCrop } from '@/app/actions/recommend-crop';
+import { predictDiseaseApi } from '@/app/actions/predict-disease-api';
 import { Badge } from '@/components/ui/badge';
+import Image from 'next/image';
 
-const formSchema = z.object({
+
+const priceFormSchema = z.object({
   crop: z.string().min(1, 'Crop is required.'),
   region: z.string().min(1, 'Region is required.'),
   date: z.string().min(1, 'Date is required (YYYY-MM-DD).'),
+});
+
+const diseaseFormSchema = z.object({
+    crop_name: z.string().min(1, 'Crop name is required.'),
+    file: z.instanceof(File).refine(file => file.size > 0, 'An image file is required.'),
 });
 
 
@@ -64,10 +72,15 @@ export default function ApiTestingPage() {
   const [isPriceLoading, setIsPriceLoading] = useState(false);
   const [recommendationResponse, setRecommendationResponse] = useState<RecommendationResponse | null>(null);
   const [isRecommendLoading, setIsRecommendLoading] = useState(false);
+  const [diseaseResponse, setDiseaseResponse] = useState<any | null>(null);
+  const [isDiseaseLoading, setIsDiseaseLoading] = useState(false);
+  const [diseaseImagePreview, setDiseaseImagePreview] = useState<string | null>(null);
+  const diseaseFileInputRef = useRef<HTMLInputElement>(null);
+  
   const { toast } = useToast();
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const priceForm = useForm<z.infer<typeof priceFormSchema>>({
+    resolver: zodResolver(priceFormSchema),
     defaultValues: {
       crop: 'wheat',
       region: 'kolhapur',
@@ -75,12 +88,21 @@ export default function ApiTestingPage() {
     },
   });
 
-  const currentValues = form.watch();
-  const curlCommand = `curl -X 'POST' \\
+  const diseaseForm = useForm<z.infer<typeof diseaseFormSchema>>({
+    resolver: zodResolver(diseaseFormSchema),
+    defaultValues: {
+        crop_name: 'chilli',
+        file: undefined,
+    },
+  });
+
+
+  const currentPriceValues = priceForm.watch();
+  const curlPriceCommand = `curl -X 'POST' \\
   'http://127.0.0.1:8000/crop_price' \\
   -H 'accept: application/json' \\
   -H 'Content-Type: application/json' \\
-  -d '${JSON.stringify(currentValues, null, 2)}'`;
+  -d '${JSON.stringify(currentPriceValues, null, 2)}'`;
 
   const recommendCurlCommand = (auto: boolean) => `curl -X 'POST' \\
   'http://127.0.0.1:8000/recommend' \\
@@ -92,8 +114,16 @@ export default function ApiTestingPage() {
   "longitude": 0
 }'`;
 
+    const currentDiseaseCropName = diseaseForm.watch('crop_name');
+    const currentDiseaseFile = diseaseForm.watch('file');
+    const diseaseCurlCommand = `curl -X 'POST' \\
+  'http://127.0.0.1:8000/crop_disease_prediction?crop_name=${currentDiseaseCropName}' \\
+  -H 'accept: application/json' \\
+  -H 'Content-Type: multipart/form-data' \\
+  -F 'file=@${currentDiseaseFile?.name || "temp_leaf.jpg"};type=${currentDiseaseFile?.type || "image/jpeg"}'`;
 
-  async function onPriceSubmit(values: z.infer<typeof formSchema>) {
+
+  async function onPriceSubmit(values: z.infer<typeof priceFormSchema>) {
     setIsPriceLoading(true);
     setPriceResponse(null);
     try {
@@ -156,6 +186,44 @@ export default function ApiTestingPage() {
     }
 }
 
+const handleDiseaseFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+        diseaseForm.setValue('file', file);
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setDiseaseImagePreview(reader.result as string);
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+async function onDiseaseSubmit(values: z.infer<typeof diseaseFormSchema>) {
+    setIsDiseaseLoading(true);
+    setDiseaseResponse(null);
+    try {
+        const formData = new FormData();
+        formData.append('crop_name', values.crop_name);
+        formData.append('file', values.file);
+
+        const result = await predictDiseaseApi(formData);
+        setDiseaseResponse(result);
+        toast({
+            title: 'Prediction Successful',
+            description: 'Received a response from the disease prediction API.',
+        });
+    } catch (error: any) {
+        setDiseaseResponse({ error: error.message });
+        toast({
+            variant: 'destructive',
+            title: 'Prediction Failed',
+            description: error.message || 'An unknown error occurred.',
+        });
+    } finally {
+        setIsDiseaseLoading(false);
+    }
+}
+
 
   return (
     <div className="space-y-6">
@@ -175,11 +243,11 @@ export default function ApiTestingPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onPriceSubmit)} className="space-y-6">
+          <Form {...priceForm}>
+            <form onSubmit={priceForm.handleSubmit(onPriceSubmit)} className="space-y-6">
               <div className="grid md:grid-cols-3 gap-4">
                 <FormField
-                  control={form.control}
+                  control={priceForm.control}
                   name="crop"
                   render={({ field }) => (
                     <FormItem>
@@ -192,7 +260,7 @@ export default function ApiTestingPage() {
                   )}
                 />
                 <FormField
-                  control={form.control}
+                  control={priceForm.control}
                   name="region"
                   render={({ field }) => (
                     <FormItem>
@@ -205,7 +273,7 @@ export default function ApiTestingPage() {
                   )}
                 />
                 <FormField
-                  control={form.control}
+                  control={priceForm.control}
                   name="date"
                   render={({ field }) => (
                     <FormItem>
@@ -233,7 +301,7 @@ export default function ApiTestingPage() {
             <div>
               <h4 className="font-semibold">cURL Command</h4>
               <pre className="mt-2 w-full text-sm bg-muted text-muted-foreground p-4 rounded-md overflow-x-auto">
-                <code>{curlCommand}</code>
+                <code>{curlPriceCommand}</code>
               </pre>
             </div>
 
@@ -287,6 +355,82 @@ export default function ApiTestingPage() {
                   </div>
                 )}
               </div>
+        </CardContent>
+      </Card>
+
+       <Separator />
+
+      <Card>
+        <CardHeader>
+          <CardTitle>POST /crop_disease_prediction</CardTitle>
+          <CardDescription>
+            Predicts the disease of a crop from an image.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Form {...diseaseForm}>
+            <form onSubmit={diseaseForm.handleSubmit(onDiseaseSubmit)} className="space-y-6">
+              <div className="grid md:grid-cols-2 gap-4">
+                <FormField
+                  control={diseaseForm.control}
+                  name="crop_name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Crop Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g., chilli" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                 <FormField
+                    control={diseaseForm.control}
+                    name="file"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Image File</FormLabel>
+                            <FormControl>
+                                <Input type="file" accept="image/*" onChange={handleDiseaseFileChange} ref={diseaseFileInputRef}/>
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                 />
+              </div>
+               {diseaseImagePreview && (
+                <div className="relative w-48 h-48 mt-2">
+                    <Image src={diseaseImagePreview} alt="Preview" layout="fill" objectFit="cover" className="rounded-md border" />
+                </div>
+               )}
+              <Button type="submit" disabled={isDiseaseLoading}>
+                {isDiseaseLoading ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <Send className="mr-2 h-4 w-4" />
+                )}
+                Execute
+              </Button>
+            </form>
+          </Form>
+
+           <div className="space-y-4 mt-6">
+            <div>
+              <h4 className="font-semibold">cURL Command</h4>
+              <pre className="mt-2 w-full text-sm bg-muted text-muted-foreground p-4 rounded-md overflow-x-auto">
+                <code>{diseaseCurlCommand}</code>
+              </pre>
+            </div>
+
+            {diseaseResponse && (
+              <div>
+                <h4 className="font-semibold">Server Response</h4>
+                <pre className="mt-2 w-full text-sm bg-muted text-muted-foreground p-4 rounded-md overflow-x-auto">
+                  <code>{JSON.stringify(diseaseResponse, null, 2)}</code>
+                </pre>
+              </div>
+            )}
+          </div>
         </CardContent>
       </Card>
     </div>
