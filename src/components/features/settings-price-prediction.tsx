@@ -198,7 +198,7 @@ export function SettingsPricePrediction() {
                     Predicted Market Price
                   </p>
                   <p className="font-headline text-5xl font-bold text-primary">
-                    ₹{result.predicted_price.toFixed(2)}
+                    {typeof result.predicted_price === 'number' ? `₹${result.predicted_price.toFixed(2)}` : 'N/A'}
                   </p>
                 </div>
             </CardContent>
