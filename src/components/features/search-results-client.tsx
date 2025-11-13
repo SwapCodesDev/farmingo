@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -141,6 +142,9 @@ export function SearchResultsClient({
       return;
     }
     setIsLoading(true);
+    setPostResults([]);
+    setCommunityResults([]);
+    setCommentResults([]);
 
     const searchAll = searchType === 'all';
 
@@ -168,7 +172,7 @@ export function SearchResultsClient({
                 });
                 errorEmitter.emit('permission-error', permissionError);
             } else {
-                throw e;
+                console.error("Error searching posts:", e);
             }
         }
       }
@@ -192,7 +196,7 @@ export function SearchResultsClient({
                 });
                 errorEmitter.emit('permission-error', permissionError);
             } else {
-                throw e;
+                console.error("Error searching communities:", e);
             }
         }
       }
@@ -220,7 +224,7 @@ export function SearchResultsClient({
                 });
                 errorEmitter.emit('permission-error', permissionError);
             } else {
-                throw e;
+                console.error("Error searching comments:", e);
             }
         }
       }
