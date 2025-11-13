@@ -76,6 +76,8 @@ export default function ApiTestingPage() {
   const [isDiseaseLoading, setIsDiseaseLoading] = useState(false);
   const [diseaseImagePreview, setDiseaseImagePreview] = useState<string | null>(null);
   const diseaseFileInputRef = useRef<HTMLInputElement>(null);
+  const [coordinates, setCoordinates] = useState<{lat: number, lon: number} | null>(null);
+  const [isFetchingLocation, setIsFetchingLocation] = useState(false);
   
   const { toast } = useToast();
 
@@ -104,14 +106,14 @@ export default function ApiTestingPage() {
   -H 'Content-Type: application/json' \\
   -d '${JSON.stringify(currentPriceValues, null, 2)}'`;
 
-  const recommendCurlCommand = (auto: boolean) => `curl -X 'POST' \\
+  const recommendCurlCommand = `curl -X 'POST' \\
   'http://127.0.0.1:8000/recommend' \\
   -H 'accept: application/json' \\
   -H 'Content-Type: application/json' \\
   -d '{
-  "auto_location": ${auto},
-  "latitude": 0,
-  "longitude": 0
+  "auto_location": false,
+  "latitude": ${coordinates?.lat || 0},
+  "longitude": ${coordinates?.lon || 0}
 }'`;
 
     const currentDiseaseCropName = diseaseForm.watch('crop_name');
@@ -145,18 +147,53 @@ export default function ApiTestingPage() {
     }
   }
 
-  const handleGetRecommendation = (useAutoLocation: boolean) => {
+  const handleFetchLocation = () => {
+    setIsFetchingLocation(true);
+    if (!navigator.geolocation) {
+        toast({
+            variant: 'destructive',
+            title: 'Geolocation Not Supported',
+            description: 'Your browser does not support geolocation.'
+        });
+        setIsFetchingLocation(false);
+        return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+        (position) => {
+            setCoordinates({
+                lat: position.coords.latitude,
+                lon: position.coords.longitude
+            });
+            setIsFetchingLocation(false);
+            toast({ title: 'Location Fetched', description: 'Coordinates have been updated.'})
+        },
+        (error) => {
+            toast({
+                variant: 'destructive',
+                title: 'Location Error',
+                description: error.message || 'Could not fetch your location.'
+            });
+            setIsFetchingLocation(false);
+        }
+    );
+  }
+
+  const handleGetRecommendation = () => {
+    if (!coordinates) {
+        toast({ variant: 'destructive', title: 'Coordinates Missing', description: 'Please fetch your location first.' });
+        return;
+    }
     setIsRecommendLoading(true);
     setRecommendationResponse(null);
 
-    const getAndFetch = (latitude?: number, longitude?: number) => {
-        recommendCrop({ auto_location: useAutoLocation, latitude, longitude })
-            .then(setRecommendationResponse)
-            .catch(handleError)
-            .finally(() => setIsRecommendLoading(false));
-    }
-
-    const handleError = (error: any) => {
+    recommendCrop({
+        auto_location: false,
+        latitude: coordinates.lat,
+        longitude: coordinates.lon
+    })
+    .then(setRecommendationResponse)
+    .catch((error: any) => {
         console.error(error);
         toast({
             variant: 'destructive',
@@ -164,26 +201,8 @@ export default function ApiTestingPage() {
             description: error.message || 'Could not fetch crop recommendations.'
         });
         setRecommendationResponse({ error: error.message } as any);
-        setIsRecommendLoading(false);
-    }
-
-    if (useAutoLocation) {
-         getAndFetch();
-    } else {
-        if (!navigator.geolocation) {
-            toast({
-                variant: 'destructive',
-                title: 'Geolocation Not Supported',
-                description: 'Your browser does not support geolocation.'
-            });
-            setIsRecommendLoading(false);
-        } else {
-            navigator.geolocation.getCurrentPosition(
-                (position) => getAndFetch(position.coords.latitude, position.coords.longitude),
-                handleError
-            );
-        }
-    }
+    })
+    .finally(() => setIsRecommendLoading(false));
 }
 
 const handleDiseaseFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -323,26 +342,44 @@ async function onDiseaseSubmit(values: z.infer<typeof diseaseFormSchema>) {
         <CardHeader>
           <CardTitle>POST /recommend</CardTitle>
           <CardDescription>
-            Get crop recommendations based on your location and local weather conditions.
+            Get crop recommendations based on your browser's location and local weather conditions.
           </CardDescription>
         </CardHeader>
         <CardContent>
-            <div className="flex flex-col sm:flex-row gap-4">
-                <Button onClick={() => handleGetRecommendation(true)} disabled={isRecommendLoading} className="w-full sm:w-auto">
-                    {isRecommendLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <MapPin className="mr-2 h-4 w-4" />}
-                    Use Auto-Detected Location
-                </Button>
-                <Button onClick={() => handleGetRecommendation(false)} disabled={isRecommendLoading} className="w-full sm:w-auto" variant="outline">
-                    {isRecommendLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <MapPin className="mr-2 h-4 w-4" />}
-                    Use Browser Location
-                </Button>
+            <div className="space-y-4">
+                <div className="flex flex-col sm:flex-row gap-4">
+                    <Button onClick={handleFetchLocation} disabled={isFetchingLocation} variant="outline">
+                        {isFetchingLocation ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <MapPin className="mr-2 h-4 w-4" />}
+                        Fetch Browser Location
+                    </Button>
+                    <Button onClick={handleGetRecommendation} disabled={isRecommendLoading || !coordinates}>
+                        {isRecommendLoading ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        ) : (
+                        <Send className="mr-2 h-4 w-4" />
+                        )}
+                        Execute
+                    </Button>
+                </div>
+                 {coordinates && (
+                    <div className="grid grid-cols-2 gap-4">
+                        <FormItem>
+                            <FormLabel>Latitude</FormLabel>
+                            <Input readOnly value={coordinates.lat.toFixed(4)} />
+                        </FormItem>
+                        <FormItem>
+                            <FormLabel>Longitude</FormLabel>
+                            <Input readOnly value={coordinates.lon.toFixed(4)} />
+                        </FormItem>
+                    </div>
+                )}
             </div>
             
             <div className="space-y-4 mt-6">
                 <div>
-                  <h4 className="font-semibold">cURL Command (Auto-location)</h4>
+                  <h4 className="font-semibold">cURL Command</h4>
                   <pre className="mt-2 w-full text-sm bg-muted text-muted-foreground p-4 rounded-md overflow-x-auto">
-                    <code>{recommendCurlCommand(true)}</code>
+                    <code>{recommendCurlCommand}</code>
                   </pre>
                 </div>
 
