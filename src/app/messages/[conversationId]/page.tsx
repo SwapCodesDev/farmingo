@@ -6,11 +6,8 @@ import { cn } from '@/lib/utils';
 import { Suspense } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
-export default function ConversationPage({
-  params,
-}: {
-  params: { conversationId: string };
-}) {
+// This is the main client component that renders the layout.
+function ConversationPageContent({ conversationId }: { conversationId: string }) {
     const { user, loading } = useUser();
     const isMobile = useIsMobile();
 
@@ -22,16 +19,18 @@ export default function ConversationPage({
         return null;
     }
 
+    // On mobile, only show the conversation view.
     if (isMobile) {
         return (
             <div className="h-[calc(100vh-8.5rem)]">
               <Suspense fallback={<p>Loading conversation...</p>}>
-                <ConversationClient conversationId={params.conversationId} />
+                <ConversationClient conversationId={conversationId} />
               </Suspense>
             </div>
         );
     }
   
+  // On desktop, show the list of conversations and the selected one.
   return (
     <div className="h-[calc(100vh-8.5rem)] md:grid md:grid-cols-3 lg:grid-cols-4 md:gap-4">
         <div className="md:col-span-1">
@@ -41,9 +40,18 @@ export default function ConversationPage({
         </div>
         <div className="md:col-span-2 lg:col-span-3 h-full">
             <Suspense fallback={<p>Loading conversation...</p>}>
-                <ConversationClient conversationId={params.conversationId} />
+                <ConversationClient conversationId={conversationId} />
             </Suspense>
         </div>
     </div>
   );
+}
+
+// This is the default export for the page, which receives the params.
+export default function ConversationPage({
+  params,
+}: {
+  params: { conversationId: string };
+}) {
+    return <ConversationPageContent conversationId={params.conversationId} />;
 }
