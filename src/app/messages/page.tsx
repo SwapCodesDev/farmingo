@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Suspense } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { MessageSquare } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 
 export default function MessagesPage() {
