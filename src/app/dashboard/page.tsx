@@ -21,11 +21,14 @@ import {
   CloudSun,
   Bot,
   Store,
+  Search,
 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useState, useMemo } from 'react';
+import { Input } from '@/components/ui/input';
 
-const aiTools = [
+const allAiTools = [
   {
     title: 'Crop Price Prediction',
     description: 'Get AI-powered price forecasts for your crops.',
@@ -49,7 +52,7 @@ const aiTools = [
   },
 ];
 
-const platformFeatures = [
+const allPlatformFeatures = [
   {
     title: 'Marketplace',
     description: 'Buy and sell agricultural products directly.',
@@ -68,6 +71,7 @@ const platformFeatures = [
 
 export default function DashboardPage() {
   const { user, loading } = useUser();
+  const [searchTerm, setSearchTerm] = useState('');
 
   const welcomeMessage = () => {
     if (loading) {
@@ -79,8 +83,26 @@ export default function DashboardPage() {
     return 'Welcome, Farmer!';
   };
 
+  const filteredAiTools = useMemo(() => {
+    if (!searchTerm) return allAiTools;
+    return allAiTools.filter(
+      (tool) =>
+        tool.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        tool.description.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [searchTerm]);
+
+  const filteredPlatformFeatures = useMemo(() => {
+    if (!searchTerm) return allPlatformFeatures;
+    return allPlatformFeatures.filter(
+      (feature) =>
+        feature.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        feature.description.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [searchTerm]);
+
   return (
-    <div className="flex flex-col gap-12">
+    <div className="flex flex-col gap-8">
       <div>
         <h1 className="font-headline text-3xl md:text-4xl font-bold tracking-tight">
           {welcomeMessage()}
@@ -91,6 +113,16 @@ export default function DashboardPage() {
         </p>
       </div>
 
+       <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search dashboard features..."
+            className="pl-9"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+
       <section className="space-y-6">
         <div className="flex items-center gap-4">
           <Bot className="w-8 h-8 text-accent" />
@@ -99,41 +131,45 @@ export default function DashboardPage() {
           </h2>
         </div>
         <Separator />
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {aiTools.map((feature) => (
-            <Card
-              key={feature.title}
-              className="flex flex-col overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
-            >
-              <CardHeader className="flex flex-row items-center gap-4">
-                {feature.icon}
-                <div className="flex-1">
-                  <CardTitle className="font-headline text-xl">
-                    {feature.title}
-                  </CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent className="flex-grow">
-                <CardDescription>{feature.description}</CardDescription>
-              </CardContent>
-              <CardFooter>
-                <Button
-                  asChild
-                  className="w-full"
-                  variant={feature.disabled ? 'secondary' : 'default'}
-                  disabled={feature.disabled}
-                >
-                  <Link href={feature.href}>
-                    {feature.disabled ? 'Coming Soon' : 'Get Started'}{' '}
-                    {!feature.disabled && (
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    )}
-                  </Link>
-                </Button>
-              </CardFooter>
-            </Card>
-          ))}
-        </div>
+        {filteredAiTools.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredAiTools.map((feature) => (
+              <Card
+                key={feature.title}
+                className="flex flex-col overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+              >
+                <CardHeader className="flex flex-row items-center gap-4">
+                  {feature.icon}
+                  <div className="flex-1">
+                    <CardTitle className="font-headline text-xl">
+                      {feature.title}
+                    </CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent className="flex-grow">
+                  <CardDescription>{feature.description}</CardDescription>
+                </CardContent>
+                <CardFooter>
+                  <Button
+                    asChild
+                    className="w-full"
+                    variant={feature.disabled ? 'secondary' : 'default'}
+                    disabled={feature.disabled}
+                  >
+                    <Link href={feature.href}>
+                      {feature.disabled ? 'Coming Soon' : 'Get Started'}{' '}
+                      {!feature.disabled && (
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                      )}
+                    </Link>
+                  </Button>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <p className="text-muted-foreground text-center py-4">No matching AI tools found.</p>
+        )}
       </section>
 
       <section className="space-y-6">
@@ -144,41 +180,45 @@ export default function DashboardPage() {
           </h2>
         </div>
         <Separator />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {platformFeatures.map((feature) => (
-            <Card
-              key={feature.title}
-              className="flex flex-col overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
-            >
-              <CardHeader className="flex flex-row items-center gap-4">
-                {feature.icon}
-                <div className="flex-1">
-                  <CardTitle className="font-headline text-xl">
-                    {feature.title}
-                  </CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent className="flex-grow">
-                <CardDescription>{feature.description}</CardDescription>
-              </CardContent>
-              <CardFooter>
-                <Button
-                  asChild
-                  className="w-full"
-                  variant={feature.disabled ? 'secondary' : 'default'}
-                  disabled={feature.disabled}
+         {filteredPlatformFeatures.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {filteredPlatformFeatures.map((feature) => (
+                <Card
+                key={feature.title}
+                className="flex flex-col overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
                 >
-                  <Link href={feature.href}>
-                    {feature.disabled ? 'Coming Soon' : 'Go to ' + feature.title}
-                    {!feature.disabled && (
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    )}
-                  </Link>
-                </Button>
-              </CardFooter>
-            </Card>
-          ))}
-        </div>
+                <CardHeader className="flex flex-row items-center gap-4">
+                    {feature.icon}
+                    <div className="flex-1">
+                    <CardTitle className="font-headline text-xl">
+                        {feature.title}
+                    </CardTitle>
+                    </div>
+                </CardHeader>
+                <CardContent className="flex-grow">
+                    <CardDescription>{feature.description}</CardDescription>
+                </CardContent>
+                <CardFooter>
+                    <Button
+                    asChild
+                    className="w-full"
+                    variant={feature.disabled ? 'secondary' : 'default'}
+                    disabled={feature.disabled}
+                    >
+                    <Link href={feature.href}>
+                        {feature.disabled ? 'Coming Soon' : 'Go to ' + feature.title}
+                        {!feature.disabled && (
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                        )}
+                    </Link>
+                    </Button>
+                </CardFooter>
+                </Card>
+            ))}
+            </div>
+         ) : (
+            <p className="text-muted-foreground text-center py-4">No matching platform features found.</p>
+         )}
       </section>
     </div>
   );
