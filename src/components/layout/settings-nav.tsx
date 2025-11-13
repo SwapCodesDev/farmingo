@@ -23,6 +23,18 @@ const sidebarNavItems = [
     href: '/settings/orders',
   },
   {
+    title: 'Crop Price Prediction',
+    href: '/settings/price-prediction',
+  },
+  {
+    title: 'Disease Prediction',
+    href: '/settings/disease-prediction',
+  },
+  {
+    title: 'Crop Recommendation',
+    href: '/settings/crop-recommendation',
+  },
+  {
     title: 'API Testing',
     href: '/settings/api-testing',
   },
