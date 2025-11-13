@@ -18,15 +18,20 @@ import Link from 'next/link';
 import { signOut } from 'firebase/auth';
 import { ThemeToggle } from './theme-toggle';
 import LanguageSwitcher from './LanguageSwitcher';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { Input } from '../ui/input';
 import { useSearch } from '@/context/search-provider';
+import { useState } from 'react';
 
 export function Header() {
   const { user } = useUser();
   const auth = useAuth();
   const pathname = usePathname();
+  const router = useRouter();
   const { searchTerm, setSearchTerm } = useSearch();
+
+  // State for the community search bar
+  const [communitySearchQuery, setCommunitySearchQuery] = useState('');
 
   const handleLogout = async () => {
     if (auth) {
@@ -34,14 +39,23 @@ export function Header() {
     }
   };
 
-  // Only show the search bar on the dashboard page
-  const showSearch = pathname === '/dashboard';
+  const handleCommunitySearch = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (communitySearchQuery.trim()) {
+      router.push(`/community/search?q=${encodeURIComponent(communitySearchQuery)}`);
+    }
+  };
+
+  // Show dashboard search bar on the dashboard page
+  const showDashboardSearch = pathname === '/dashboard';
+  // Show community search bar on any community-related page
+  const showCommunitySearch = pathname.startsWith('/community') || pathname.startsWith('/c/');
 
   return (
     <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-background/80 px-4 backdrop-blur-sm sm:px-6">
       <SidebarTrigger />
 
-      {showSearch ? (
+      {showDashboardSearch && (
          <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
@@ -51,7 +65,24 @@ export function Header() {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-      ) : <div className="flex-1" /> }
+      )}
+
+      {showCommunitySearch && (
+        <form onSubmit={handleCommunitySearch} className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+                placeholder="Search community..."
+                className="pl-9"
+                value={communitySearchQuery}
+                onChange={(e) => setCommunitySearchQuery(e.target.value)}
+            />
+        </form>
+      )}
+
+      {!showDashboardSearch && !showCommunitySearch && (
+        <div className="flex-1" />
+      )}
+
 
       <div className="flex items-center gap-2">
         <ThemeToggle />

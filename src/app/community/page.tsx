@@ -1,6 +1,5 @@
 
 import { CommunityListClient } from '@/components/features/community-list-client';
-import { CommunitySearchBar } from '@/components/features/community-search-bar';
 import { Suspense } from 'react';
 
 export default function CommunityPage() {
@@ -15,8 +14,6 @@ export default function CommunityPage() {
         </p>
       </div>
 
-      <CommunitySearchBar />
-      
       <Suspense fallback={<p>Loading communities...</p>}>
         <CommunityListClient />
       </Suspense>
