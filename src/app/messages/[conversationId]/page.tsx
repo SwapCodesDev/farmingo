@@ -2,8 +2,7 @@
 import { ConversationClient } from '@/components/features/conversation-client';
 import { MessagesClient } from '@/components/features/messages-client';
 import { useUser } from '@/firebase';
-import { cn } from '@/lib/utils';
-import { Suspense } from 'react';
+import { Suspense, use } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 // This is the main component that renders the layout for a specific conversation.
@@ -12,7 +11,7 @@ export default function ConversationPage({
 }: {
   params: { conversationId: string };
 }) {
-  const { conversationId } = params;
+  const { conversationId } = use(params);
   const { user, loading } = useUser();
   const isMobile = useIsMobile();
 
