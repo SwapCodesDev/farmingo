@@ -201,10 +201,15 @@ export function SearchResultsClient({
             );
         } catch (e: any) {
             console.error("Error searching comments:", e);
+            const permissionError = new FirestorePermissionError({
+                path: '[ALL]/comments',
+                operation: 'list',
+            });
+            errorEmitter.emit('permission-error', permissionError);
         }
       }
 
-      // 4. Filter by time (only for posts and comments for now)
+      // 4. Filter by time
       const now = new Date();
       let startTime: Date | null = null;
       switch (initialTime) {
@@ -222,6 +227,10 @@ export function SearchResultsClient({
         fetchedComments = fetchedComments.filter(comment => {
             const commentDate = comment.createdAt instanceof Timestamp ? comment.createdAt.toDate() : new Date(comment.createdAt);
             return commentDate >= startTime!;
+        });
+        fetchedCommunities = fetchedCommunities.filter(community => {
+            const communityDate = community.createdAt instanceof Timestamp ? community.createdAt.toDate() : new Date(community.createdAt);
+            return communityDate >= startTime!;
         });
       }
 
