@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -10,7 +9,7 @@ import { useUserProfileDialog } from '@/context/user-profile-dialog-provider';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Loader2, MessageSquare, MoreVertical, Edit, Trash2, Pin, PinOff } from 'lucide-react';
+import { Loader2, MessageSquare, MoreVertical, Edit, Trash2, Pin, PinOff, Languages } from 'lucide-react';
 import { cn, formatUsername, formatTimestamp } from '@/lib/utils';
 import {
   Collapsible,
@@ -22,6 +21,10 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuPortal,
 } from '@/components/ui/dropdown-menu';
 import {
     AlertDialog,
@@ -38,6 +41,7 @@ import type { UserProfile } from '@/types';
 import { useAuthActions } from '@/hooks/use-auth-actions';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '../ui/badge';
+import { getTranslation } from '@/app/actions/translate';
 
 
 type CommentWithId = Comment & { id: string; createdAt: Timestamp | Date | string; parentId: string | null; upvotes?: string[]; downvotes?: string[]; authorRole?: UserProfile['role'] };
@@ -67,6 +71,9 @@ export function CommentThread({ comment, allComments, postId, postAuthorId, isPo
   
   const [replyText, setReplyText] = useState('');
   const [editText, setEditText] = useState(comment.text);
+  const [translatedText, setTranslatedText] = useState<string | null>(null);
+  const [isTranslating, setIsTranslating] = useState(false);
+
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isOpen, setIsOpen] = useState(true);
@@ -129,11 +136,24 @@ export function CommentThread({ comment, allComments, postId, postAuthorId, isPo
     }
   }
 
+  const handleTranslate = async (targetLanguage: string) => {
+    if (isTranslating) return;
+    setIsTranslating(true);
+    const { success, translatedText: newText, error } = await getTranslation({ text: comment.text, targetLanguage });
+    setIsTranslating(false);
+    if (success && newText) {
+      setTranslatedText(newText);
+    } else {
+      toast({ variant: 'destructive', title: 'Translation failed', description: error });
+    }
+  };
 
   const getInitials = (name: string) => {
     if (!name) return '';
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
   };
+
+  const displayedText = translatedText || comment.text;
 
   return (
     <>
@@ -170,35 +190,46 @@ export function CommentThread({ comment, allComments, postId, postAuthorId, isPo
                   {isOpen ? '[-]' : `[+${childComments.length}]`}
                 </span>
               </CollapsibleTrigger>
-                {(isOwner || isPostAuthor) && (
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-6 w-6">
-                                <MoreVertical className="h-4 w-4" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            {isPostAuthor && (
-                                <DropdownMenuItem onClick={handlePin}>
-                                    {isPinned ? <PinOff className="mr-2 h-4 w-4" /> : <Pin className="mr-2 h-4 w-4" />}
-                                    <span>{isPinned ? 'Unpin' : 'Pin'} Comment</span>
-                                </DropdownMenuItem>
-                            )}
-                            {isOwner && (
-                                <>
-                                <DropdownMenuItem onClick={() => { setIsEditing(true); setIsReplying(false) }}>
-                                    <Edit className="mr-2 h-4 w-4" />
-                                    <span>Edit</span>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => setIsDeleting(true)} className="text-destructive">
-                                    <Trash2 className="mr-2 h-4 w-4" />
-                                    <span>Delete</span>
-                                </DropdownMenuItem>
-                                </>
-                            )}
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                )}
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-6 w-6">
+                            <MoreVertical className="h-4 w-4" />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                         <DropdownMenuSub>
+                            <DropdownMenuSubTrigger>
+                                <Languages className="mr-2 h-4 w-4" />
+                                <span>Translate</span>
+                            </DropdownMenuSubTrigger>
+                            <DropdownMenuPortal>
+                                <DropdownMenuSubContent>
+                                <DropdownMenuItem onClick={() => handleTranslate('English')}>English</DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleTranslate('Hindi')}>Hindi</DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleTranslate('Marathi')}>Marathi</DropdownMenuItem>
+                                </DropdownMenuSubContent>
+                            </DropdownMenuPortal>
+                        </DropdownMenuSub>
+                        {isPostAuthor && (
+                            <DropdownMenuItem onClick={handlePin}>
+                                {isPinned ? <PinOff className="mr-2 h-4 w-4" /> : <Pin className="mr-2 h-4 w-4" />}
+                                <span>{isPinned ? 'Unpin' : 'Pin'} Comment</span>
+                            </DropdownMenuItem>
+                        )}
+                        {isOwner && (
+                            <>
+                            <DropdownMenuItem onClick={() => { setIsEditing(true); setIsReplying(false) }}>
+                                <Edit className="mr-2 h-4 w-4" />
+                                <span>Edit</span>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setIsDeleting(true)} className="text-destructive">
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                <span>Delete</span>
+                            </DropdownMenuItem>
+                            </>
+                        )}
+                    </DropdownMenuContent>
+                </DropdownMenu>
             </div>
           </div>
 
@@ -233,7 +264,12 @@ export function CommentThread({ comment, allComments, postId, postAuthorId, isPo
                 </div>
             ) : (
                 <>
-                <p className="text-sm mt-2">{comment.text}</p>
+                <p className="text-sm mt-2">{isTranslating ? 'Translating...' : displayedText}</p>
+                {translatedText && (
+                    <Button variant="link" className="p-0 h-auto text-xs" onClick={() => setTranslatedText(null)}>
+                        Show original
+                    </Button>
+                )}
                 <div className="flex items-center gap-2 mt-3 text-muted-foreground -ml-1">
                 <CommentVoteControl postId={postId} comment={comment} voteAction={voteAction} />
                 <Button

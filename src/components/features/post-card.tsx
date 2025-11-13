@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { useUser } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { Timestamp } from 'firebase/firestore';
-import { MessageSquare, MoreVertical, Trash2, Edit, Share2 } from 'lucide-react';
+import { MessageSquare, MoreVertical, Trash2, Edit, Share2, Languages, Loader2 } from 'lucide-react';
 import { cn, formatUsername, formatTimestamp } from '@/lib/utils';
 import { useAuthActions } from '@/hooks/use-auth-actions';
 import Image from 'next/image';
@@ -16,6 +16,10 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuPortal,
+  DropdownMenuSubContent
 } from '@/components/ui/dropdown-menu';
 import {
   AlertDialog,
@@ -33,22 +37,25 @@ import { useUserProfileDialog } from '@/context/user-profile-dialog-provider';
 import type { UserProfile } from '@/types';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-
+import { getTranslation } from '@/app/actions/translate';
 
 interface PostCardProps {
   post: Post & { createdAt: Timestamp | Date | string, upvotes?: string[], downvotes?: string[], commentCount?: number, communityId?: string, authorRole?: UserProfile['role'] };
   voteAction: (vote: 'up' | 'down') => void;
+  isDetailView?: boolean;
 }
 
 const TRUNCATE_LENGTH = 400;
 
-export function PostCard({ post, voteAction }: PostCardProps) {
+export function PostCard({ post, voteAction, isDetailView = false }: PostCardProps) {
   const { user } = useUser();
   const { toast } = useToast();
   const { deletePost } = useAuthActions();
   const { showProfile } = useUserProfileDialog();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [translatedText, setTranslatedText] = useState<string | null>(null);
+  const [isTranslating, setIsTranslating] = useState(false);
 
   const handleDelete = async () => {
     try {
@@ -67,9 +74,24 @@ export function PostCard({ post, voteAction }: PostCardProps) {
 
   const isOwner = user?.uid === post.uid;
 
-  const isLongPost = post.text.length > TRUNCATE_LENGTH;
+  const isLongPost = !isDetailView && post.text.length > TRUNCATE_LENGTH;
   const truncatedText = isLongPost ? `${post.text.substring(0, TRUNCATE_LENGTH)}` : post.text;
+  
   const postUrl = `/community/${post.id}`;
+  
+  const displayedText = translatedText || truncatedText;
+
+  const handleTranslate = async (targetLanguage: string) => {
+    if (isTranslating) return;
+    setIsTranslating(true);
+    const { success, translatedText: newText, error } = await getTranslation({ text: post.text, targetLanguage });
+    setIsTranslating(false);
+    if (success && newText) {
+      setTranslatedText(newText);
+    } else {
+      toast({ variant: 'destructive', title: 'Translation failed', description: error });
+    }
+  };
 
   return (
     <>
@@ -91,7 +113,6 @@ export function PostCard({ post, voteAction }: PostCardProps) {
             </span>
             <span>•</span>
             <span>{formatTimestamp(post.createdAt)}</span>
-            {isOwner && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon" className="h-6 w-6 ml-auto">
@@ -99,27 +120,43 @@ export function PostCard({ post, voteAction }: PostCardProps) {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => setIsEditDialogOpen(true)}>
-                    <Edit className="mr-2 h-4 w-4" />
-                    <span>Edit</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => setIsDeleteDialogOpen(true)}
-                    className="text-destructive"
-                  >
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    <span>Delete</span>
-                  </DropdownMenuItem>
+                  <DropdownMenuSub>
+                      <DropdownMenuSubTrigger>
+                          <Languages className="mr-2 h-4 w-4" />
+                          <span>Translate</span>
+                      </DropdownMenuSubTrigger>
+                      <DropdownMenuPortal>
+                          <DropdownMenuSubContent>
+                          <DropdownMenuItem onClick={() => handleTranslate('English')}>English</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleTranslate('Hindi')}>Hindi</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleTranslate('Marathi')}>Marathi</DropdownMenuItem>
+                          </DropdownMenuSubContent>
+                      </DropdownMenuPortal>
+                  </DropdownMenuSub>
+                  {isOwner && (
+                    <>
+                      <DropdownMenuItem onClick={() => setIsEditDialogOpen(true)}>
+                        <Edit className="mr-2 h-4 w-4" />
+                        <span>Edit</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => setIsDeleteDialogOpen(true)}
+                        className="text-destructive"
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        <span>Delete</span>
+                      </DropdownMenuItem>
+                    </>
+                  )}
                 </DropdownMenuContent>
               </DropdownMenu>
-            )}
         </div>
 
         <Link href={postUrl} className='cursor-pointer group'>
             <h2 className="font-bold text-lg mt-2 group-hover:underline">{post.title}</h2>
             
             <div 
-                className="mt-2 text-sm max-h-[250px] relative overflow-hidden"
+                className={cn("mt-2 text-sm relative overflow-hidden", !isDetailView && "max-h-[250px]")}
             >
               {post.imageUrl && (
                   <div className="relative aspect-video w-full my-2">
@@ -128,14 +165,19 @@ export function PostCard({ post, voteAction }: PostCardProps) {
               )}
               <div className={cn('prose', isLongPost && 'mask-gradient')}>
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                  {truncatedText}
+                  {isTranslating ? "Translating..." : displayedText}
                 </ReactMarkdown>
               </div>
-               {isLongPost && (
-               <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-card to-transparent pointer-events-none" />
-            )}
+              {isLongPost && (
+                <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-card to-transparent pointer-events-none" />
+              )}
             </div>
         </Link>
+        {translatedText && (
+          <Button variant="link" className="p-0 h-auto text-xs justify-start mt-1" onClick={() => setTranslatedText(null)}>
+            Show original
+          </Button>
+        )}
 
         <div className="flex items-center gap-2 text-muted-foreground mt-4 -ml-1">
           <VoteControl post={post} voteAction={voteAction} />
