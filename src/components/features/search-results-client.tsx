@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -29,8 +30,6 @@ import Image from 'next/image';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../ui/card';
 import { formatTimestamp, formatUsername } from '@/lib/utils';
 import { useUserProfileDialog } from '@/context/user-profile-dialog-provider';
-import { errorEmitter } from '@/firebase/error-emitter';
-import { FirestorePermissionError } from '@/firebase/errors';
 
 
 interface SearchResultsClientProps {
@@ -165,15 +164,7 @@ export function SearchResultsClient({
                 post.text.toLowerCase().includes(initialQuery.toLowerCase())
             );
         } catch (e: any) {
-            if (e.code === 'permission-denied') {
-                const permissionError = new FirestorePermissionError({
-                    path: postsRef.path,
-                    operation: 'list',
-                });
-                errorEmitter.emit('permission-error', permissionError);
-            } else {
-                console.error("Error searching posts:", e);
-            }
+            console.error("Error searching posts:", e);
         }
       }
 
@@ -189,15 +180,7 @@ export function SearchResultsClient({
                 community.description.toLowerCase().includes(initialQuery.toLowerCase())
             );
         } catch (e: any) {
-             if (e.code === 'permission-denied') {
-                const permissionError = new FirestorePermissionError({
-                    path: communitiesRef.path,
-                    operation: 'list',
-                });
-                errorEmitter.emit('permission-error', permissionError);
-            } else {
-                console.error("Error searching communities:", e);
-            }
+            console.error("Error searching communities:", e);
         }
       }
 
@@ -217,15 +200,7 @@ export function SearchResultsClient({
                 comment.text.toLowerCase().includes(initialQuery.toLowerCase())
             );
         } catch (e: any) {
-            if (e.code === 'permission-denied') {
-                const permissionError = new FirestorePermissionError({
-                    path: '[ALL]/comments', // Using a placeholder for collection group
-                    operation: 'list',
-                });
-                errorEmitter.emit('permission-error', permissionError);
-            } else {
-                console.error("Error searching comments:", e);
-            }
+            console.error("Error searching comments:", e);
         }
       }
 
