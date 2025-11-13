@@ -73,16 +73,6 @@ export function MessagesClient({ currentUser }: MessagesClientProps) {
 
   const selectedConvId = pathname.split('/').pop();
   
-  if (!isMobile && selectedConvId === 'messages') {
-    return (
-        <div className="hidden md:flex flex-col items-center justify-center h-full text-center text-muted-foreground p-8">
-            <MessageSquare className="h-16 w-16 mb-4" />
-            <h2 className="text-xl font-semibold">Select a conversation</h2>
-            <p>Choose from your existing conversations on the left, or start a new one.</p>
-        </div>
-    )
-  }
-
   return (
     <Card className="overflow-hidden h-full">
       <div className="p-4 border-b">
