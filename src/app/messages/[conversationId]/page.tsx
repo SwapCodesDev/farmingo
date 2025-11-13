@@ -7,11 +7,12 @@ import { Suspense } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 // This is the main component that renders the layout for a specific conversation.
-export default function ConversationPageContent({
+export default function ConversationPage({
   params,
 }: {
   params: { conversationId: string };
 }) {
+  const { conversationId } = params;
   const { user, loading } = useUser();
   const isMobile = useIsMobile();
 
@@ -28,7 +29,7 @@ export default function ConversationPageContent({
     return (
       <div className="h-[calc(100vh-8.5rem)]">
         <Suspense fallback={<p>Loading conversation...</p>}>
-          <ConversationClient conversationId={params.conversationId} />
+          <ConversationClient conversationId={conversationId} />
         </Suspense>
       </div>
     );
@@ -44,7 +45,7 @@ export default function ConversationPageContent({
       </div>
       <div className="md:col-span-2 lg:col-span-3 h-full">
         <Suspense fallback={<p>Loading conversation...</p>}>
-          <ConversationClient conversationId={params.conversationId} />
+          <ConversationClient conversationId={conversationId} />
         </Suspense>
       </div>
     </div>
