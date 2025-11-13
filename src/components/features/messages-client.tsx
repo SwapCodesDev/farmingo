@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn, formatTimestamp } from '@/lib/utils';
-import { Search, Users } from 'lucide-react';
+import { Search, Users, MessageSquare } from 'lucide-react';
 import Link from 'next/link';
 import { Card } from '../ui/card';
 import { Button } from '../ui/button';
