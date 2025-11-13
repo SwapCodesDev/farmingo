@@ -205,7 +205,7 @@ export function SearchResultsClient({
             
             const allComments = commentsSnapshot.docs.map(doc => {
                 const path = doc.ref.path.split('/');
-                const postId = path[path.indexOf('posts') + 1];
+                const postId = path[path.indexOf('posts') + 1] || path[path.indexOf('marketplacePosts') + 1];
                 return { id: doc.id, postId, ...doc.data() } as Comment & { postId: string };
             });
 
@@ -215,7 +215,7 @@ export function SearchResultsClient({
         } catch (e: any) {
             if (e.code === 'permission-denied') {
                 const permissionError = new FirestorePermissionError({
-                    path: '[ALL]/comments',
+                    path: '[ALL]/comments', // Using a placeholder for collection group
                     operation: 'list',
                 });
                 errorEmitter.emit('permission-error', permissionError);
