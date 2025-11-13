@@ -17,8 +17,9 @@ import {
   collection,
   Timestamp,
   getDocs,
+  collectionGroup,
 } from 'firebase/firestore';
-import type { Post } from '@/lib/actions/community';
+import type { Post, Comment } from '@/lib/actions/community';
 import { PostCard } from './post-card';
 import { useAuthActions } from '@/hooks/use-auth-actions';
 import type { UserProfile } from '@/types';
@@ -76,6 +77,27 @@ function CommunityResultCard({ community }: { community: Community }) {
     );
 }
 
+function CommentResultCard({ comment, postId }: { comment: Comment, postId: string }) {
+    const { showProfile } = useUserProfileDialog();
+    const postUrl = `/community/${postId}#comment-${comment.id}`;
+    return (
+        <Card>
+            <CardContent className="p-4">
+                <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
+                    <button onClick={() => showProfile(comment.author)} className="font-semibold text-foreground hover:underline">
+                        {formatUsername(comment.author, comment.authorRole)}
+                    </button>
+                    <span>commented</span>
+                    <span>{formatTimestamp(comment.createdAt)}</span>
+                </div>
+                <Link href={postUrl}>
+                    <p className="text-sm line-clamp-3 hover:underline">{comment.text}</p>
+                </Link>
+            </CardContent>
+        </Card>
+    )
+}
+
 
 export function SearchResultsClient({
   query: initialQuery,
@@ -85,9 +107,13 @@ export function SearchResultsClient({
   const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [sortOption, setSortOption] = useState(initialSort);
   const [timeOption, setTimeOption] = useState(initialTime);
+  const [searchType, setSearchType] = useState('all');
+
   const [isLoading, setIsLoading] = useState(false);
   const [postResults, setPostResults] = useState<Post[]>([]);
   const [communityResults, setCommunityResults] = useState<Community[]>([]);
+  const [commentResults, setCommentResults] = useState<(Comment & {postId: string})[]>([]);
+
 
   const router = useRouter();
   const pathname = usePathname();
@@ -100,6 +126,7 @@ export function SearchResultsClient({
     params.set('q', searchQuery);
     params.set('sort', sortOption);
     params.set('t', timeOption);
+    params.set('type', searchType);
     router.push(`${pathname}?${params.toString()}`);
   };
 
@@ -107,33 +134,59 @@ export function SearchResultsClient({
     if (!firestore || !initialQuery) {
       setPostResults([]);
       setCommunityResults([]);
+      setCommentResults([]);
       return;
     }
     setIsLoading(true);
 
+    const searchAll = searchType === 'all';
+
     try {
+        let fetchedPosts: Post[] = [];
+        let fetchedCommunities: Community[] = [];
+        let fetchedComments: (Comment & {postId: string})[] = [];
+
       // 1. Search Posts
-      const postsRef = collection(firestore, 'posts');
-      const postsSnapshot = await getDocs(postsRef);
-      let fetchedPosts = postsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Post));
-      
-      fetchedPosts = fetchedPosts.filter(post => 
-          post.title.toLowerCase().includes(initialQuery.toLowerCase()) ||
-          post.text.toLowerCase().includes(initialQuery.toLowerCase())
-      );
+      if (searchAll || searchType === 'posts') {
+        const postsRef = collection(firestore, 'posts');
+        const postsSnapshot = await getDocs(postsRef);
+        fetchedPosts = postsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Post));
+        
+        fetchedPosts = fetchedPosts.filter(post => 
+            post.title.toLowerCase().includes(initialQuery.toLowerCase()) ||
+            post.text.toLowerCase().includes(initialQuery.toLowerCase())
+        );
+      }
 
       // 2. Search Communities
-      const communitiesRef = collection(firestore, 'communities');
-      const communitiesSnapshot = await getDocs(communitiesRef);
-      let fetchedCommunities = communitiesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Community));
+      if (searchAll || searchType === 'communities') {
+        const communitiesRef = collection(firestore, 'communities');
+        const communitiesSnapshot = await getDocs(communitiesRef);
+        fetchedCommunities = communitiesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Community));
 
-      fetchedCommunities = fetchedCommunities.filter(community =>
-        community.name.toLowerCase().includes(initialQuery.toLowerCase()) ||
-        community.description.toLowerCase().includes(initialQuery.toLowerCase())
-      );
+        fetchedCommunities = fetchedCommunities.filter(community =>
+            community.name.toLowerCase().includes(initialQuery.toLowerCase()) ||
+            community.description.toLowerCase().includes(initialQuery.toLowerCase())
+        );
+      }
 
+      // 3. Search Comments
+      if (searchAll || searchType === 'comments') {
+        const commentsRef = collectionGroup(firestore, 'comments');
+        const commentsSnapshot = await getDocs(commentsRef);
+        
+        const allComments = commentsSnapshot.docs.map(doc => {
+            const path = doc.ref.path.split('/');
+            const postId = path[path.indexOf('posts') + 1];
+            return { id: doc.id, postId, ...doc.data() } as Comment & { postId: string };
+        });
 
-      // 3. Filter by time (only for posts for now)
+        fetchedComments = allComments.filter(comment =>
+            comment.text.toLowerCase().includes(initialQuery.toLowerCase())
+        );
+      }
+
+      // 4. Filter by time (only for posts and comments for now)
       const now = new Date();
       let startTime: Date | null = null;
       switch (initialTime) {
@@ -148,32 +201,43 @@ export function SearchResultsClient({
             const postDate = post.createdAt instanceof Timestamp ? post.createdAt.toDate() : new Date(post.createdAt);
             return postDate >= startTime!;
         });
+        fetchedComments = fetchedComments.filter(comment => {
+            const commentDate = comment.createdAt instanceof Timestamp ? comment.createdAt.toDate() : new Date(comment.createdAt);
+            return commentDate >= startTime!;
+        });
       }
 
-      // 4. Sort results
-      fetchedPosts.sort((a, b) => {
-        const scoreA = (a.upvotes?.length || 0) - (a.downvotes?.length || 0);
-        const scoreB = (b.upvotes?.length || 0) - (b.downvotes?.length || 0);
-        const dateA = a.createdAt instanceof Timestamp ? a.createdAt.toDate() : new Date(a.createdAt);
-        const dateB = b.createdAt instanceof Timestamp ? b.createdAt.toDate() : new Date(b.createdAt);
+      // 5. Sort results
+      const sortItems = (items: any[], key: 'posts' | 'comments' | 'communities') => {
+        items.sort((a, b) => {
+            const scoreA = (a.upvotes?.length || 0) - (a.downvotes?.length || 0);
+            const scoreB = (b.upvotes?.length || 0) - (b.downvotes?.length || 0);
+            const dateA = a.createdAt instanceof Timestamp ? a.createdAt.toDate() : new Date(a.createdAt);
+            const dateB = b.createdAt instanceof Timestamp ? b.createdAt.toDate() : new Date(b.createdAt);
 
-        switch(initialSort) {
-            case 'popular':
-            case 'top':
-                return scoreB - scoreA;
-            case 'comment_count':
-                return (b.commentCount || 0) - (a.commentCount || 0);
-            case 'new':
-            case 'relevance': // Fallback for relevance
-            default:
-                return dateB.getTime() - dateA.getTime();
-        }
-      });
+            switch(initialSort) {
+                case 'popular':
+                case 'top':
+                    return scoreB - scoreA;
+                case 'comment_count':
+                    if (key === 'posts') {
+                        return (b.commentCount || 0) - (a.commentCount || 0);
+                    }
+                    return 0; // Not applicable for comments/communities in this sort
+                case 'new':
+                case 'relevance': // Fallback for relevance
+                default:
+                    return dateB.getTime() - dateA.getTime();
+            }
+        });
+        return items;
+      }
       
+      setPostResults(sortItems(fetchedPosts, 'posts'));
+      setCommentResults(sortItems(fetchedComments, 'comments'));
       fetchedCommunities.sort((a, b) => (b.postCount || 0) - (a.postCount || 0));
-
-      setPostResults(fetchedPosts);
       setCommunityResults(fetchedCommunities);
+
     } catch (error) {
       console.error("Error performing search:", error);
     } finally {
@@ -190,14 +254,16 @@ export function SearchResultsClient({
   useEffect(() => {
     updateURL();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sortOption, timeOption]);
+  }, [sortOption, timeOption, searchType]);
 
   useEffect(() => {
+    const type = searchParams.get('type') || 'all';
+    setSearchType(type);
     performSearch();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialQuery, initialSort, initialTime, firestore]);
+  }, [initialQuery, initialSort, initialTime, firestore, searchParams]);
 
-  const hasResults = communityResults.length > 0 || postResults.length > 0;
+  const hasResults = communityResults.length > 0 || postResults.length > 0 || commentResults.length > 0;
 
   return (
     <div className="space-y-6">
@@ -223,6 +289,17 @@ export function SearchResultsClient({
       
       <div className="flex flex-col md:flex-row items-center gap-2">
         <div className="flex items-center gap-2 w-full">
+            <Select value={searchType} onValueChange={setSearchType}>
+                <SelectTrigger className="flex-1">
+                    <SelectValue placeholder="Search in..." />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">All Content</SelectItem>
+                    <SelectItem value="posts">Posts</SelectItem>
+                    <SelectItem value="communities">Communities</SelectItem>
+                    <SelectItem value="comments">Comments</SelectItem>
+                </SelectContent>
+            </Select>
             <Select value={sortOption} onValueChange={setSortOption}>
                 <SelectTrigger className="flex-1">
                     <SelectValue placeholder="Sort by" />
@@ -283,6 +360,14 @@ export function SearchResultsClient({
                         <h2 className="font-headline text-2xl font-bold">Posts</h2>
                         {postResults.map(post => (
                             <PostCard key={post.id} post={post} voteAction={(vote) => voteOnPost(post.id, vote)} />
+                        ))}
+                    </div>
+                 )}
+                 {commentResults.length > 0 && (
+                    <div className="space-y-4">
+                        <h2 className="font-headline text-2xl font-bold">Comments</h2>
+                        {commentResults.map(comment => (
+                            <CommentResultCard key={comment.id} comment={comment} postId={comment.postId} />
                         ))}
                     </div>
                  )}
