@@ -89,7 +89,7 @@ export function PostCard({ post, voteAction, isDetailView = false }: PostCardPro
     if (success && newText) {
       setTranslatedText(newText);
     } else {
-      toast({ variant: 'destructive', title: 'Translation failed', description: error });
+      toast({ variant: 'destructive', title: 'Translation failed', description: error || 'Failed to get translation from AI model.' });
     }
   };
 
