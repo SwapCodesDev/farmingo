@@ -29,6 +29,7 @@ import { recommendCrop } from '@/app/actions/recommend-crop';
 import { predictDiseaseApi } from '@/app/actions/predict-disease-api';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
+import { Label } from '@/components/ui/label';
 
 
 const priceFormSchema = z.object({
@@ -112,8 +113,8 @@ export default function ApiTestingPage() {
   -H 'Content-Type: application/json' \\
   -d '{
   "auto_location": false,
-  "latitude": ${coordinates?.lat || 0},
-  "longitude": ${coordinates?.lon || 0}
+  "latitude": ${coordinates?.lat || 18.5958},
+  "longitude": ${coordinates?.lon || 73.7935}
 }'`;
 
     const currentDiseaseCropName = diseaseForm.watch('crop_name');
@@ -363,14 +364,14 @@ async function onDiseaseSubmit(values: z.infer<typeof diseaseFormSchema>) {
                 </div>
                  {coordinates && (
                     <div className="grid grid-cols-2 gap-4">
-                        <FormItem>
-                            <FormLabel>Latitude</FormLabel>
-                            <Input readOnly value={coordinates.lat.toFixed(4)} />
-                        </FormItem>
-                        <FormItem>
-                            <FormLabel>Longitude</FormLabel>
-                            <Input readOnly value={coordinates.lon.toFixed(4)} />
-                        </FormItem>
+                        <div className="space-y-2">
+                            <Label htmlFor="latitude">Latitude</Label>
+                            <Input id="latitude" readOnly value={coordinates.lat.toFixed(4)} />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="longitude">Longitude</Label>
+                            <Input id="longitude" readOnly value={coordinates.lon.toFixed(4)} />
+                        </div>
                     </div>
                 )}
             </div>
