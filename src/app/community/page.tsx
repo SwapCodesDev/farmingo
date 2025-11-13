@@ -1,4 +1,6 @@
+
 import { CommunityListClient } from '@/components/features/community-list-client';
+import { CommunitySearchBar } from '@/components/features/community-search-bar';
 import { Suspense } from 'react';
 
 export default function CommunityPage() {
@@ -9,9 +11,12 @@ export default function CommunityPage() {
           Community Hub
         </h1>
         <p className="text-muted-foreground">
-          Connect with fellow farmers, share knowledge, and grow together. Explore a community below.
+          Connect with fellow farmers, share knowledge, and grow together. Explore a community or search for content below.
         </p>
       </div>
+
+      <CommunitySearchBar />
+      
       <Suspense fallback={<p>Loading communities...</p>}>
         <CommunityListClient />
       </Suspense>
