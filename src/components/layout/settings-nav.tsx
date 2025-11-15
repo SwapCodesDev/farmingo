@@ -19,6 +19,10 @@ const sidebarNavItems = [
     href: '/settings/notifications',
   },
   {
+    title: 'Translation',
+    href: '/settings/translation',
+  },
+  {
     title: 'My Orders',
     href: '/settings/orders',
   },
