@@ -105,7 +105,7 @@ export function MarketplaceClient() {
     voteOnMarketplacePost(firestore, user.uid, postId, vote);
   }
 
-  const isVerifiedSeller = userProfile?.role === 'farmer' || userProfile?.isVerified === true;
+  const isVerifiedSeller = userProfile?.isVerified === true;
 
   return (
     <div className="space-y-8">
@@ -155,7 +155,7 @@ export function MarketplaceClient() {
                 <Info className="h-4 w-4" />
                 <AlertTitle>Want to sell here?</AlertTitle>
                 <AlertDescription>
-                  Only verified sellers can list products in this marketplace. You can become a seller by registering as a 'farmer' in your <Link href="/settings/profile" className="font-semibold underline">profile settings</Link>.
+                  Only users with a verified seller account can list products in this marketplace. Verification is handled by administrators.
                 </AlertDescription>
               </Alert>
             )}
