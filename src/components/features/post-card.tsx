@@ -141,10 +141,9 @@ export function PostCard({ post, voteAction, isDetailView = false }: PostCardPro
       try {
         await navigator.share(shareData);
       } catch (error) {
-        console.error('Error sharing:', error);
-        // Fallback to copy link if sharing fails (e.g., user cancels)
-        await navigator.clipboard.writeText(shareUrl);
-        toast({ title: 'Link copied to clipboard!' });
+        // This error can happen if the user cancels the share dialog.
+        // We don't want to show an error toast in that case.
+        console.log('Share was cancelled or failed:', error);
       }
     } else {
       // Fallback for browsers that don't support the Web Share API
