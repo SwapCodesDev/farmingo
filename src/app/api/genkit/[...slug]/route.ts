@@ -1,4 +1,4 @@
-import { genkitNextHandler } from '@genkit-ai/next';
+import genkitNextHandler from '@genkit-ai/next';
 import { ai } from '@/ai/genkit';
 import '@/ai/flows/crop-disease-diagnosis';
 import '@/ai/flows/crop-price-prediction';
