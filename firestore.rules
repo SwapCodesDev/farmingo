@@ -38,7 +38,7 @@ service cloud.firestore {
     }
 
     match /posts/{postId} {
-      allow read, list: if request.auth != null;
+      allow read, list: if true;
       allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
       allow update: if request.auth != null && (
         (resource.data.uid == request.auth.uid) ||
@@ -50,7 +50,7 @@ service cloud.firestore {
     match /products/{productId} {
       function userIsVerifiedSeller(userId) {
         let user = get(/databases/$(database)/documents/users/$(userId)).data;
-        return user.isVerified == true || user.role == 'farmer';
+        return user.isVerified == true;
       }
 
       allow read, list: if true;
