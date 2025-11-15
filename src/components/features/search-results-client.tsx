@@ -30,6 +30,8 @@ import Image from 'next/image';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../ui/card';
 import { formatTimestamp, formatUsername } from '@/lib/utils';
 import { useUserProfileDialog } from '@/context/user-profile-dialog-provider';
+import { FirestorePermissionError } from '@/firebase/errors';
+import { errorEmitter } from '@/firebase/error-emitter';
 
 
 interface SearchResultsClientProps {
@@ -200,7 +202,6 @@ export function SearchResultsClient({
                 comment.text.toLowerCase().includes(initialQuery.toLowerCase())
             );
         } catch (e: any) {
-            console.error("Error searching comments:", e);
             const permissionError = new FirestorePermissionError({
                 path: '[ALL]/comments',
                 operation: 'list',
