@@ -50,9 +50,9 @@ const TRUNCATE_LENGTH = 400;
 const availableLanguages = [
     { value: 'en', label: 'English' },
     { value: 'hi', label: 'हिन्दी (Hindi)' },
+    { value: 'mr', label: 'मराठी (Marathi)' },
     { value: 'bn', label: 'বাংলা (Bengali)' },
     { value: 'te', label: 'తెలుగు (Telugu)' },
-    { value: 'mr', label: 'मराठी (Marathi)' },
     { value: 'ta', label: 'தமிழ் (Tamil)' },
     { value: 'gu', label: 'ગુજરાતી (Gujarati)' },
     { value: 'kn', label: 'ಕನ್ನಡ (Kannada)' },
@@ -128,6 +128,30 @@ export function PostCard({ post, voteAction, isDetailView = false }: PostCardPro
     setTranslatedTitle(null);
     setTranslatedText(null);
   }
+
+  const handleShare = async () => {
+    const shareUrl = `${window.location.origin}${postUrl}`;
+    const shareData = {
+      title: post.title,
+      text: `Check out this post on Farmingo: "${post.title}"`,
+      url: shareUrl,
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (error) {
+        console.error('Error sharing:', error);
+        // Fallback to copy link if sharing fails (e.g., user cancels)
+        await navigator.clipboard.writeText(shareUrl);
+        toast({ title: 'Link copied to clipboard!' });
+      }
+    } else {
+      // Fallback for browsers that don't support the Web Share API
+      await navigator.clipboard.writeText(shareUrl);
+      toast({ title: 'Link copied to clipboard!' });
+    }
+  };
 
   return (
     <>
@@ -225,7 +249,7 @@ export function PostCard({ post, voteAction, isDetailView = false }: PostCardPro
               <span>{post.commentCount || 0}</span>
             </Link>
           </Button>
-          <Button variant="ghost" size="sm" className="bg-muted/50 hover:bg-muted rounded-full">
+          <Button variant="ghost" size="sm" className="bg-muted/50 hover:bg-muted rounded-full" onClick={handleShare}>
             <Share2 className="mr-2 h-4 w-4" />
             <span>Share</span>
           </Button>
