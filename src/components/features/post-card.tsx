@@ -51,24 +51,24 @@ const availableLanguages = [
     { value: 'en', label: 'English' },
     { value: 'hi', label: 'हिन्दी (Hindi)' },
     { value: 'bn', label: 'বাংলা (Bengali)' },
-    { value: 'mr', label: 'मराठी (Marathi)' },
     { value: 'te', label: 'తెలుగు (Telugu)' },
+    { value: 'mr', label: 'मराठी (Marathi)' },
     { value: 'ta', label: 'தமிழ் (Tamil)' },
     { value: 'gu', label: 'ગુજરાતી (Gujarati)' },
     { value: 'kn', label: 'ಕನ್ನಡ (Kannada)' },
     { value: 'or', label: 'ଓଡ଼ିଆ (Odia)' },
-    { value: 'ml', label: 'മലയാളം (Malayalam)' },
     { value: 'pa', label: 'ਪੰਜਾਬੀ (Punjabi)' },
+    { value: 'ml', label: 'മലയാളം (Malayalam)' },
     { value: 'as', label: 'অসমীয়া (Assamese)' },
     { value: 'mai', label: 'मैथिली (Maithili)' },
-    { value: 'sat', label: 'संताली (Santali)' },
     { value: 'ks', label: 'कٲशُر (Kashmiri)' },
     { value: 'ne', label: 'नेपाली (Nepali)' },
-    { value: 'sd', label: 'सिंधी (Sindhi)' },
+    { value: 'sat', label: 'संताली (Santali)' },
     { value: 'kok', label: 'कोंकणी (Konkani)' },
+    { value: 'sd', label: 'सिंधी (Sindhi)' },
+    { value: 'mni', label: 'Manipuri (Meitei)' },
     { value: 'doi', label: 'डोगरी (Dogri)' },
     { value: 'brx', label: 'बोड़ो (Bodo)' },
-    { value: 'mni', label: 'Manipuri (Meitei)' },
     { value: 'sa', label: 'संस्कृतम् (Sanskrit)' },
 ];
 
@@ -162,7 +162,7 @@ export function PostCard({ post, voteAction, isDetailView = false }: PostCardPro
                           <span>Translate</span>
                       </DropdownMenuSubTrigger>
                       <DropdownMenuPortal>
-                          <DropdownMenuSubContent>
+                          <DropdownMenuSubContent className="max-h-64 overflow-y-auto">
                             {availableLanguages.map(lang => (
                                 <DropdownMenuItem key={lang.value} onClick={() => handleTranslate(lang.label.split(' ')[0])}>
                                     {lang.label}
