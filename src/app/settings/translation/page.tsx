@@ -6,7 +6,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
@@ -20,6 +19,8 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { Globe, Languages } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
 
 const availableLanguages = [
     { value: 'en', label: 'English' },
@@ -35,9 +36,9 @@ const availableLanguages = [
     { value: 'ml', label: 'മലയാളം (Malayalam)' },
     { value: 'as', label: 'অসমীয়া (Assamese)' },
     { value: 'mai', label: 'मैथिली (Maithili)' },
-    { value: 'sat', label: 'संताली (Santali)' },
-    { value: 'ks', label: 'کٲشُر (Kashmiri)' },
+    { value: 'ks', label: 'कٲشُر (Kashmiri)' },
     { value: 'ne', label: 'नेपाली (Nepali)' },
+    { value: 'sat', label: 'संताली (Santali)' },
     { value: 'kok', label: 'कोंकणी (Konkani)' },
     { value: 'sd', label: 'सिंधी (Sindhi)' },
     { value: 'mni', label: 'Manipuri (Meitei)' },
@@ -55,7 +56,7 @@ export default function TranslationSettingsPage() {
     // In a real app, you'd save this to the user's profile in Firestore.
     toast({
         title: "Preferences Saved",
-        description: `Your default language has been set to ${availableLanguages.find(l => l.value === selectedLanguage)?.label}.`,
+        description: "Your translation settings have been updated.",
     });
   };
 
@@ -64,7 +65,7 @@ export default function TranslationSettingsPage() {
       <div>
         <h3 className="text-lg font-medium">Translation</h3>
         <p className="text-sm text-muted-foreground">
-          Choose the default language for content translation across the app.
+          Choose your preferred language and manage automatic translation settings.
         </p>
       </div>
       <Separator />
@@ -73,7 +74,7 @@ export default function TranslationSettingsPage() {
         <CardHeader>
           <CardTitle>Default Language</CardTitle>
           <CardDescription>
-            This language will be used as the primary target for the "Translate" feature on posts and comments.
+            This language will be used as the primary target for the "Translate" feature.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -93,10 +94,44 @@ export default function TranslationSettingsPage() {
                 </Select>
             </div>
         </CardContent>
-        <CardFooter>
-            <Button onClick={handleSaveChanges}>Save Changes</Button>
-        </CardFooter>
       </Card>
+
+       <Card>
+        <CardHeader>
+          <CardTitle>Auto-translation Settings</CardTitle>
+          <CardDescription>
+            Choose which types of content should be automatically translated to your default language.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center space-x-3">
+            <Checkbox id="auto-community-posts" />
+            <Label htmlFor="auto-community-posts" className="font-medium">
+              Community Posts
+            </Label>
+          </div>
+          <div className="flex items-center space-x-3">
+            <Checkbox id="auto-market-posts" />
+            <Label htmlFor="auto-market-posts" className="font-medium">
+              Marketplace Posts
+            </Label>
+          </div>
+           <div className="flex items-center space-x-3">
+            <Checkbox id="auto-comments" />
+            <Label htmlFor="auto-comments" className="font-medium">
+              Comments
+            </Label>
+          </div>
+           <div className="flex items-center space-x-3">
+            <Checkbox id="auto-market-items" />
+            <Label htmlFor="auto-market-items" className="font-medium">
+              Market Items (Descriptions)
+            </Label>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Button onClick={handleSaveChanges}>Save Changes</Button>
     </div>
   );
 }
