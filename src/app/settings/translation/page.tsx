@@ -23,16 +23,27 @@ import { Globe, Languages } from 'lucide-react';
 
 const availableLanguages = [
     { value: 'en', label: 'English' },
-    { value: 'hi', label: 'हिन्दी (Hindi)' },
-    { value: 'mr', label: 'मराठी (Marathi)' },
+    { value: 'as', label: 'অসমীয়া (Assamese)' },
     { value: 'bn', label: 'বাংলা (Bengali)' },
-    { value: 'te', label: 'తెలుగు (Telugu)' },
-    { value: 'ta', label: 'தமிழ் (Tamil)' },
+    { value: 'brx', label: 'बोड़ो (Bodo)' },
+    { value: 'doi', label: 'डोगरी (Dogri)' },
     { value: 'gu', label: 'ગુજરાતી (Gujarati)' },
+    { value: 'hi', label: 'हिन्दी (Hindi)' },
     { value: 'kn', label: 'ಕನ್ನಡ (Kannada)' },
+    { value: 'ks', label: 'کٲشُر (Kashmiri)' },
+    { value: 'kok', label: 'कोंकणी (Konkani)' },
+    { value: 'mai', label: 'मैथिली (Maithili)' },
     { value: 'ml', label: 'മലയാളം (Malayalam)' },
-    { value: 'pa', label: 'ਪੰਜਾਬੀ (Punjabi)' },
+    { value: 'mni', label: 'manipuri (Meitei)' },
+    { value: 'mr', label: 'मराठी (Marathi)' },
+    { value: 'ne', label: 'नेपाली (Nepali)' },
     { value: 'or', label: 'ଓଡ଼ିଆ (Odia)' },
+    { value: 'pa', label: 'ਪੰਜਾਬੀ (Punjabi)' },
+    { value: 'sa', label: 'संस्कृतम् (Sanskrit)' },
+    { value: 'sat', label: 'संताली (Santali)' },
+    { value: 'sd', label: 'सिंधी (Sindhi)' },
+    { value: 'ta', label: 'தமிழ் (Tamil)' },
+    { value 'te', label: 'తెలుగు (Telugu)' },
 ];
 
 
