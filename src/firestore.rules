@@ -68,24 +68,18 @@ service cloud.firestore {
       allow delete: if request.auth != null && (resource.data.uid == request.auth.uid || isModerator());
     }
 
-    // Collection group rule for all 'comments' subcollections
+    // This single rule allows listing comments across all subcollections for authenticated users.
     match /{path=**}/comments/{commentId} {
-      allow read, list: if request.auth != null;
+      allow list: if request.auth != null;
+      allow read: if request.auth != null;
       allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
       allow update: if request.auth != null && (
-        (resource.data.uid == request.auth.uid) ||
+        isOwner(resource.data.uid) ||
         (
-          request.resource.data.diff(resource.data).changedKeys().hasOnly(['upvotes', 'downvotes', 'replyCount']) &&
-          request.resource.data.upvotes is list &&
-          request.resource.data.downvotes is list &&
-          request.resource.data.replyCount is number
+          request.resource.data.diff(resource.data).changedKeys().hasOnly(['upvotes', 'downvotes', 'replyCount'])
         )
       );
-      allow delete: if request.auth != null && (
-        isOwner(resource.data.uid) ||
-        isModerator()
-        // Add logic to check if user is the author of the parent post if needed
-      );
+      allow delete: if request.auth != null && (isOwner(resource.data.uid) || isModerator());
     }
     
     match /orders/{orderId} {
