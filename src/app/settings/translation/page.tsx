@@ -21,12 +21,13 @@ import { useToast } from '@/hooks/use-toast';
 import { Globe, Languages } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 
 const availableLanguages = [
     { value: 'en', label: 'English' },
     { value: 'hi', label: 'हिन्दी (Hindi)' },
-    { value: 'bn', label: 'বাংলা (Bengali)' },
     { value: 'mr', label: 'मराठी (Marathi)' },
+    { value: 'bn', label: 'বাংলা (Bengali)' },
     { value: 'te', label: 'తెలుగు (Telugu)' },
     { value: 'ta', label: 'தமிழ் (Tamil)' },
     { value: 'gu', label: 'ગુજરાતી (Gujarati)' },
@@ -36,7 +37,7 @@ const availableLanguages = [
     { value: 'ml', label: 'മലയാളം (Malayalam)' },
     { value: 'as', label: 'অসমীয়া (Assamese)' },
     { value: 'mai', label: 'मैथिली (Maithili)' },
-    { value: 'ks', label: 'कٲشُر (Kashmiri)' },
+    { value: 'ks', label: 'कٲशُر (Kashmiri)' },
     { value: 'ne', label: 'नेपाली (Nepali)' },
     { value: 'sat', label: 'संताली (Santali)' },
     { value: 'kok', label: 'कोंकणी (Konkani)' },
@@ -103,30 +104,42 @@ export default function TranslationSettingsPage() {
             Choose which types of content should be automatically translated to your default language.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center space-x-3">
-            <Checkbox id="auto-community-posts" />
-            <Label htmlFor="auto-community-posts" className="font-medium">
-              Community Posts
-            </Label>
+        <CardContent className="space-y-6 pt-6">
+          <div className="flex items-center justify-between rounded-lg border p-4">
+            <div className="space-y-0.5">
+              <Label htmlFor="auto-community-posts" className="text-base">Community Posts</Label>
+              <p className="text-sm text-muted-foreground">
+                Automatically translate titles and content of community posts.
+              </p>
+            </div>
+            <Switch id="auto-community-posts" />
           </div>
-          <div className="flex items-center space-x-3">
-            <Checkbox id="auto-market-posts" />
-            <Label htmlFor="auto-market-posts" className="font-medium">
-              Marketplace Posts
-            </Label>
+           <div className="flex items-center justify-between rounded-lg border p-4">
+            <div className="space-y-0.5">
+              <Label htmlFor="auto-market-posts" className="text-base">Marketplace Posts</Label>
+               <p className="text-sm text-muted-foreground">
+                Translate item names and descriptions in the indirect market.
+              </p>
+            </div>
+            <Switch id="auto-market-posts" />
           </div>
-           <div className="flex items-center space-x-3">
-            <Checkbox id="auto-comments" />
-            <Label htmlFor="auto-comments" className="font-medium">
-              Comments
-            </Label>
+           <div className="flex items-center justify-between rounded-lg border p-4">
+            <div className="space-y-0.5">
+              <Label htmlFor="auto-comments" className="text-base">Comments</Label>
+               <p className="text-sm text-muted-foreground">
+                Translate comments on all posts across the platform.
+              </p>
+            </div>
+            <Switch id="auto-comments" />
           </div>
-           <div className="flex items-center space-x-3">
-            <Checkbox id="auto-market-items" />
-            <Label htmlFor="auto-market-items" className="font-medium">
-              Market Items (Descriptions)
-            </Label>
+           <div className="flex items-center justify-between rounded-lg border p-4">
+            <div className="space-y-0.5">
+              <Label htmlFor="auto-market-items" className="text-base">Verified Market Items</Label>
+               <p className="text-sm text-muted-foreground">
+                Translate product names and descriptions from verified sellers.
+              </p>
+            </div>
+            <Switch id="auto-market-items" />
           </div>
         </CardContent>
       </Card>
