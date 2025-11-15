@@ -43,7 +43,7 @@ const availableLanguages = [
     { value: 'sat', label: 'संताली (Santali)' },
     { value: 'sd', label: 'सिंधी (Sindhi)' },
     { value: 'ta', label: 'தமிழ் (Tamil)' },
-    { value 'te', label: 'తెలుగు (Telugu)' },
+    { value: 'te', label: 'తెలుగు (Telugu)' },
 ];
 
 
