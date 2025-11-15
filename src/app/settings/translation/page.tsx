@@ -25,11 +25,14 @@ const availableLanguages = [
     { value: 'en', label: 'English' },
     { value: 'hi', label: 'हिन्दी (Hindi)' },
     { value: 'mr', label: 'मराठी (Marathi)' },
-    { value: 'es', label: 'Español (Spanish)' },
-    { value: 'fr', label: 'Français (French)' },
-    { value: 'de', label: 'Deutsch (German)' },
-    { value: 'zh', label: '中文 (Mandarin)' },
-    { value: 'ja', label: '日本語 (Japanese)' },
+    { value: 'bn', label: 'বাংলা (Bengali)' },
+    { value: 'te', label: 'తెలుగు (Telugu)' },
+    { value: 'ta', label: 'தமிழ் (Tamil)' },
+    { value: 'gu', label: 'ગુજરાતી (Gujarati)' },
+    { value: 'kn', label: 'ಕನ್ನಡ (Kannada)' },
+    { value: 'ml', label: 'മലയാളം (Malayalam)' },
+    { value: 'pa', label: 'ਪੰਜਾਬੀ (Punjabi)' },
+    { value: 'or', label: 'ଓଡ଼ିଆ (Odia)' },
 ];
 
 
