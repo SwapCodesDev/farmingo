@@ -53,7 +53,7 @@ const prompt = ai.definePrompt({
   `,
 });
 
-const diagnoseCropDiseaseFlow = ai.defineFlow(
+export const diagnoseCropDiseaseFlow = ai.defineFlow(
   {
     name: 'diagnoseCropDiseaseFlow',
     inputSchema: DiagnoseCropDiseaseInputSchema,

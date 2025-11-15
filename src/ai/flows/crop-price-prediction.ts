@@ -52,7 +52,7 @@ const predictCropPricePrompt = ai.definePrompt({
   `,
 });
 
-const predictCropPriceFlow = ai.defineFlow(
+export const predictCropPriceFlow = ai.defineFlow(
   {
     name: 'predictCropPriceFlow',
     inputSchema: PredictCropPriceInputSchema,

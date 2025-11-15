@@ -9,7 +9,7 @@
  */
 
 import { ai } from '@/ai/genkit';
-import { z } from 'genkit';
+import { z } from 'zod';
 
 const TranslateTextInputSchema = z.object({
   texts: z.array(z.string()).describe('The texts to be translated.'),
@@ -44,7 +44,7 @@ Texts:
 `,
 });
 
-const translateTextFlow = ai.defineFlow(
+export const translateTextFlow = ai.defineFlow(
   {
     name: 'translateTextFlow',
     inputSchema: TranslateTextInputSchema,

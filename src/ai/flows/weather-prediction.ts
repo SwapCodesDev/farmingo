@@ -84,7 +84,7 @@ export async function getWeatherAnalysis(
 }
 
 
-const getWeatherAnalysisFlow = ai.defineFlow({
+export const getWeatherAnalysisFlow = ai.defineFlow({
     name: 'getWeatherAnalysisFlow',
     inputSchema: WeatherAnalysisInputSchema,
     outputSchema: WeatherAnalysisOutputSchema,
