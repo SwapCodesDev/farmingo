@@ -50,7 +50,8 @@ service cloud.firestore {
     match /products/{productId} {
       function userIsVerifiedSeller(userId) {
         let user = get(/databases/$(database)/documents/users/$(userId)).data;
-        return user.isVerified == true || user.role == 'farmer';
+        // A user is considered a seller if their role is 'farmer' OR they are explicitly verified.
+        return user.role == 'farmer' || user.isVerified == true;
       }
 
       allow read, list: if true;
