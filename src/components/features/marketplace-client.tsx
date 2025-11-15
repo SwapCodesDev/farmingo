@@ -3,7 +3,7 @@
 
 import { useCollection } from '@/firebase/firestore/use-collection';
 import { useFirestore, useUser } from '@/firebase';
-import { collection, orderBy, query, where, startAt, endAt, Timestamp } from 'firebase/firestore';
+import { collection, orderBy, query, where, startAt, endAt, Timestamp, doc } from 'firebase/firestore';
 import { useMemo, useState } from 'react';
 import { ProductCard } from './product-card';
 import { Button } from '../ui/button';
@@ -15,7 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Search, ShoppingCart, Tractor, Plus, Edit, Package } from 'lucide-react';
+import { Search, ShoppingCart, Tractor, Plus, Edit, Package, Info } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CreateProductDialog } from './create-product-dialog';
 import { CreateMarketplacePostDialog } from './create-marketplace-post-dialog';
@@ -23,6 +23,8 @@ import { MarketplacePostCard } from './marketplace-post-card';
 import { voteOnMarketplacePost } from '@/lib/actions/marketplace-post';
 import Link from 'next/link';
 import type { UserProfile } from '@/types';
+import { useDoc } from '@/firebase/firestore/use-doc';
+import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 
 
 // Define a placeholder type for the Product
@@ -66,6 +68,13 @@ export function MarketplaceClient() {
   const [sortBy, setSortBy] = useState('createdAt_desc');
   const [activeTab, setActiveTab] = useState('verified');
 
+  const userProfileRef = useMemo(() => {
+    if (!firestore || !user) return null;
+    return doc(firestore, 'users', user.uid);
+  }, [firestore, user]);
+
+  const { data: userProfile } = useDoc<UserProfile>(userProfileRef);
+
   const productsQuery = useMemo(() => {
     if (!firestore || activeTab !== 'verified') return null;
     let q = collection(firestore, 'products');
@@ -96,8 +105,7 @@ export function MarketplaceClient() {
     voteOnMarketplacePost(firestore, user.uid, postId, vote);
   }
 
-  // In a real app, you'd fetch this from the user's profile
-  const isVerifiedSeller = true; 
+  const isVerifiedSeller = userProfile?.role === 'farmer' || userProfile?.isVerified === true;
 
   return (
     <div className="space-y-8">
@@ -141,6 +149,16 @@ export function MarketplaceClient() {
                 </Select>
               </div>
             </div>
+
+            {user && !isVerifiedSeller && activeTab === 'verified' && (
+              <Alert>
+                <Info className="h-4 w-4" />
+                <AlertTitle>Want to sell here?</AlertTitle>
+                <AlertDescription>
+                  Only verified sellers can list products in this marketplace. You can become a seller by registering as a 'farmer' in your <Link href="/settings/profile" className="font-semibold underline">profile settings</Link>.
+                </AlertDescription>
+              </Alert>
+            )}
 
             <TabsContent value="verified" className="mt-6">
                 {loading && <div className="text-center py-12 text-muted-foreground">Loading products...</div>}
