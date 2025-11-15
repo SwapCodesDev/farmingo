@@ -59,6 +59,33 @@ interface CommentThreadProps {
   pinnedCommentId?: string | null;
 }
 
+const availableLanguages = [
+    { value: 'en', label: 'English' },
+    { value: 'hi', label: 'हिन्दी (Hindi)' },
+    { value: 'mr', label: 'मराठी (Marathi)' },
+    { value: 'bn', label: 'বাংলা (Bengali)' },
+    { value: 'gu', label: 'ગુજરાતી (Gujarati)' },
+    { value: 'pa', label: 'ਪੰਜਾਬੀ (Punjabi)' },
+    { value: 'ta', label: 'தமிழ் (Tamil)' },
+    { value: 'te', label: 'తెలుగు (Telugu)' },
+    { value: 'kn', label: 'ಕನ್ನಡ (Kannada)' },
+    { value: 'ml', label: 'മലയാളം (Malayalam)' },
+    { value: 'or', label: 'ଓଡ଼ିଆ (Odia)' },
+    { value: 'as', label: 'অসমীয়া (Assamese)' },
+    { value: 'ks', label: 'कٲशुर (Kashmiri)' },
+    { value: 'ne', label: 'नेपाली (Nepali)' },
+    { value: 'sd', label: 'सिंधी (Sindhi)' },
+    { value: 'ur', label: 'اردو (Urdu)'},
+    { value: 'kok', label: 'कोंकणी (Konkani)' },
+    { value: 'mni', label: 'Manipuri (Meitei)' },
+    { value: 'brx', label: 'बोड़ो (Bodo)' },
+    { value: 'doi', label: 'डोगरी (Dogri)' },
+    { value: 'mai', label: 'मैथिली (Maithili)' },
+    { value: 'sat', label: 'संताली (Santali)' },
+    { value: 'sa', label: 'संस्कृतम् (Sanskrit)' },
+];
+
+
 export function CommentThread({ comment, allComments, postId, postAuthorId, isPostAuthor, pinnedCommentId, commentAction, voteAction, pinAction, depth = 0 }: CommentThreadProps) {
   const { user } = useUser();
   const { showProfile } = useUserProfileDialog();
@@ -204,9 +231,11 @@ export function CommentThread({ comment, allComments, postId, postAuthorId, isPo
                             </DropdownMenuSubTrigger>
                             <DropdownMenuPortal>
                                 <DropdownMenuSubContent>
-                                <DropdownMenuItem onClick={() => handleTranslate('English')}>English</DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => handleTranslate('Hindi')}>Hindi</DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => handleTranslate('Marathi')}>Marathi</DropdownMenuItem>
+                                    {availableLanguages.map(lang => (
+                                        <DropdownMenuItem key={lang.value} onClick={() => handleTranslate(lang.label.split(' ')[0])}>
+                                            {lang.label}
+                                        </DropdownMenuItem>
+                                    ))}
                                 </DropdownMenuSubContent>
                             </DropdownMenuPortal>
                         </DropdownMenuSub>
