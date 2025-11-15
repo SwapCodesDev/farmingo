@@ -43,6 +43,7 @@ export async function generateMetadata(
     
     // Construct a clean description for the preview
     const description = post.text.substring(0, 150).replace(/\s+/g, ' ').trim() + '...';
+    const url = `https://farmingo.com/community/${postId}`;
 
     return {
       title: `${post.title} | Farmingo`,
@@ -50,13 +51,12 @@ export async function generateMetadata(
       openGraph: {
         title: post.title,
         description: description,
+        url: url,
         type: 'article',
-        // Assuming your domain, replace if needed.
-        url: `https://farmingo.com/community/${postId}`, 
         images: post.imageUrl ? [post.imageUrl, ...previousImages] : previousImages,
       },
       twitter: {
-        card: 'summary_large_image',
+        card: post.imageUrl ? 'summary_large_image' : 'summary',
         title: post.title,
         description: description,
         images: post.imageUrl ? [post.imageUrl] : [],
