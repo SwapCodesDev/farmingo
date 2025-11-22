@@ -1,9 +1,8 @@
-
 # Farmingo Project Documentation
 
 ## 1. Introduction
 
-Welcome to the official documentation for **Farmingo**, an all-in-one web platform designed to empower farmers with modern technology. This document provides a comprehensive overview of the project's architecture, features, technology stack, and setup instructions.
+Welcome to the official documentation for **Farmingo**, an all-in-one web platform designed to empower farmers with modern technology. This document provides a comprehensive overview of the project's architecture, features, technology stack, and setup instructions. Our goal is to provide a robust, scalable, and intuitive application for the agricultural community.
 
 ---
 
@@ -12,17 +11,17 @@ Welcome to the official documentation for **Farmingo**, an all-in-one web platfo
 Farmingo is built with a suite of tools to enhance decision-making, foster community, and streamline commerce in the agricultural sector.
 
 ### 🏠 Core Experience
-- **Dashboard**: A central hub for authenticated users to quickly access all the platform's features.
-- **Welcome Page**: A landing page for new and unauthenticated users, guiding them to sign up or log in.
+- **Dashboard**: A central hub for authenticated users to quickly access all the platform's features, with a modern, dark-themed UI.
+- **Welcome Page**: A sleek, professional landing page for new and unauthenticated users, guiding them to sign up or log in.
+- **Responsive Design**: A fully responsive interface optimized for desktop, tablet, and mobile devices.
 
 ### 🤖 AI-Powered Insights
-
 -   **Crop Price Prediction**: Leverages AI to forecast market prices for various crops.
 -   **Crop Disease Diagnosis**: Instantly diagnose crop diseases by uploading a photo. Get AI-driven analysis, severity assessment, and treatment recommendations.
 -   **Weather Prediction & Advice**: Get localized weather forecasts and actionable farming tips tailored to current and upcoming weather conditions.
+-   **Translation**: AI-powered text translation is integrated into community posts and comments, allowing for multilingual communication.
 
 ### ⚙️ Platform Tools
-
 -   **Marketplace**: A dual-market system:
     -   **Verified Market**: For certified sellers to list products directly.
     -   **Indirect Market**: A community-driven space where any user can post items for sale, trade, or hire.
@@ -31,18 +30,17 @@ Farmingo is built with a suite of tools to enhance decision-making, foster commu
     -   **Public Profiles**: View user profiles with their posts, followers, and following lists.
     -   **Settings**: A dedicated section for users to manage their profile details, account security, and notification preferences.
 -   **Direct Messaging**: Allows users to engage in private one-on-one conversations.
--   **Shopping Cart & Checkout**: A full-featured e-commerce experience for purchasing products from the marketplace.
-
+-   **Shopping Cart & Checkout**: A full-featured e-commerce experience for purchasing products from the marketplace, including order history.
 
 ---
 
 ## 3. Technology Stack
 
--   **Framework**: [Next.js](https://nextjs.org/) (React App Router)
+-   **Framework**: [Next.js](https://nextjs.org/) (App Router)
 -   **Backend & Database**: [Firebase](https://firebase.google.com/) (Authentication, Firestore)
 -   **Generative AI**: [Google's Gemini models](https://ai.google.dev/) via [Genkit](https://firebase.google.com/docs/genkit)
 -   **UI**: [Tailwind CSS](https://tailwindcss.com/) with [ShadCN UI](https://ui.shadcn.com/) components
--   **State Management**: React Context API for Cart and User Profile Dialogs.
+-   **State Management**: React Context API for Cart, Search, and User Profile Dialogs.
 -   **Language**: [TypeScript](https://www.typescriptlang.org/)
 
 ---
