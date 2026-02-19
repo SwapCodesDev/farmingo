@@ -37,8 +37,8 @@ const formSchema = z.object({
 type PriceResponse = {
     crop: string;
     region: string;
-    date: string;
-    predicted_price: number;
+    date: string; // DD-MM-YYYY
+    price: number;
     error?: string;
 }
 
@@ -67,7 +67,7 @@ export function SettingsPricePrediction() {
         toast({
             variant: 'destructive',
             title: 'Prediction Failed',
-            description: error || 'An unexpected error occurred.',
+            description: error.message || 'An unexpected error occurred.',
         });
     }
     setIsLoading(false);
@@ -189,7 +189,7 @@ export function SettingsPricePrediction() {
                 Prediction Result
               </CardTitle>
                <CardDescription className="capitalize">
-                {result.crop} in {result.region} on {format(new Date(result.date), 'PPP')}
+                {result.crop} in {result.region} on {format(new Date(result.date.split('-').reverse().join('-')), 'PPP')}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -198,11 +198,21 @@ export function SettingsPricePrediction() {
                     Predicted Market Price
                   </p>
                   <p className="font-headline text-5xl font-bold text-primary">
-                    {typeof result.predicted_price === 'number' ? `₹${result.predicted_price.toFixed(2)}` : 'N/A'}
+                    {typeof result.price === 'number' ? `₹${result.price.toFixed(2)}` : 'N/A'}
                   </p>
                 </div>
             </CardContent>
           </Card>
+        )}
+         {result?.error && (
+            <Card className="w-full h-full flex flex-col items-center justify-center border-destructive">
+                <CardHeader>
+                    <CardTitle className="text-destructive">Prediction Failed</CardTitle>
+                </CardHeader>
+                <CardContent className="text-center p-6">
+                    <p className="text-sm text-muted-foreground">{result.error}</p>
+                </CardContent>
+            </Card>
         )}
       </div>
     </div>

@@ -19,8 +19,16 @@ export async function testApi(values: z.infer<typeof formSchema>): Promise<any> 
     throw new Error('Invalid input.');
   }
 
-  // Use the explicit IP address for server-side fetch.
-  const endpoint = 'http://127.0.0.1:8000/crop_price';
+  // Convert date from YYYY-MM-DD to DD-MM-YYYY for the API
+  const [year, month, day] = validatedFields.data.date.split('-');
+  const formattedDate = `${day}-${month}-${year}`;
+
+  const apiPayload = {
+    ...validatedFields.data,
+    date: formattedDate,
+  };
+
+  const endpoint = 'https://swapcodes-farmingo.hf.space/crop_price';
 
   try {
     const response = await fetch(endpoint, {
@@ -29,7 +37,7 @@ export async function testApi(values: z.infer<typeof formSchema>): Promise<any> 
         'Content-Type': 'application/json',
         'Accept': 'application/json',
       },
-      body: JSON.stringify(validatedFields.data),
+      body: JSON.stringify(apiPayload),
     });
 
     if (!response.ok) {
