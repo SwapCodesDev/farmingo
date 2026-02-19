@@ -21,7 +21,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Loader2, Upload, Bug, AlertTriangle, ShieldCheck, ListChecks, FlaskConical, TestTube } from 'lucide-react';
+import { Loader2, Upload, Bug, AlertTriangle, ShieldCheck, FlaskConical, TestTube } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { predictDiseaseApi } from '@/app/actions/predict-disease-api';
 import { Badge } from '@/components/ui/badge';
@@ -172,8 +172,8 @@ async function onDiseaseSubmit(values: z.infer<typeof diseaseFormSchema>) {
         </CardContent>
       </Card>
       
-        {isDiseaseLoading && (
-            <Card className="flex items-center justify-center">
+      {isDiseaseLoading ? (
+            <Card className="flex items-center justify-center animate-pulse">
                 <div className="text-center p-6">
                     <Loader2 className="mx-auto h-12 w-12 animate-spin text-primary" />
                     <h3 className="mt-4 text-lg font-medium">Analyzing Image...</h3>
@@ -182,47 +182,66 @@ async function onDiseaseSubmit(values: z.infer<typeof diseaseFormSchema>) {
                     </p>
                 </div>
             </Card>
-        )}
-
-        {diseaseResponse && !diseaseResponse.error && (
-            <Card className="animate-in fade-in-50">
-                <CardHeader>
-                    <CardTitle className="font-headline text-2xl flex items-center justify-between">
-                        <span>{diseaseResponse.predicted_disease}</span>
-                        <Badge variant="outline" className="text-base">{(diseaseResponse.confidence).toFixed(2)}% Confident</Badge>
-                    </CardTitle>
-                    <CardDescription>{diseaseResponse.cause}</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    <div>
-                        <h4 className="font-semibold mb-2 flex items-center gap-2"><AlertTriangle className="h-5 w-5 text-destructive" /> Symptoms</h4>
-                        <p className="text-sm text-muted-foreground">{diseaseResponse.symptoms}</p>
+        ) : diseaseResponse ? (
+            diseaseResponse.error ? (
+                <Card className="flex items-center justify-center border-destructive">
+                    <div className="text-center p-6">
+                        <AlertTriangle className="mx-auto h-12 w-12 text-destructive" />
+                        <h3 className="mt-4 text-lg font-medium text-destructive">Prediction Failed</h3>
+                        <p className="mt-1 text-sm text-muted-foreground">
+                            {diseaseResponse.error}
+                        </p>
                     </div>
-                     <div>
-                        <h4 className="font-semibold mb-2 flex items-center gap-2"><ShieldCheck className="h-5 w-5 text-blue-600" /> Precautions</h4>
-                        <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-                            {diseaseResponse.precautions.map((p, i) => <li key={i}>{p}</li>)}
-                        </ul>
-                    </div>
-                    <Separator />
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                </Card>
+            ) : (
+                <Card className="animate-in fade-in-50">
+                    <CardHeader>
+                        <CardTitle className="font-headline text-2xl flex items-center justify-between">
+                            <span>{diseaseResponse.predicted_disease}</span>
+                            <Badge variant="outline" className="text-base">{(diseaseResponse.confidence).toFixed(2)}% Confident</Badge>
+                        </CardTitle>
+                        <CardDescription>{diseaseResponse.cause}</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
                         <div>
-                            <h4 className="font-semibold mb-2 flex items-center gap-2"><FlaskConical className="h-5 w-5 text-amber-600" /> Chemical Cures</h4>
-                             <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-                                {diseaseResponse.cure.chemical.map((c, i) => <li key={i}>{c}</li>)}
-                            </ul>
+                            <h4 className="font-semibold mb-2 flex items-center gap-2"><AlertTriangle className="h-5 w-5 text-destructive" /> Symptoms</h4>
+                            <p className="text-sm text-muted-foreground">{diseaseResponse.symptoms}</p>
                         </div>
                          <div>
-                            <h4 className="font-semibold mb-2 flex items-center gap-2"><TestTube className="h-5 w-5 text-green-600" /> Organic Cures</h4>
-                             <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-                                {diseaseResponse.cure.organic.map((c, i) => <li key={i}>{c}</li>)}
+                            <h4 className="font-semibold mb-2 flex items-center gap-2"><ShieldCheck className="h-5 w-5 text-blue-600" /> Precautions</h4>
+                            <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+                                {diseaseResponse.precautions.map((p, i) => <li key={i}>{p}</li>)}
                             </ul>
                         </div>
-                    </div>
-                </CardContent>
+                        <Separator />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <h4 className="font-semibold mb-2 flex items-center gap-2"><FlaskConical className="h-5 w-5 text-amber-600" /> Chemical Cures</h4>
+                                 <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+                                    {diseaseResponse.cure.chemical.map((c, i) => <li key={i}>{c}</li>)}
+                                </ul>
+                            </div>
+                             <div>
+                                <h4 className="font-semibold mb-2 flex items-center gap-2"><TestTube className="h-5 w-5 text-green-600" /> Organic Cures</h4>
+                                 <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+                                    {diseaseResponse.cure.organic.map((c, i) => <li key={i}>{c}</li>)}
+                                </ul>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+            )
+        ) : (
+            <Card className="flex items-center justify-center bg-muted/50 border-dashed">
+                <div className="text-center p-6">
+                    <Bug className="mx-auto h-12 w-12 text-muted-foreground" />
+                    <h3 className="mt-4 text-lg font-medium">Awaiting Diagnosis</h3>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                        Your diagnosis report will appear here.
+                    </p>
+                </div>
             </Card>
         )}
-
     </div>
   );
 }

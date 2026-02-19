@@ -9,7 +9,7 @@ export async function predictDiseaseApi(formData: FormData): Promise<any> {
   }
 
   // Construct the endpoint with the query parameter
-  const endpoint = `http://127.0.0.1:8000/crop_disease_prediction?crop_name=${encodeURIComponent(
+  const endpoint = `https://swapcodes-farmingo.hf.space/crop_disease_prediction?crop_name=${encodeURIComponent(
     cropName
   )}`;
 
