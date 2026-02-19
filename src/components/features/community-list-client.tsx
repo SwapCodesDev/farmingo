@@ -30,19 +30,7 @@ import { useAuthActions } from '@/hooks/use-auth-actions';
 import { useToast } from '@/hooks/use-toast';
 import { useUserProfileDialog } from '@/context/user-profile-dialog-provider';
 import { formatUsername, formatTimestamp } from '@/lib/utils';
-import type { UserProfile } from '@/types';
-
-type Community = {
-    id: string;
-    name: string;
-    description: string;
-    postCount: number;
-    imageUrl?: string;
-    creatorId: string;
-    creatorUsername: string;
-    creatorRole?: UserProfile['role'];
-    createdAt: Timestamp;
-}
+import type { Community } from '@/lib/actions/community';
 
 export function CommunityListClient() {
     const { user } = useUser();
@@ -85,9 +73,9 @@ export function CommunityListClient() {
                     return (
                         <Card key={community.id} className="flex flex-col overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
                              <Link href={`/c/${community.id}`} className="relative block aspect-video w-full bg-muted">
-                                {community.imageUrl && (
+                                {community.bannerUrl && (
                                     <Image
-                                        src={community.imageUrl}
+                                        src={community.bannerUrl}
                                         alt={community.name}
                                         fill
                                         className="object-cover"
@@ -158,7 +146,7 @@ export function CommunityListClient() {
                 <AlertDialogHeader>
                     <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                     <AlertDialogDescription>
-                    This action cannot be undone. This will permanently delete the <strong>c/{communityToDelete?.id}</strong> community and all of its posts.
+                    This action cannot be undone. This will permanently delete the <strong>c/{communityToDelete?.name}</strong> community and all of its posts.
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>

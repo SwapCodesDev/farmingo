@@ -449,20 +449,14 @@ export async function createCommunity(firestore: Firestore, user: User, data: Co
 export type CommunityUpdateData = {
     name: string;
     description: string;
-    imageUrl?: string;
+    iconUrl?: string;
+    bannerUrl?: string;
 }
 
-export async function updateCommunity(firestore: Firestore, communityId: string, data: CommunityUpdateData) {
+export async function updateCommunity(firestore: Firestore, communityId: string, data: Partial<CommunityUpdateData>) {
     const communityRef = doc(firestore, 'communities', communityId);
     
-    const updateData: any = {
-        name: data.name,
-        description: data.description,
-    };
-
-    if (data.imageUrl) {
-        updateData.imageUrl = data.imageUrl;
-    }
+    const updateData = { ...data };
 
     updateDoc(communityRef, updateData)
         .catch(async (serverError) => {

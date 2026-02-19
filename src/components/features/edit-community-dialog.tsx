@@ -27,24 +27,14 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2, Camera, Trash } from 'lucide-react';
 import { useAuthActions } from '@/hooks/use-auth-actions';
 import Image from 'next/image';
-import type { Timestamp } from 'firebase/firestore';
+import type { Community } from '@/lib/actions/community';
 
-
-type Community = {
-    id: string;
-    name: string;
-    description: string;
-    postCount: number;
-    imageUrl?: string;
-    creatorId: string;
-    creatorUsername: string;
-    createdAt: Timestamp;
-}
 
 const formSchema = z.object({
   name: z.string().min(3, 'Name must be at least 3 characters.').max(21, 'Name cannot be longer than 21 characters.'),
-  description: z.string().min(10, 'Description must be at least 10 characters.').max(100, 'Description cannot be longer than 100 characters.'),
-  imageUrl: z.string().optional(),
+  description: z.string().min(10, 'Description must be at least 10 characters.').max(500, 'Description cannot be longer than 500 characters.'),
+  iconUrl: z.string().optional(),
+  bannerUrl: z.string().optional(),
 });
 
 interface EditCommunityDialogProps {
@@ -55,37 +45,44 @@ interface EditCommunityDialogProps {
 
 export function EditCommunityDialog({ isOpen, onOpenChange, community }: EditCommunityDialogProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const [imagePreview, setImagePreview] = useState<string | null>(community.imageUrl || null);
   const { toast } = useToast();
   const { updateCommunity } = useAuthActions();
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const iconInputRef = useRef<HTMLInputElement>(null);
+  const bannerInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: community.name,
       description: community.description,
-      imageUrl: community.imageUrl,
+      iconUrl: community.iconUrl,
+      bannerUrl: community.bannerUrl,
     },
   });
+  
+  const watchIconUrl = form.watch('iconUrl');
+  const watchBannerUrl = form.watch('bannerUrl');
+
 
   useEffect(() => {
     form.reset({
         name: community.name,
         description: community.description,
-        imageUrl: community.imageUrl,
+        iconUrl: community.iconUrl,
+        bannerUrl: community.bannerUrl,
     });
-    setImagePreview(community.imageUrl || null);
   }, [community, form]);
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    field: 'iconUrl' | 'bannerUrl'
+  ) => {
     const file = event.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
         const dataUri = reader.result as string;
-        setImagePreview(dataUri);
-        form.setValue('imageUrl', dataUri, { shouldDirty: true });
+        form.setValue(field, dataUri, { shouldDirty: true });
       };
       reader.readAsDataURL(file);
     }
@@ -113,7 +110,7 @@ export function EditCommunityDialog({ isOpen, onOpenChange, community }: EditCom
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-xl">
         <DialogHeader>
           <DialogTitle>Edit Community</DialogTitle>
           <DialogDescription>
@@ -121,46 +118,7 @@ export function EditCommunityDialog({ isOpen, onOpenChange, community }: EditCom
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
-          <FormField
-              control={form.control}
-              name="imageUrl"
-              render={({ field }) => (
-                  <FormItem className="flex flex-col items-center">
-                      <FormLabel>Community Image</FormLabel>
-                      <FormControl>
-                          <div className='relative w-32 h-32'>
-                              <div 
-                                  className="w-32 h-32 rounded-full border-2 border-dashed bg-muted flex items-center justify-center cursor-pointer hover:bg-muted/80 overflow-hidden"
-                                  onClick={() => fileInputRef.current?.click()}
-                              >
-                                  {imagePreview ? (
-                                      <Image src={imagePreview} alt="Community preview" layout="fill" objectFit="cover" />
-                                  ) : (
-                                      <Camera className="w-12 h-12 text-muted-foreground" />
-                                  )}
-                                  <Input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
-                              </div>
-                              {imagePreview && (
-                                  <Button 
-                                      type="button" 
-                                      variant="destructive" 
-                                      size="icon" 
-                                      className="absolute bottom-0 right-0 h-8 w-8 rounded-full"
-                                      onClick={() => {
-                                          setImagePreview(null);
-                                          form.setValue('imageUrl', '', { shouldDirty: true });
-                                      }}
-                                  >
-                                      <Trash className="h-4 w-4" />
-                                  </Button>
-                              )}
-                          </div>
-                      </FormControl>
-                      <FormMessage />
-                  </FormItem>
-              )}
-            />
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4 max-h-[70vh] overflow-y-auto px-1">
             <FormField
               control={form.control}
               name="name"
@@ -183,7 +141,7 @@ export function EditCommunityDialog({ isOpen, onOpenChange, community }: EditCom
                   <FormControl>
                     <Textarea
                       className="resize-y"
-                      rows={4}
+                      rows={3}
                       {...field}
                     />
                   </FormControl>
@@ -191,7 +149,62 @@ export function EditCommunityDialog({ isOpen, onOpenChange, community }: EditCom
                 </FormItem>
               )}
             />
-            <DialogFooter>
+             <FormField
+                control={form.control}
+                name="iconUrl"
+                render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Icon</FormLabel>
+                        <div className="flex items-center gap-4">
+                            <div 
+                                className="relative h-16 w-16 rounded-full border-2 border-dashed bg-muted flex items-center justify-center cursor-pointer hover:bg-muted/80 overflow-hidden"
+                                onClick={() => iconInputRef.current?.click()}
+                            >
+                                {watchIconUrl ? (
+                                    <Image src={watchIconUrl} alt="Icon preview" layout="fill" objectFit="cover" />
+                                ) : (
+                                    <Camera className="w-8 h-8 text-muted-foreground" />
+                                )}
+                            </div>
+                            <div className="flex-grow">
+                                <Button type="button" variant="outline" className="w-full justify-start" onClick={() => iconInputRef.current?.click()}>Change Icon</Button>
+                                <p className="text-xs text-muted-foreground mt-1">1:1 Ratio Recommended</p>
+                            </div>
+                        </div>
+                        <FormControl>
+                            <Input ref={iconInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(e, 'iconUrl')} />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                )}
+            />
+            <FormField
+                control={form.control}
+                name="bannerUrl"
+                render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Banner</FormLabel>
+                        <div className="relative aspect-video w-full rounded-md border-2 border-dashed bg-muted flex items-center justify-center cursor-pointer hover:bg-muted/80 overflow-hidden"
+                             onClick={() => bannerInputRef.current?.click()}>
+                            {watchBannerUrl ? (
+                                <Image src={watchBannerUrl} alt="Banner preview" layout="fill" objectFit="cover" />
+                            ) : (
+                                <div className="text-center text-muted-foreground">
+                                    <Camera className="w-8 h-8 mx-auto" />
+                                    <p className="text-xs mt-1">Click to upload banner</p>
+                                </div>
+                            )}
+                        </div>
+                        <FormControl>
+                            <Input ref={bannerInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(e, 'bannerUrl')} />
+                        </FormControl>
+                        <p className="text-xs text-muted-foreground">1028px x 128px Recommended</p>
+                        <FormMessage />
+                    </FormItem>
+                )}
+            />
+
+            <DialogFooter className="pt-4">
                 <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
                 <Button type="submit" disabled={isLoading || !form.formState.isDirty}>
                   {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
