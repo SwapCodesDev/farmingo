@@ -12,6 +12,7 @@ type ProfileData = {
   displayName: string;
   username: string;
   region: string;
+  photoURL?: string;
 };
 
 export async function updateUserProfile(
@@ -19,9 +20,10 @@ export async function updateUserProfile(
   user: User,
   data: ProfileData
 ) {
-  if (user.displayName !== data.displayName) {
+  if (user.displayName !== data.displayName || (data.photoURL && user.photoURL !== data.photoURL)) {
       await updateProfile(user, {
         displayName: data.displayName,
+        photoURL: data.photoURL || user.photoURL,
       });
   }
 
@@ -31,6 +33,11 @@ export async function updateUserProfile(
     username: data.username,
     region: data.region,
   };
+
+  if (data.photoURL) {
+    updateData.photoURL = data.photoURL;
+  }
+
 
   updateDoc(userDocRef, updateData)
     .catch(async (serverError) => {

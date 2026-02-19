@@ -31,7 +31,7 @@ import { cn } from '@/lib/utils';
 import { Switch } from '../ui/switch';
 import { Label } from '../ui/label';
 import { Separator } from '../ui/separator';
-import { imageToWebPBase64 } from '@/lib/image-processing';
+import { ImageCropDialog } from './image-crop-dialog';
 
 
 const formSchema = z.object({
@@ -72,6 +72,18 @@ export function CreateCommunityForm({
   const [isCheckingName, setIsCheckingName] = useState(false);
   const [isNameAvailable, setIsNameAvailable] = useState<boolean | null>(null);
   
+  const [cropState, setCropState] = useState<{
+    isOpen: boolean;
+    imageSrc: string | null;
+    aspect: number;
+    onComplete: (croppedImage: string) => void;
+  }>({
+    isOpen: false,
+    imageSrc: null,
+    aspect: 1,
+    onComplete: () => {},
+  });
+
   const { toast } = useToast();
   const { createCommunity } = useAuthActions();
   const router = useRouter();
@@ -127,9 +139,10 @@ export function CreateCommunityForm({
     }
   }, [debouncedName, communityId, checkNameAvailability]);
 
-  const handleImageUpload = async (
+  const handleImageSelect = async (
     event: React.ChangeEvent<HTMLInputElement>,
-    field: 'bannerUrl' | 'iconUrl'
+    field: 'bannerUrl' | 'iconUrl',
+    aspect: number
   ) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -137,17 +150,21 @@ export function CreateCommunityForm({
         toast({ variant: 'destructive', title: "Image too large", description: "Please upload an image smaller than 4MB."});
         return;
       }
-      try {
-        const webpDataUri = await imageToWebPBase64(file);
-        form.setValue(field, webpDataUri, { shouldDirty: true });
-      } catch (error) {
-        console.error("Image conversion failed", error);
-        toast({
-            variant: 'destructive',
-            title: 'Image Error',
-            description: 'Failed to process image. Please try a different one.',
-        });
-      }
+      const reader = new FileReader();
+      reader.onload = () => {
+          setCropState({
+              isOpen: true,
+              imageSrc: reader.result as string,
+              aspect,
+              onComplete: (croppedImage) => {
+                  form.setValue(field, croppedImage, { shouldDirty: true });
+              },
+          });
+      };
+      reader.readAsDataURL(file);
+    }
+    if (event.target) {
+        event.target.value = '';
     }
   };
 
@@ -382,7 +399,7 @@ export function CreateCommunityForm({
                                         {field.value && <Button type="button" variant="ghost" size="icon" onClick={() => form.setValue('bannerUrl', '')}><Trash className="h-4 w-4" /></Button>}
                                     </div>
                                     <FormControl>
-                                    <Input ref={bannerInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(e, 'bannerUrl')} />
+                                    <Input ref={bannerInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleImageSelect(e, 'bannerUrl', 1028 / 128)} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -401,7 +418,7 @@ export function CreateCommunityForm({
                                         {field.value && <Button type="button" variant="ghost" size="icon" onClick={() => form.setValue('iconUrl', '')}><Trash className="h-4 w-4" /></Button>}
                                     </div>
                                     <FormControl>
-                                    <Input ref={iconInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(e, 'iconUrl')} />
+                                    <Input ref={iconInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleImageSelect(e, 'iconUrl', 1)} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -446,6 +463,13 @@ export function CreateCommunityForm({
                 </Button>
             </div>
         </form>
+         <ImageCropDialog 
+            isOpen={cropState.isOpen}
+            onOpenChange={(isOpen) => setCropState(prev => ({...prev, isOpen}))}
+            imageSrc={cropState.imageSrc}
+            aspect={cropState.aspect}
+            onCropComplete={cropState.onComplete}
+        />
     </Form>
   );
 }

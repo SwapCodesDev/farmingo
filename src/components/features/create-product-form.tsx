@@ -20,7 +20,7 @@ import { Loader2, ImageIcon, Eraser } from 'lucide-react';
 import Image from 'next/image';
 import { useFirestore, useUser } from '@/firebase';
 import { createProduct } from '@/lib/actions/marketplace';
-import { imageToWebPBase64 } from '@/lib/image-processing';
+import { ImageCropDialog } from './image-crop-dialog';
 
 const formSchema = z.object({
   name: z
@@ -46,6 +46,17 @@ export function CreateProductForm({ onProductCreated }: CreateProductFormProps) 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const firestore = useFirestore();
   const { user } = useUser();
+  const [cropState, setCropState] = useState<{
+    isOpen: boolean;
+    imageSrc: string | null;
+    aspect: number;
+    onComplete: (croppedImage: string) => void;
+  }>({
+    isOpen: false,
+    imageSrc: null,
+    aspect: 1,
+    onComplete: () => {},
+  });
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -56,27 +67,29 @@ export function CreateProductForm({ onProductCreated }: CreateProductFormProps) 
     },
   });
 
-  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      if (file.size > 2 * 1024 * 1024) { // 2MB limit
-        toast({ variant: 'destructive', title: "Image too large", description: "Please upload an image smaller than 2MB."});
+      if (file.size > 4 * 1024 * 1024) { // 4MB limit
+        toast({ variant: 'destructive', title: "Image too large", description: "Please upload an image smaller than 4MB."});
         return;
       }
-      try {
-        const webpDataUri = await imageToWebPBase64(file);
-        setImagePreview(webpDataUri);
-        form.setValue('imageUrl', webpDataUri, { shouldValidate: true });
-      } catch (error) {
-        console.error("Image conversion failed", error);
-        toast({
-            variant: 'destructive',
-            title: 'Image Error',
-            description: 'Failed to process image. Please try a different one.',
-        });
-        setImagePreview(null);
-        form.setValue('imageUrl', '', { shouldValidate: true });
-      }
+      const reader = new FileReader();
+      reader.onload = () => {
+          setCropState({
+              isOpen: true,
+              imageSrc: reader.result as string,
+              aspect: 1,
+              onComplete: (croppedImage) => {
+                  setImagePreview(croppedImage);
+                  form.setValue('imageUrl', croppedImage, { shouldValidate: true });
+              },
+          });
+      };
+      reader.readAsDataURL(file);
+    }
+     if (event.target) {
+        event.target.value = '';
     }
   };
 
@@ -169,7 +182,7 @@ export function CreateProductForm({ onProductCreated }: CreateProductFormProps) 
                             <ImageIcon className="mr-2 h-4 w-4" />
                             Upload Image
                         </Button>
-                        <Input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+                        <Input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageSelect} />
                         </div>
                     </FormControl>
                      {imagePreview && (
@@ -202,6 +215,13 @@ export function CreateProductForm({ onProductCreated }: CreateProductFormProps) 
           </Button>
         </div>
       </form>
+      <ImageCropDialog 
+        isOpen={cropState.isOpen}
+        onOpenChange={(isOpen) => setCropState(prev => ({...prev, isOpen}))}
+        imageSrc={cropState.imageSrc}
+        aspect={cropState.aspect}
+        onCropComplete={cropState.onComplete}
+      />
     </Form>
   );
 }

@@ -23,7 +23,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { useFirestore } from '@/firebase';
 import { useCollection } from '@/firebase/firestore/use-collection';
 import { collection } from 'firebase/firestore';
-import { imageToWebPBase64 } from '@/lib/image-processing';
+import { ImageCropDialog } from './image-crop-dialog';
 
 const formSchema = z.object({
   communityId: z.string().min(1, 'Please select a community.'),
@@ -51,6 +51,17 @@ export function CreatePostForm({ onPostCreated, communityId }: CreatePostFormPro
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const firestore = useFirestore();
+  const [cropState, setCropState] = useState<{
+    isOpen: boolean;
+    imageSrc: string | null;
+    aspect: number;
+    onComplete: (croppedImage: string) => void;
+  }>({
+    isOpen: false,
+    imageSrc: null,
+    aspect: 1,
+    onComplete: () => {},
+  });
 
   const { data: communities, loading: communitiesLoading } = useCollection(
     firestore ? collection(firestore, 'communities') : null
@@ -72,27 +83,29 @@ export function CreatePostForm({ onPostCreated, communityId }: CreatePostFormPro
     }
   }, [communityId, form])
 
-  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       if (file.size > 4 * 1024 * 1024) { // 4MB limit
         toast({ variant: 'destructive', title: "Image too large", description: "Please upload an image smaller than 4MB."});
         return;
       }
-      try {
-        const webpDataUri = await imageToWebPBase64(file);
-        setImagePreview(webpDataUri);
-        form.setValue('imageUrl', webpDataUri, { shouldValidate: true });
-      } catch (error) {
-        console.error("Image conversion failed", error);
-        toast({
-            variant: 'destructive',
-            title: 'Image Error',
-            description: 'Failed to process image. Please try a different one.',
-        });
-        setImagePreview(null);
-        form.setValue('imageUrl', '', { shouldValidate: true });
-      }
+      const reader = new FileReader();
+      reader.onload = () => {
+          setCropState({
+              isOpen: true,
+              imageSrc: reader.result as string,
+              aspect: 16 / 9,
+              onComplete: (croppedImage) => {
+                  setImagePreview(croppedImage);
+                  form.setValue('imageUrl', croppedImage, { shouldValidate: true });
+              },
+          });
+      };
+      reader.readAsDataURL(file);
+    }
+    if (event.target) {
+        event.target.value = '';
     }
   };
 
@@ -214,7 +227,7 @@ export function CreatePostForm({ onPostCreated, communityId }: CreatePostFormPro
                   <Button type="button" variant="outline" size="icon" className="h-7 w-7" onClick={() => applyFormatting('blockquote')}><Quote className="h-4 w-4" /></Button>
                   <Button type="button" variant="outline" size="icon" className="h-7 w-7" onClick={() => applyFormatting('code')}><Code className="h-4 w-4" /></Button>
                   <Button type="button" variant="outline" size="icon" className="h-7 w-7" onClick={() => fileInputRef.current?.click()}><ImageIcon className="h-4 w-4" /></Button>
-                  <Input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+                  <Input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageSelect} />
                 </div>
                 <FormControl>
                   <Textarea
@@ -255,6 +268,13 @@ export function CreatePostForm({ onPostCreated, communityId }: CreatePostFormPro
           </Button>
         </div>
       </form>
+       <ImageCropDialog 
+        isOpen={cropState.isOpen}
+        onOpenChange={(isOpen) => setCropState(prev => ({...prev, isOpen}))}
+        imageSrc={cropState.imageSrc}
+        aspect={cropState.aspect}
+        onCropComplete={cropState.onComplete}
+      />
     </Form>
   );
 }

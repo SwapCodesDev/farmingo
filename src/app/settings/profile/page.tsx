@@ -8,8 +8,8 @@ import {
   query,
   where,
 } from 'firebase/firestore';
-import { Loader2, User as UserIcon, MapPin, KeyRound, Copy } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { Loader2, User as UserIcon, MapPin, KeyRound, Copy, Pencil } from 'lucide-react';
+import { useEffect, useState, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
@@ -27,6 +27,8 @@ import { useToast } from '@/hooks/use-toast';
 import { updateUserProfile, sendPasswordReset } from '@/lib/actions/profile';
 import { Separator } from '@/components/ui/separator';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
+import { ImageCropDialog } from '@/components/features/image-crop-dialog';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 const profileSchema = z.object({
   displayName: z.string().min(1, 'Display name is required.'),
@@ -39,6 +41,7 @@ const profileSchema = z.object({
       'Username can only contain letters, numbers, and underscores.'
     ),
     region: z.string().min(1, 'Region is required.'),
+    photoURL: z.string().optional(),
 });
 
 export default function ProfileSettingsPage() {
@@ -49,6 +52,18 @@ export default function ProfileSettingsPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
   const [initialUsername, setInitialUsername] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [cropState, setCropState] = useState<{
+    isOpen: boolean;
+    imageSrc: string | null;
+    aspect: number;
+    onComplete: (croppedImage: string) => void;
+  }>({
+    isOpen: false,
+    imageSrc: null,
+    aspect: 1,
+    onComplete: () => {},
+  });
 
   const form = useForm<z.infer<typeof profileSchema>>({
     resolver: zodResolver(profileSchema),
@@ -56,12 +71,14 @@ export default function ProfileSettingsPage() {
       displayName: '',
       username: '',
       region: '',
+      photoURL: '',
     },
   });
 
   useEffect(() => {
     if (user && firestore) {
       form.setValue('displayName', user.displayName || '');
+      form.setValue('photoURL', user.photoURL || '');
 
       const userDocRef = doc(firestore, 'users', user.uid);
       getDoc(userDocRef).then((docSnap) => {
@@ -82,6 +99,32 @@ export default function ProfileSettingsPage() {
     const querySnapshot = await getDocs(q);
     return querySnapshot.empty;
   };
+
+  const handleImageSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (file.size > 4 * 1024 * 1024) {
+        toast({ variant: 'destructive', title: "Image too large", description: "Please upload an image smaller than 4MB."});
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = () => {
+          setCropState({
+              isOpen: true,
+              imageSrc: reader.result as string,
+              aspect: 1,
+              onComplete: (croppedImage) => {
+                  form.setValue('photoURL', croppedImage, { shouldDirty: true });
+              },
+          });
+      };
+      reader.readAsDataURL(file);
+    }
+    if (event.target) {
+        event.target.value = '';
+    }
+  };
+
 
   const onSubmit = async (values: z.infer<typeof profileSchema>) => {
     if (!user || !firestore) return;
@@ -147,12 +190,24 @@ export default function ProfileSettingsPage() {
     }
   };
 
+  const getInitials = (name: string) => {
+    if (!name) return '';
+    return name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase();
+  };
+
+  const watchPhotoUrl = form.watch('photoURL');
+
 
   if (userLoading) {
     return <p>Loading profile...</p>;
   }
 
   return (
+    <>
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <div>
@@ -164,6 +219,28 @@ export default function ProfileSettingsPage() {
         <Separator />
         <Card>
           <CardContent className="pt-6 space-y-6">
+             <FormField
+                control={form.control}
+                name="photoURL"
+                render={() => (
+                  <FormItem className="flex flex-col items-center">
+                    <FormLabel>Profile Picture</FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <Avatar className="h-24 w-24">
+                          <AvatarImage src={watchPhotoUrl || undefined} alt={form.getValues('displayName')} />
+                          <AvatarFallback className="text-3xl">{getInitials(form.getValues('displayName'))}</AvatarFallback>
+                        </Avatar>
+                        <Button type="button" variant="outline" size="icon" className="absolute -bottom-1 -right-1 rounded-full h-8 w-8 bg-background" onClick={() => fileInputRef.current?.click()}>
+                          <Pencil className="h-4 w-4"/>
+                        </Button>
+                        <Input type="file" accept="image/*" ref={fileInputRef} className="hidden" onChange={handleImageSelect} />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             <FormField
               control={form.control}
               name="username"
@@ -276,5 +353,13 @@ export default function ProfileSettingsPage() {
         </Card>
       </form>
     </Form>
+    <ImageCropDialog 
+        isOpen={cropState.isOpen}
+        onOpenChange={(isOpen) => setCropState(prev => ({...prev, isOpen}))}
+        imageSrc={cropState.imageSrc}
+        aspect={cropState.aspect}
+        onCropComplete={cropState.onComplete}
+      />
+    </>
   );
 }

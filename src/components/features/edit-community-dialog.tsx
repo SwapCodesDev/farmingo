@@ -28,7 +28,7 @@ import { Loader2, Camera, Trash } from 'lucide-react';
 import { useAuthActions } from '@/hooks/use-auth-actions';
 import Image from 'next/image';
 import type { Community } from '@/lib/actions/community';
-import { imageToWebPBase64 } from '@/lib/image-processing';
+import { ImageCropDialog } from './image-crop-dialog';
 
 
 const formSchema = z.object({
@@ -50,6 +50,17 @@ export function EditCommunityDialog({ isOpen, onOpenChange, community }: EditCom
   const { updateCommunity } = useAuthActions();
   const iconInputRef = useRef<HTMLInputElement>(null);
   const bannerInputRef = useRef<HTMLInputElement>(null);
+  const [cropState, setCropState] = useState<{
+    isOpen: boolean;
+    imageSrc: string | null;
+    aspect: number;
+    onComplete: (croppedImage: string) => void;
+  }>({
+    isOpen: false,
+    imageSrc: null,
+    aspect: 1,
+    onComplete: () => {},
+  });
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -74,9 +85,10 @@ export function EditCommunityDialog({ isOpen, onOpenChange, community }: EditCom
     });
   }, [community, form]);
 
-  const handleImageUpload = async (
+  const handleImageSelect = async (
     event: React.ChangeEvent<HTMLInputElement>,
-    field: 'iconUrl' | 'bannerUrl'
+    field: 'iconUrl' | 'bannerUrl',
+    aspect: number
   ) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -84,17 +96,21 @@ export function EditCommunityDialog({ isOpen, onOpenChange, community }: EditCom
         toast({ variant: 'destructive', title: "Image too large", description: "Please upload an image smaller than 4MB."});
         return;
       }
-      try {
-        const webpDataUri = await imageToWebPBase64(file);
-        form.setValue(field, webpDataUri, { shouldDirty: true });
-      } catch (error) {
-        console.error("Image conversion failed", error);
-        toast({
-            variant: 'destructive',
-            title: 'Image Error',
-            description: 'Failed to process image. Please try a different one.',
-        });
-      }
+      const reader = new FileReader();
+      reader.onload = () => {
+          setCropState({
+              isOpen: true,
+              imageSrc: reader.result as string,
+              aspect,
+              onComplete: (croppedImage) => {
+                  form.setValue(field, croppedImage, { shouldDirty: true });
+              },
+          });
+      };
+      reader.readAsDataURL(file);
+    }
+    if (event.target) {
+        event.target.value = '';
     }
   };
 
@@ -119,6 +135,7 @@ export function EditCommunityDialog({ isOpen, onOpenChange, community }: EditCom
   }
 
   return (
+    <>
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-xl">
         <DialogHeader>
@@ -162,7 +179,7 @@ export function EditCommunityDialog({ isOpen, onOpenChange, community }: EditCom
              <FormField
                 control={form.control}
                 name="iconUrl"
-                render={({ field }) => (
+                render={() => (
                     <FormItem>
                         <FormLabel>Icon</FormLabel>
                         <div className="flex items-center gap-4">
@@ -182,7 +199,7 @@ export function EditCommunityDialog({ isOpen, onOpenChange, community }: EditCom
                             </div>
                         </div>
                         <FormControl>
-                            <Input ref={iconInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(e, 'iconUrl')} />
+                            <Input ref={iconInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleImageSelect(e, 'iconUrl', 1)} />
                         </FormControl>
                         <FormMessage />
                     </FormItem>
@@ -191,7 +208,7 @@ export function EditCommunityDialog({ isOpen, onOpenChange, community }: EditCom
             <FormField
                 control={form.control}
                 name="bannerUrl"
-                render={({ field }) => (
+                render={() => (
                     <FormItem>
                         <FormLabel>Banner</FormLabel>
                         <div className="relative aspect-video w-full rounded-md border-2 border-dashed bg-muted flex items-center justify-center cursor-pointer hover:bg-muted/80 overflow-hidden"
@@ -206,7 +223,7 @@ export function EditCommunityDialog({ isOpen, onOpenChange, community }: EditCom
                             )}
                         </div>
                         <FormControl>
-                            <Input ref={bannerInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(e, 'bannerUrl')} />
+                            <Input ref={bannerInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleImageSelect(e, 'bannerUrl', 1028 / 128)} />
                         </FormControl>
                         <p className="text-xs text-muted-foreground">1028px x 128px Recommended</p>
                         <FormMessage />
@@ -225,5 +242,13 @@ export function EditCommunityDialog({ isOpen, onOpenChange, community }: EditCom
         </Form>
       </DialogContent>
     </Dialog>
+     <ImageCropDialog 
+        isOpen={cropState.isOpen}
+        onOpenChange={(isOpen) => setCropState(prev => ({...prev, isOpen}))}
+        imageSrc={cropState.imageSrc}
+        aspect={cropState.aspect}
+        onCropComplete={cropState.onComplete}
+      />
+    </>
   );
 }

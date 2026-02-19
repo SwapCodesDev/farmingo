@@ -1,4 +1,5 @@
 'use client';
+import { type Crop } from 'react-image-crop';
 
 /**
  * Converts an image file to a WebP Base64 data URI using the browser's canvas.
@@ -48,4 +49,49 @@ export function imageToWebPBase64(file: File, quality: number = 0.8): Promise<st
 
     reader.readAsDataURL(file);
   });
+}
+
+export function getCroppedImg(
+    image: HTMLImageElement,
+    crop: Crop,
+    fileName: string,
+    quality: number = 0.8
+): Promise<string | null> {
+    const canvas = document.createElement('canvas');
+    const scaleX = image.naturalWidth / image.width;
+    const scaleY = image.naturalHeight / image.height;
+    
+    // Ensure crop dimensions are valid
+    if (crop.width === 0 || crop.height === 0) {
+      return Promise.resolve(null);
+    }
+    
+    canvas.width = Math.floor(crop.width * scaleX);
+    canvas.height = Math.floor(crop.height * scaleY);
+    const ctx = canvas.getContext('2d');
+
+    if (!ctx) {
+        return Promise.resolve(null);
+    }
+    
+    ctx.drawImage(
+        image,
+        crop.x * scaleX,
+        crop.y * scaleY,
+        crop.width * scaleX,
+        crop.height * scaleY,
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+    
+    return new Promise((resolve, reject) => {
+        try {
+            const base64Image = canvas.toDataURL('image/webp', quality);
+            resolve(base64Image);
+        } catch (e) {
+            reject(e);
+        }
+    });
 }
