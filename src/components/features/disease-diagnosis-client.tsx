@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import type { DiagnoseCropDiseaseOutput } from '@/ai/flows/crop-disease-diagnosis';
 import { diagnoseDisease } from '@/app/actions/diagnose-disease';
+import { imageToWebPBase64 } from '@/lib/image-processing';
 
 export function DiseaseDiagnosisClient() {
   const [result, setResult] = useState<DiagnoseCropDiseaseOutput | null>(null);
@@ -24,23 +25,30 @@ export function DiseaseDiagnosisClient() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const dataUri = reader.result as string;
-        setImagePreview(dataUri);
-        handleSubmit(dataUri);
-      };
-      reader.readAsDataURL(file);
+      setIsLoading(true);
+      setResult(null);
+      try {
+        const webpDataUri = await imageToWebPBase64(file);
+        setImagePreview(webpDataUri);
+        await handleSubmit(webpDataUri);
+      } catch (error) {
+        console.error("Image processing or diagnosis failed", error);
+        toast({
+          variant: 'destructive',
+          title: 'Operation Failed',
+          description: "Could not process the image or get a diagnosis. Please try again.",
+        });
+        setImagePreview(null);
+        setIsLoading(false);
+      }
     }
   };
 
   const handleSubmit = async (dataUri: string) => {
-    setIsLoading(true);
-    setResult(null);
-
+    // This function is now called by handleFileChange after conversion
     const { success, data, error } = await diagnoseDisease(dataUri);
     setIsLoading(false);
 
@@ -119,7 +127,7 @@ export function DiseaseDiagnosisClient() {
                 </CardContent>
             </Card>
         )}
-        {isLoading && (
+        {isLoading && !result && (
            <Card className="w-full h-full flex flex-col items-center justify-center bg-muted/50 border-dashed animate-pulse">
            <CardContent className="text-center p-6">
                <Loader2 className="mx-auto h-12 w-12 text-muted-foreground animate-spin" />

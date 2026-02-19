@@ -31,6 +31,7 @@ import { cn } from '@/lib/utils';
 import { Switch } from '../ui/switch';
 import { Label } from '../ui/label';
 import { Separator } from '../ui/separator';
+import { imageToWebPBase64 } from '@/lib/image-processing';
 
 
 const formSchema = z.object({
@@ -126,18 +127,27 @@ export function CreateCommunityForm({
     }
   }, [debouncedName, communityId, checkNameAvailability]);
 
-  const handleImageUpload = (
+  const handleImageUpload = async (
     event: React.ChangeEvent<HTMLInputElement>,
     field: 'bannerUrl' | 'iconUrl'
   ) => {
     const file = event.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const dataUri = reader.result as string;
-        form.setValue(field, dataUri, { shouldDirty: true });
-      };
-      reader.readAsDataURL(file);
+      if (file.size > 4 * 1024 * 1024) { // 4MB limit
+        toast({ variant: 'destructive', title: "Image too large", description: "Please upload an image smaller than 4MB."});
+        return;
+      }
+      try {
+        const webpDataUri = await imageToWebPBase64(file);
+        form.setValue(field, webpDataUri, { shouldDirty: true });
+      } catch (error) {
+        console.error("Image conversion failed", error);
+        toast({
+            variant: 'destructive',
+            title: 'Image Error',
+            description: 'Failed to process image. Please try a different one.',
+        });
+      }
     }
   };
 
@@ -367,7 +377,7 @@ export function CreateCommunityForm({
                                     <FormLabel>Banner</FormLabel>
                                     <FormDescription>Recommended size: 1028px x 128px</FormDescription>
                                     <div className="flex items-center gap-2">
-                                        <Input value={field.value ? 'banner.jpg' : ''} readOnly placeholder="No banner selected" className="flex-grow bg-muted" />
+                                        <Input value={field.value ? 'banner.webp' : ''} readOnly placeholder="No banner selected" className="flex-grow bg-muted" />
                                         <Button type="button" variant="outline" onClick={() => bannerInputRef.current?.click()}>Change</Button>
                                         {field.value && <Button type="button" variant="ghost" size="icon" onClick={() => form.setValue('bannerUrl', '')}><Trash className="h-4 w-4" /></Button>}
                                     </div>
@@ -386,7 +396,7 @@ export function CreateCommunityForm({
                                     <FormLabel>Icon</FormLabel>
                                     <FormDescription>Recommended ratio: 1:1 (square)</FormDescription>
                                     <div className="flex items-center gap-2">
-                                        <Input value={field.value ? 'icon.jpg' : ''} readOnly placeholder="No icon selected" className="flex-grow bg-muted" />
+                                        <Input value={field.value ? 'icon.webp' : ''} readOnly placeholder="No icon selected" className="flex-grow bg-muted" />
                                         <Button type="button" variant="outline" onClick={() => iconInputRef.current?.click()}>Change</Button>
                                         {field.value && <Button type="button" variant="ghost" size="icon" onClick={() => form.setValue('iconUrl', '')}><Trash className="h-4 w-4" /></Button>}
                                     </div>

@@ -23,6 +23,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { useFirestore } from '@/firebase';
 import { useCollection } from '@/firebase/firestore/use-collection';
 import { collection } from 'firebase/firestore';
+import { imageToWebPBase64 } from '@/lib/image-processing';
 
 const formSchema = z.object({
   communityId: z.string().min(1, 'Please select a community.'),
@@ -71,16 +72,27 @@ export function CreatePostForm({ onPostCreated, communityId }: CreatePostFormPro
     }
   }, [communityId, form])
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const dataUri = reader.result as string;
-        setImagePreview(dataUri);
-        form.setValue('imageUrl', dataUri);
-      };
-      reader.readAsDataURL(file);
+      if (file.size > 4 * 1024 * 1024) { // 4MB limit
+        toast({ variant: 'destructive', title: "Image too large", description: "Please upload an image smaller than 4MB."});
+        return;
+      }
+      try {
+        const webpDataUri = await imageToWebPBase64(file);
+        setImagePreview(webpDataUri);
+        form.setValue('imageUrl', webpDataUri, { shouldValidate: true });
+      } catch (error) {
+        console.error("Image conversion failed", error);
+        toast({
+            variant: 'destructive',
+            title: 'Image Error',
+            description: 'Failed to process image. Please try a different one.',
+        });
+        setImagePreview(null);
+        form.setValue('imageUrl', '', { shouldValidate: true });
+      }
     }
   };
 

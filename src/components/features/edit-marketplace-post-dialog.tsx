@@ -31,6 +31,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { useFirestore } from '@/firebase';
 import { updateMarketplacePost } from '@/firebase/actions/marketplace-post';
 import type { MarketplacePost } from './marketplace-client';
+import { imageToWebPBase64 } from '@/lib/image-processing';
 
 const formSchema = z.object({
   itemName: z
@@ -84,20 +85,27 @@ export function EditMarketplacePostDialog({ isOpen, onOpenChange, post }: EditMa
     setImagePreview(post.imageUrl);
   }, [post, form]);
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       if (file.size > 2 * 1024 * 1024) { // 2MB limit
         toast({ variant: 'destructive', title: "Image too large", description: "Please upload an image smaller than 2MB."});
         return;
       }
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const dataUri = reader.result as string;
-        setImagePreview(dataUri);
-        form.setValue('imageUrl', dataUri, { shouldValidate: true, shouldDirty: true });
-      };
-      reader.readAsDataURL(file);
+      try {
+        const webpDataUri = await imageToWebPBase64(file);
+        setImagePreview(webpDataUri);
+        form.setValue('imageUrl', webpDataUri, { shouldValidate: true, shouldDirty: true });
+      } catch (error) {
+        console.error("Image conversion failed", error);
+        toast({
+            variant: 'destructive',
+            title: 'Image Error',
+            description: 'Failed to process image. Please try a different one.',
+        });
+        setImagePreview(post.imageUrl); // Revert to original on failure
+        form.setValue('imageUrl', post.imageUrl, { shouldValidate: true });
+      }
     }
   };
 
