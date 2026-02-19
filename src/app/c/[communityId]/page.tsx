@@ -58,10 +58,12 @@ export default function CommunitySubPage({ params }: { params: { communityId: st
     <div className="space-y-4">
       {/* Banner and Header */}
       <div className="bg-card border rounded-lg overflow-hidden">
-        <div className="relative h-32 md:h-48 w-full bg-muted">
+        <div className="relative h-48 w-full bg-muted">
           {community.bannerUrl && (
             <Image src={community.bannerUrl} alt={`${community.name} banner`} layout="fill" objectFit="cover" />
           )}
+          {/* Add a blur overlay to the bottom of the banner */}
+          <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-background/80 via-background/40 to-transparent backdrop-blur-sm" />
           {isOwner && (
             <Button variant="outline" size="icon" className="absolute top-2 right-2 h-8 w-8 bg-black/50 hover:bg-black/75 border-none text-white">
               <Pencil className="h-4 w-4"/>
