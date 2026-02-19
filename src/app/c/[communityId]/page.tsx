@@ -1,4 +1,3 @@
-
 'use client';
 
 import { PostList } from '@/components/features/post-list';
@@ -62,8 +61,14 @@ export default function CommunitySubPage({ params }: { params: { communityId: st
           {community.bannerUrl && (
             <Image src={community.bannerUrl} alt={`${community.name} banner`} layout="fill" objectFit="cover" />
           )}
-          {/* Add a blur overlay to the bottom of the banner */}
-          <div className="absolute inset-x-0 bottom-0 h-3/4 bg-gradient-to-t from-background to-transparent backdrop-blur" />
+          {/* Fading blur overlay */}
+            <div
+                className="absolute inset-x-0 bottom-0 h-3/4 bg-black/20 backdrop-blur-lg pointer-events-none"
+                style={{
+                    WebkitMaskImage: 'linear-gradient(to top, black, transparent)',
+                    maskImage: 'linear-gradient(to top, black, transparent)',
+                }}
+            />
           {isOwner && (
             <Button variant="outline" size="icon" className="absolute top-2 right-2 h-8 w-8 bg-black/50 hover:bg-black/75 border-none text-white">
               <Pencil className="h-4 w-4"/>
