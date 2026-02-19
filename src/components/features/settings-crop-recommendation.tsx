@@ -5,7 +5,7 @@ import { Button } from "../ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { recommendCrop } from "@/app/actions/recommend-crop";
-import { Loader2, MapPin, Cloudy, Sun, Droplets, Wind, Waves, Thermometer, Leaf, CheckCircle2 } from "lucide-react";
+import { Loader2, MapPin, Cloudy, Sun, Droplets, Waves, Thermometer, Leaf, CheckCircle2 } from "lucide-react";
 import { Badge } from "../ui/badge";
 import { Separator } from "../ui/separator";
 
@@ -30,6 +30,7 @@ type RecommendationResponse = {
     partially_suitable: string[];
     state: string;
     season_code: number;
+    error?: string;
 };
 
 

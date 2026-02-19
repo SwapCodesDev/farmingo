@@ -7,7 +7,7 @@ type RecommendCropPayload = {
 }
 
 export async function recommendCrop(payload: RecommendCropPayload): Promise<any> {
-    const endpoint = 'http://127.0.0.1:8000/recommend';
+    const endpoint = 'https://swapcodes-farmingo.hf.space/recommend';
     try {
         const response = await fetch(endpoint, {
             method: 'POST',
