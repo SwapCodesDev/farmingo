@@ -466,3 +466,8 @@
             "description": "A collection of all direct message conversations."
         },
         "/conversations/{conversationId}/messages/{messageId}": {
+            "schema": { "$ref": "#/entities/Message" },
+            "description": "Subcollection of messages for a given conversation."
+        }
+    }
+}
