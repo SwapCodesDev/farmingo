@@ -63,7 +63,7 @@ export default function CommunitySubPage({ params }: { params: { communityId: st
           )}
           {/* Fading blur overlay */}
             <div
-                className="absolute inset-x-0 bottom-0 h-3/4 bg-black/20 backdrop-blur-lg pointer-events-none"
+                className="absolute inset-x-0 bottom-0 h-3/4 bg-black/20 backdrop-blur-xl pointer-events-none"
                 style={{
                     WebkitMaskImage: 'linear-gradient(to top, black, transparent)',
                     maskImage: 'linear-gradient(to top, black, transparent)',
