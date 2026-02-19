@@ -40,15 +40,10 @@ import { useState } from 'react';
 const mainNav = [{ href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard }];
 
 const aiToolsNav = [
-  { href: '/price-prediction', label: 'Price Prediction', icon: TrendingUp },
+  { href: '/price-prediction', label: 'Crop Price Prediction', icon: TrendingUp },
   { href: '/disease-diagnosis', label: 'Disease Diagnosis', icon: Bug },
-  { href: '/weather-prediction', label: 'Weather Prediction', icon: CloudSun },
-];
-
-const aiToolsNavV2 = [
-  { href: '/settings/price-prediction', label: 'Crop Price Prediction', icon: TrendingUp },
-  { href: '/settings/disease-prediction', label: 'Disease Prediction', icon: Bug },
-  { href: '/settings/crop-recommendation', label: 'Crop Recommendation', icon: Sprout },
+  { href: '/crop-recommendation', label: 'Crop Recommendation', icon: Sprout },
+  { href: '/weather-prediction', label: 'Weather & Farming Advice', icon: CloudSun },
 ];
 
 const platformNav = [
@@ -196,7 +191,6 @@ export function SidebarNav() {
         </SidebarMenu>
 
         <NavCategory title="AI Tools" items={aiToolsNav} user={user} pathname={pathname} />
-        <NavCategory title="AI Tools V2" items={aiToolsNavV2} user={user} pathname={pathname} />
         <NavCategory title="Platform" items={platformNav} user={user} pathname={pathname} />
         <NavCategory title="Account" items={userNav} user={user} pathname={pathname} />
 
