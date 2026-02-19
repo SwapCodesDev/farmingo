@@ -211,7 +211,7 @@ export function EditCommunityDialog({ isOpen, onOpenChange, community }: EditCom
                 render={() => (
                     <FormItem>
                         <FormLabel>Banner</FormLabel>
-                        <div className="relative aspect-video w-full rounded-md border-2 border-dashed bg-muted flex items-center justify-center cursor-pointer hover:bg-muted/80 overflow-hidden"
+                        <div className="relative h-36 w-full rounded-md border-2 border-dashed bg-muted flex items-center justify-center cursor-pointer hover:bg-muted/80 overflow-hidden"
                              onClick={() => bannerInputRef.current?.click()}>
                             {watchBannerUrl ? (
                                 <Image src={watchBannerUrl} alt="Banner preview" layout="fill" objectFit="cover" />
@@ -223,9 +223,9 @@ export function EditCommunityDialog({ isOpen, onOpenChange, community }: EditCom
                             )}
                         </div>
                         <FormControl>
-                            <Input ref={bannerInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleImageSelect(e, 'bannerUrl', 1028 / 128)} />
+                            <Input ref={bannerInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleImageSelect(e, 'bannerUrl', 4)} />
                         </FormControl>
-                        <p className="text-xs text-muted-foreground">1028px x 128px Recommended</p>
+                        <p className="text-xs text-muted-foreground">4:1 Aspect Ratio Recommended</p>
                         <FormMessage />
                     </FormItem>
                 )}

@@ -392,14 +392,14 @@ export function CreateCommunityForm({
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Banner</FormLabel>
-                                    <FormDescription>Recommended size: 1028px x 128px</FormDescription>
+                                    <FormDescription>Recommended aspect ratio: 4:1</FormDescription>
                                     <div className="flex items-center gap-2">
                                         <Input value={field.value ? 'banner.webp' : ''} readOnly placeholder="No banner selected" className="flex-grow bg-muted" />
                                         <Button type="button" variant="outline" onClick={() => bannerInputRef.current?.click()}>Change</Button>
                                         {field.value && <Button type="button" variant="ghost" size="icon" onClick={() => form.setValue('bannerUrl', '')}><Trash className="h-4 w-4" /></Button>}
                                     </div>
                                     <FormControl>
-                                    <Input ref={bannerInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleImageSelect(e, 'bannerUrl', 1028 / 128)} />
+                                    <Input ref={bannerInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleImageSelect(e, 'bannerUrl', 4)} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -430,7 +430,7 @@ export function CreateCommunityForm({
                 <div className="order-1 md:order-2">
                     <h3 className="text-sm font-medium mb-2 text-muted-foreground">Preview</h3>
                     <Card className="shadow-lg overflow-hidden">
-                        <div className="relative h-16 bg-muted">
+                        <div className="relative h-24 bg-muted">
                             {watchBannerUrl && <Image src={watchBannerUrl} alt="Banner Preview" layout="fill" objectFit="cover" />}
                         </div>
                         <CardHeader className="pt-2">

@@ -58,7 +58,7 @@ export default function CommunitySubPage({ params }: { params: { communityId: st
     <div className="space-y-4">
       {/* Banner and Header */}
       <div className="bg-card border rounded-lg overflow-hidden">
-        <div className="relative h-24 md:h-32 w-full bg-muted">
+        <div className="relative h-32 md:h-48 w-full bg-muted">
           {community.bannerUrl && (
             <Image src={community.bannerUrl} alt={`${community.name} banner`} layout="fill" objectFit="cover" />
           )}
