@@ -1,0 +1,119 @@
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isUser(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    function userRole() {
+      return request.auth != null
+        ? get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role
+        : null;
+    }
+
+    function isAdmin() {
+      return userRole() == 'admin';
+    }
+
+    function isModerator() {
+      return userRole() in ['admin', 'moderator'];
+    }
+
+    function isOwner(resource) {
+      return request.auth != null && resource.data.uid == request.auth.uid;
+    }
+
+    // Common check for updates: Allow owners to update everything except protected metadata fields.
+    function isValidUpdate(resource) {
+      return !request.resource.data.diff(resource.data).changedKeys().hasAny(['uid', 'createdAt', 'id', 'communityId', 'creatorId']);
+    }
+
+    match /users/{userId} {
+      allow read: if true;
+      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid &&
+                    (request.resource.data.role in ['user', 'farmer']);
+      allow update: if (isUser(userId) && isValidUpdate(resource)) ||
+                      (isAdmin() && request.resource.data.diff(resource.data).changedKeys().hasOnly(['role', 'isVerified']));
+      allow delete: if isAdmin() || isUser(userId);
+
+      match /cart/{productId} {
+        allow read, list, write, delete: if isUser(userId);
+      }
+    }
+
+    match /communities/{communityId} {
+      allow read, list: if true;
+      allow create: if request.auth != null && request.resource.data.creatorId == request.auth.uid;
+      allow update: if request.auth != null && (
+        (isUser(resource.data.creatorId) && isValidUpdate(resource)) ||
+        (request.resource.data.diff(resource.data).changedKeys().hasOnly(['postCount']))
+      );
+      allow delete: if request.auth != null && (isUser(resource.data.creatorId) || isModerator());
+    }
+
+    match /posts/{postId} {
+      allow read, list: if true;
+      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
+      allow update: if request.auth != null && (
+        (isOwner(resource) && isValidUpdate(resource)) ||
+        (request.resource.data.diff(resource.data).changedKeys().hasAny(['upvotes', 'downvotes', 'commentCount', 'pinnedCommentId']))
+      );
+      allow delete: if request.auth != null && (isOwner(resource) || isModerator());
+
+      match /comments/{commentId} {
+        allow read, list: if true;
+        allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
+        allow update: if request.auth != null && (
+          (isOwner(resource) && isValidUpdate(resource)) ||
+          (request.resource.data.diff(resource.data).changedKeys().hasAny(['upvotes', 'downvotes', 'replyCount']))
+        );
+        allow delete: if request.auth != null && (isOwner(resource) || isUser(get(/databases/$(database)/documents/posts/$(postId)).data.uid) || isModerator());
+      }
+    }
+
+    match /products/{productId} {
+      function userIsVerifiedSeller(userId) {
+        let userDoc = get(/databases/$(database)/documents/users/$(userId));
+        return userDoc.exists() && userDoc.data.isVerified == true;
+      }
+
+      allow read, list: if true;
+      allow create: if request.auth != null && isUser(request.resource.data.uid) && userIsVerifiedSeller(request.auth.uid);
+      allow update, delete: if request.auth != null && isUser(resource.data.uid) && userIsVerifiedSeller(request.auth.uid);
+    }
+
+    match /marketplacePosts/{postId} {
+      allow read, list: if true;
+      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
+      allow update: if request.auth != null && (
+        (isOwner(resource) && isValidUpdate(resource)) ||
+        (request.resource.data.diff(resource.data).changedKeys().hasAny(['upvotes', 'downvotes', 'commentCount', 'pinnedCommentId']))
+      );
+      allow delete: if request.auth != null && (isOwner(resource) || isModerator());
+
+      match /comments/{commentId} {
+        allow read, list: if true;
+        allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
+        allow update: if request.auth != null && (
+          (isOwner(resource) && isValidUpdate(resource)) ||
+          (request.resource.data.diff(resource.data).changedKeys().hasAny(['upvotes', 'downvotes', 'replyCount']))
+        );
+        allow delete: if request.auth != null && (isOwner(resource) || isUser(get(/databases/$(database)/documents/marketplacePosts/$(postId)).data.uid) || isModerator());
+      }
+    }
+    
+    match /conversations/{conversationId} {
+      allow get, update: if request.auth != null && request.auth.uid in resource.data.participants;
+      allow list: if request.auth != null;
+      allow create: if request.auth != null && request.auth.uid in request.resource.data.participants;
+
+      match /messages/{messageId} {
+        allow read: if request.auth != null && request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participants;
+        allow create: if request.auth != null && request.auth.uid == request.resource.data.senderId &&
+                       request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participants;
+      }
+    }
+  }
+}

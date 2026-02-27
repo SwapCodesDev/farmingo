@@ -1,0 +1,473 @@
+
+{
+    "entities": {
+        "UserProfile": {
+            "title": "User Profile",
+            "description": "Represents a user's profile in the system.",
+            "type": "object",
+            "properties": {
+                "uid": {
+                    "type": "string",
+                    "description": "The user's unique ID from Firebase Authentication."
+                },
+                "displayName": {
+                    "type": "string",
+                    "description": "The user's display name."
+                },
+                "username": {
+                    "type": "string",
+                    "description": "The user's unique username."
+                },
+                "email": {
+                    "type": "string",
+                    "format": "email",
+                    "description": "The user's email address."
+                },
+                "photoURL": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "The URL of the user's profile picture."
+                },
+                "createdAt": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "The timestamp when the user profile was created."
+                },
+                "following": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "A list of user UIDs that this user is following."
+                },
+                "followers": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "A list of user UIDs that are following this user."
+                },
+                "isVerified": {
+                    "type": "boolean",
+                    "description": "Indicates if the user is a verified seller."
+                },
+                "role": {
+                    "type": "string",
+                    "description": "The role of the user in the system.",
+                    "enum": ["admin", "moderator", "farmer", "user"]
+                },
+                "region": {
+                    "type": "string",
+                    "description": "The geographical region of the user."
+                }
+            },
+            "required": ["uid", "email", "createdAt", "following", "followers", "isVerified", "role", "region"]
+        },
+        "Community": {
+            "title": "Community",
+            "description": "Represents a sub-community or topic group.",
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "The display name of the community."
+                },
+                "description": {
+                    "type": "string",
+                    "description": "A short description of the community's purpose."
+                },
+                "iconUrl": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "The URL for the community's icon image."
+                },
+                "bannerUrl": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "The URL for the community's banner image."
+                },
+                "createdAt": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "The timestamp when the community was created."
+                },
+                "creatorId": {
+                    "type": "string",
+                    "description": "The UID of the user who created the community."
+                },
+                "creatorUsername": {
+                    "type": "string",
+                    "description": "The username of the user who created the community."
+                },
+                "postCount": {
+                    "type": "number",
+                    "description": "The number of posts in the community."
+                },
+                "type": {
+                    "type": "string",
+                    "enum": ["public", "restricted", "private"],
+                    "description": "The visibility type of the community."
+                },
+                "isMature": {
+                    "type": "boolean",
+                    "description": "Indicates if the community is for mature audiences (18+)."
+                }
+            },
+            "required": ["name", "description", "createdAt", "creatorId", "type", "isMature"]
+        },
+        "Post": {
+            "title": "Community Post",
+            "description": "A post made by a user in the community hub.",
+            "type": "object",
+            "properties": {
+                "uid": {
+                    "type": "string",
+                    "description": "The ID of the user who created the post."
+                },
+                "author": {
+                    "type": "string",
+                    "description": "The username of the post author."
+                },
+                "authorPhotoURL": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "The URL of the author's profile picture."
+                },
+                "title": {
+                    "type": "string",
+                    "description": "The title of the post."
+                },
+                "text": {
+                    "type": "string",
+                    "description": "The content of the post."
+                },
+                "communityId": {
+                    "type": "string",
+                    "description": "The ID (tag) of the community this post belongs to."
+                },
+                "createdAt": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "The timestamp when the post was created."
+                },
+                "upvotes": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "A list of user UIDs who upvoted the post."
+                },
+                "downvotes": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "A list of user UIDs who downvoted the post."
+                },
+                "commentCount": {
+                    "type": "number",
+                    "description": "The number of top-level comments on the post."
+                },
+                "pinnedCommentId": {
+                    "type": "string",
+                    "description": "The ID of the comment pinned by the author."
+                }
+            },
+            "required": ["uid", "author", "title", "text", "communityId", "createdAt"]
+        },
+        "Comment": {
+            "title": "Post Comment",
+            "description": "A comment on a community post.",
+            "type": "object",
+            "properties": {
+                "uid": {
+                    "type": "string",
+                    "description": "The ID of the user who wrote the comment."
+                },
+                "author": {
+                    "type": "string",
+                    "description": "The username of the comment author."
+                },
+                "authorPhotoURL": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "The URL of the author's profile picture."
+                },
+                "text": {
+                    "type": "string",
+                    "description": "The content of the comment."
+                },
+                "createdAt": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "The timestamp when the comment was created."
+                },
+                "upvotes": {
+                    "type": "array",
+                    "items": { "type": "string" }
+                },
+                "downvotes": {
+                    "type": "array",
+                    "items": { "type": "string" }
+                }
+            },
+            "required": ["uid", "author", "text", "createdAt"]
+        },
+        "Product": {
+            "title": "Marketplace Product",
+            "description": "A product listed for sale in the verified marketplace.",
+            "type": "object",
+            "properties": {
+                "uid": {
+                    "type": "string",
+                    "description": "The ID of the user who listed the product."
+                },
+                "sellerName": {
+                    "type": "string",
+                    "description": "The display name of the seller."
+                },
+                "sellerPhotoURL": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "The URL of the seller's profile picture."
+                },
+                "name": {
+                    "type": "string",
+                    "description": "The name of the product."
+                },
+                "description": {
+                    "type": "string",
+                    "description": "The description of the product."
+                },
+                "price": {
+                    "type": "number",
+                    "description": "The price of the product."
+                },
+                "imageUrl": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "The URL of the product image."
+                },
+                "createdAt": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "The timestamp when the product was listed."
+                },
+                "rating": {
+                    "type": "number",
+                    "description": "The average rating of the product (1-5)."
+                },
+                "reviewCount": {
+                    "type": "number",
+                    "description": "The number of reviews the product has received."
+                }
+            },
+            "required": ["uid", "sellerName", "name", "price", "imageUrl", "createdAt"]
+        },
+        "MarketplacePost": {
+            "title": "Indirect Marketplace Post",
+            "description": "A post-style listing for the indirect marketplace.",
+            "type": "object",
+            "properties": {
+                "uid": { "type": "string" },
+                "author": { "type": "string" },
+                "authorPhotoURL": { "type": "string", "format": "uri" },
+                "itemName": { "type": "string" },
+                "description": { "type": "string" },
+                "price": { "type": "number" },
+                "quantity": { "type": "string" },
+                "condition": { "type": "string", "enum": ["New", "Used", "For Hire"] },
+                "imageUrl": { "type": "string", "format": "uri" },
+                "createdAt": { "type": "string", "format": "date-time" },
+                "commentCount": { "type": "number" },
+                "upvotes": {
+                    "type": "array",
+                    "items": { "type": "string" }
+                },
+                "downvotes": {
+                    "type": "array",
+                    "items": { "type": "string" }
+                }
+            },
+            "required": ["uid", "author", "itemName", "price", "quantity", "condition", "imageUrl", "createdAt"]
+        },
+        "Order": {
+            "title": "Order",
+            "description": "Represents a customer's order.",
+            "type": "object",
+            "properties": {
+                "uid": {
+                    "type": "string",
+                    "description": "The UID of the user who placed the order."
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/entities/Product"
+                    },
+                    "description": "An array of products included in the order."
+                },
+                "total": {
+                    "type": "number",
+                    "description": "The total cost of the order."
+                },
+                "shippingAddress": {
+                    "type": "object",
+                    "properties": {
+                        "name": { "type": "string" },
+                        "address1": { "type": "string" },
+                        "city": { "type": "string" },
+                        "state": { "type": "string" },
+                        "pincode": { "type": "string" }
+                    },
+                    "required": ["name", "address1", "city", "state", "pincode"]
+                },
+                "paymentMethod": {
+                    "type": "string",
+                    "enum": ["cod", "upi", "card"]
+                },
+                "status": {
+                    "type": "string",
+                    "enum": ["Pending", "Shipped", "Delivered", "Cancelled"],
+                    "description": "The current status of the order."
+                },
+                "createdAt": {
+                    "type": "string",
+                    "format": "date-time"
+                }
+            },
+            "required": ["uid", "items", "total", "shippingAddress", "paymentMethod", "status", "createdAt"]
+        },
+        "Conversation": {
+            "title": "Conversation",
+            "description": "A direct message conversation between two or more users.",
+            "type": "object",
+            "properties": {
+                "participants": {
+                    "type": "array",
+                    "items": { "type": "string" },
+                    "description": "An array of user UIDs participating in the conversation."
+                },
+                "participantDetails": {
+                    "type": "object",
+                    "description": "A map of participant UIDs to their details.",
+                    "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                            "username": { "type": "string" },
+                            "photoURL": { "type": "string", "format": "uri" }
+                        }
+                    }
+                },
+                "lastMessage": {
+                    "type": "object",
+                    "properties": {
+                        "text": { "type": "string" },
+                        "senderId": { "type": "string" },
+                        "createdAt": { "type": "string", "format": "date-time" }
+                    },
+                    "description": "A summary of the last message for inbox view."
+                },
+                "lastRead": {
+                    "type": "object",
+                    "description": "A map of participant UIDs to the timestamp of their last read message.",
+                    "additionalProperties": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "createdAt": {
+                    "type": "string",
+                    "format": "date-time"
+                },
+                "updatedAt": {
+                    "type": "string",
+                    "format": "date-time"
+                }
+            },
+            "required": ["participants", "participantDetails", "createdAt", "updatedAt"]
+        },
+        "Message": {
+            "title": "Message",
+            "description": "A single message within a conversation.",
+            "type": "object",
+            "properties": {
+                "senderId": {
+                    "type": "string",
+                    "description": "The UID of the user who sent the message."
+                },
+                "text": {
+                    "type": "string",
+                    "description": "The content of the message."
+                },
+                "createdAt": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "The timestamp when the message was sent."
+                }
+            },
+            "required": ["senderId", "text", "createdAt"]
+        }
+    },
+    "auth": {
+        "providers": ["google", "email_password"]
+    },
+    "firestore": {
+        "/users/{userId}": {
+            "schema": {
+                "$ref": "#/entities/UserProfile"
+            },
+            "description": "Stores public information about a user."
+        },
+        "/orders/{orderId}": {
+            "schema": {
+                "$ref": "#/entities/Order"
+            },
+            "description": "A collection of all customer orders."
+        },
+        "/communities/{communityId}": {
+            "schema": {
+                "$ref": "#/entities/Community"
+            },
+            "description": "A collection of all sub-communities."
+        },
+        "/posts/{postId}": {
+            "schema": {
+                "$ref": "#/entities/Post"
+            },
+            "description": "A collection of all community posts, across all communities."
+        },
+        "/posts/{postId}/comments/{commentId}": {
+            "schema": {
+                "$ref": "#/entities/Comment"
+            },
+            "description": "A collection of comments for a specific post."
+        },
+        "/products/{productId}": {
+            "schema": {
+                "$ref": "#/entities/Product"
+            },
+            "description": "A collection of all products listed in the verified marketplace."
+        },
+        "/marketplacePosts/{postId}": {
+            "schema": {
+                "$ref": "#/entities/MarketplacePost"
+            },
+            "description": "A collection of all posts in the indirect marketplace."
+        },
+         "/marketplacePosts/{postId}/comments/{commentId}": {
+            "schema": {
+                "$ref": "#/entities/Comment"
+            },
+            "description": "A collection of comments for a specific marketplace post."
+        },
+        "/conversations/{conversationId}": {
+            "schema": { "$ref": "#/entities/Conversation" },
+            "description": "A collection of all direct message conversations."
+        },
+        "/conversations/{conversationId}/messages/{messageId}": {
+            "schema": { "$ref": "#/entities/Message" },
+            "description": "Subcollection of messages for a given conversation."
+        }
+    }
+}

@@ -1,0 +1,102 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 120 14% 96%; /* #F6F9F6 */
+    --foreground: 215 48% 11%; /* #0F172A */
+
+    --card: 0 0% 100%;
+    --card-foreground: 215 48% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 48% 11%;
+
+    --primary: 152 45% 30%; /* #2B6E4A */
+    --primary-foreground: 0 0% 98%;
+
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
+
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 215 14% 47%; /* #64748B */
+
+    --accent: 38 92% 51%; /* #F59E0B */
+    --accent-foreground: 215 48% 11%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 152 45% 30%;
+
+    --radius: 0.75rem;
+
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+  }
+
+  .dark {
+    --background: 222 84% 5%;
+    --foreground: 210 40% 98%;
+    --card: 222 84% 5%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222 84% 5%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 152 45% 40%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 38 92% 55%;
+    --accent-foreground: 222 47% 11%;
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
+    --ring: 152 45% 40%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  .prose {
+    @apply text-foreground text-sm;
+  }
+  .prose h1 { @apply text-2xl font-bold mb-4; }
+  .prose h2 { @apply text-xl font-semibold mb-3; }
+  .prose h3 { @apply text-lg font-semibold mb-2; }
+  .prose a { @apply text-primary underline; }
+  .prose ul { @apply list-disc list-inside; }
+  .prose ol { @apply list-decimal list-inside; }
+  .prose li { @apply mb-1; }
+  .prose blockquote { @apply border-l-4 border-primary pl-4 italic my-2 text-muted-foreground; }
+  .prose code { @apply bg-muted text-muted-foreground font-mono text-sm px-1 py-0.5 rounded; }
+  .prose pre { @apply bg-muted p-4 rounded-md overflow-x-auto; }
+  .prose table { @apply w-full my-4; }
+  .prose th { @apply border px-4 py-2 font-semibold; }
+  .prose td { @apply border px-4 py-2; }
+}
+
+@layer utilities {
+  .mask-gradient {
+    mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
+  }
+}
