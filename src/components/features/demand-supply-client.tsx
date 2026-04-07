@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -9,10 +9,8 @@ import {
   BarChart3, 
   Loader2, 
   MapPin, 
-  Info, 
   Search, 
   Calendar as CalendarIcon,
-  TrendingDown,
   TrendingUp,
   AlertCircle,
   Lightbulb
@@ -34,7 +32,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '../ui/badge';
 import { useTranslations } from 'next-intl';
@@ -44,24 +41,30 @@ import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { Calendar } from '../ui/calendar';
 import { cn } from '@/lib/utils';
 
-const commodities = [
-  "onion", "tomato", "potato", "cabbage", "carrot", "chilli", "brinjal",
-  "cucumber", "cauliflower", "beetroot", "bhindi", "garlic", "ginger",
-  "sweet potato", "spring onion", "spinach", "methi", "coriander leaves",
-  "bottle gourd", "ridge gourd", "bitter gourd", "snake gourd", "drumstick",
-  "pumpkin", "capsicum"
-] as const;
+// --- Mapping Data ---
+const MAHARASHTRA_DISTRICTS = [
+  "Ahmednagar", "Akola", "Amarawati", "Beed", "Bhandara", "Buldhana",
+  "Chandrapur", "Chattrapati Sambhajinagar", "Dharashiv(Usmanabad)",
+  "Dhule", "Gadchiroli", "Gondiya", "Hingoli", "Jalana", "Jalgaon",
+  "Kolhapur", "Latur", "Mumbai", "Nagpur", "Nanded", "Nandurbar",
+  "Nashik", "Parbhani", "Pune", "Raigad", "Ratnagiri", "Sangli",
+  "Satara", "Sholapur", "Sindhudurg", "Thane", "Vashim", "Wardha", "Yavatmal"
+];
 
-const categories = ["vegetables", "fruits", "grains", "pulses", "spices"] as const;
+const CATEGORY_MAP = {
+  "Cereals": ["Bajra(Pearl Millet/Cumbu)", "Maize", "Rice", "Wheat"],
+  "Pulses": ["Arhar Dal(Tur Dal)", "Bengal Gram Dal(Chana Dal)", "Green Gram Dal(Moong Dal)", "Masur Dal", "Mataki", "Kidney Beans(Rajma)"],
+  "Fruits": ["Orange", "Water Melon", "Apple", "Banana", "Mango", "Grapes"],
+  "Vegetables": ["Potato", "Onion", "Tomato", "Pumpkin", "Green Chilli", "Raddish"],
+  "Spices": ["Black pepper", "Chili Red", "Cinamon(Dalchini)", "Ginger(Dry)", "Turmeric"]
+};
+
+type CategoryName = keyof typeof CATEGORY_MAP;
 
 const formSchema = z.object({
-  district: z.string().min(1, 'District is required.'),
-  commodity: z.enum(commodities, {
-    errorMap: () => ({ message: "Please select a valid commodity." })
-  }),
-  category: z.enum(categories, {
-    errorMap: () => ({ message: "Please select a valid category." })
-  }),
+  district: z.string().min(1, 'Please select a district.'),
+  category: z.string().min(1, 'Please select a category.'),
+  commodity: z.string().min(1, 'Please select a commodity.'),
   date: z.date({
     required_error: "A target date is required.",
   }),
@@ -77,12 +80,19 @@ export function DemandSupplyClient() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      district: '',
-      commodity: 'onion',
-      category: 'vegetables',
+      district: 'Pune',
+      category: 'Vegetables',
+      commodity: 'Onion',
       date: new Date(),
     },
   });
+
+  const selectedCategory = form.watch('category') as CategoryName;
+
+  // Update commodity if category changes and current commodity isn't in new list
+  const availableCommodities = useMemo(() => {
+    return CATEGORY_MAP[selectedCategory] || [];
+  }, [selectedCategory]);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsLoading(true);
@@ -119,7 +129,7 @@ export function DemandSupplyClient() {
                 <Search className="h-5 w-5 text-primary" />
                 Analyze Trends
             </CardTitle>
-            <CardDescription>Enter regional details to see if supply matches the demand.</CardDescription>
+            <CardDescription>Select regional and crop details for a strategic outlook.</CardDescription>
           </CardHeader>
           <CardContent>
             <Form {...form}>
@@ -130,9 +140,20 @@ export function DemandSupplyClient() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>{t('district')}</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g., Pune" {...field} />
-                      </FormControl>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select district" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent className="max-h-64">
+                          {MAHARASHTRA_DISTRICTS.map(district => (
+                            <SelectItem key={district} value={district}>
+                              {district}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -143,15 +164,19 @@ export function DemandSupplyClient() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>{t('category')}</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={(val) => {
+                        field.onChange(val);
+                        // Reset commodity when category changes
+                        form.setValue('commodity', CATEGORY_MAP[val as CategoryName][0]);
+                      }} defaultValue={field.value}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select category" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {categories.map(cat => (
-                            <SelectItem key={cat} value={cat} className="capitalize">
+                          {Object.keys(CATEGORY_MAP).map(cat => (
+                            <SelectItem key={cat} value={cat}>
                               {cat}
                             </SelectItem>
                           ))}
@@ -167,15 +192,15 @@ export function DemandSupplyClient() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>{t('commodity')}</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select commodity" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {commodities.map(commodity => (
-                            <SelectItem key={commodity} value={commodity} className="capitalize">
+                          {availableCommodities.map(commodity => (
+                            <SelectItem key={commodity} value={commodity}>
                               {commodity}
                             </SelectItem>
                           ))}
@@ -258,7 +283,7 @@ export function DemandSupplyClient() {
                 <Loader2 className="mx-auto h-12 w-12 animate-spin text-primary" />
                 <h3 className="mt-4 text-lg font-medium">{t('analyzing')}</h3>
                 <p className="mt-1 text-sm text-muted-foreground italic">
-                  Running multi-factor market analysis...
+                  Evaluating supply and demand trends...
                 </p>
               </CardContent>
             </Card>
@@ -299,7 +324,7 @@ export function DemandSupplyClient() {
                         <MapPin className="h-5 w-5 text-primary" />
                         Strategic Market Report
                     </CardTitle>
-                    <CardDescription>Comprehensive comparison against historical baselines.</CardDescription>
+                    <CardDescription>Comparison against historical baseline for {form.getValues('commodity')}.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
