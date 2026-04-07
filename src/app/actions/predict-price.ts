@@ -1,44 +1,64 @@
 'use server';
 
-import {
-  predictCropPrice,
-  type PredictCropPriceInput,
-  type PredictCropPriceOutput,
-} from '@/ai/flows/crop-price-prediction';
 import { z } from 'zod';
 
 const formSchema = z.object({
-  region: z.string().min(1, 'Region is required.'),
-  crop: z.string().min(1, 'Crop is required.'),
-  variety: z.string().min(1, 'Variety is required.'),
-  date: z.date({
-    required_error: 'A date is required.',
-  }),
+  lat: z.number(),
+  lon: z.number(),
+  commodity: z.string().min(1, 'Commodity is required.'),
 });
 
+export type PricePredictionResponse = {
+  status: string;
+  state: string;
+  total_records: number;
+  filtered_count: number;
+  data: Array<{
+    date: string;
+    district: string;
+    market: string;
+    commodity: string;
+    price: number;
+  }>;
+  base_price: number;
+  max_price: number;
+  base_price_kg: number;
+  max_price_kg: number;
+  excel_min: number;
+  excel_max: number;
+  message: string | null;
+};
+
+/**
+ * Server action to fetch price prediction from the new coordinate-based API.
+ */
 export async function predictPrice(
   values: z.infer<typeof formSchema>
-): Promise<{
-  success: boolean;
-  data?: PredictCropPriceOutput;
-  error?: string;
-}> {
-  const validatedFields = formSchema.safeParse(values);
-  if (!validatedFields.success) {
-    return { success: false, error: 'Invalid input.' };
-  }
-
-  const input: PredictCropPriceInput = {
-    ...validatedFields.data,
-    date: validatedFields.data.date.toISOString().split('T')[0], // format to YYYY-MM-DD
-  };
+): Promise<PricePredictionResponse> {
+  const endpoint = 'https://swapcodes-farmingo.hf.space/price_prediction';
 
   try {
-    const result = await predictCropPrice(input);
-    return { success: true, data: result };
-  } catch (e) {
-    console.error(e);
-    // In a production app, you'd want to log this error to a monitoring service.
-    return { success: false, error: 'Failed to get prediction from AI model.' };
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        lat: values.lat,
+        lon: values.lon,
+        commodity: values.commodity.toLowerCase()
+      }),
+    });
+
+    if (!response.ok) {
+      const errorBody = await response.text();
+      throw new Error(`API Error: ${response.status} - ${errorBody}`);
+    }
+
+    return await response.json();
+  } catch (error: any) {
+    console.error('Price prediction API error:', error);
+    throw new Error(error.message || 'Failed to fetch price prediction.');
   }
 }

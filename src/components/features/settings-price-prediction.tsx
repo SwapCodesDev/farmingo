@@ -4,10 +4,8 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { format } from 'date-fns';
-import { CalendarIcon, Loader2, TrendingUp } from 'lucide-react';
+import { Loader2, TrendingUp, MapPin, Table as TableIcon, Info, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import {
   Form,
@@ -18,34 +16,21 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
-import { cn } from '@/lib/utils';
-import { testApi } from '@/app/actions/test-api';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '../ui/badge';
 import { useTranslations } from 'next-intl';
+import { predictPrice, type PricePredictionResponse } from '@/app/actions/predict-price';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
+import { Separator } from '../ui/separator';
 
 const formSchema = z.object({
-  crop: z.string().min(1, 'Crop is required.'),
-  region: z.string().min(1, 'Region is required.'),
-  date: z.string().min(1, 'Date is required (YYYY-MM-DD).'),
+  commodity: z.string().min(1, 'Commodity name is required (e.g., chilli).'),
 });
 
-type PriceResponse = {
-    crop: string;
-    region: string;
-    date: string; // DD-MM-YYYY
-    price: number;
-    error?: string;
-}
-
 export function SettingsPricePrediction() {
-  const [result, setResult] = useState<PriceResponse | null>(null);
+  const [result, setResult] = useState<PricePredictionResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLocating, setIsLocating] = useState(false);
   const { toast } = useToast();
   const t = useTranslations('AI.price-prediction');
   const commonT = useTranslations('Common');
@@ -53,170 +38,212 @@ export function SettingsPricePrediction() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      region: 'kolhapur',
-      crop: 'wheat',
-      date: new Date().toISOString().split('T')[0],
+      commodity: 'chilli',
     },
   });
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    setIsLoading(true);
-    setResult(null);
-    try {
-        const data = await testApi(values);
-        setResult(data);
-    } catch (error: any) {
-        setResult({ error: error.message } as any);
-        toast({
-            variant: 'destructive',
-            title: commonT('error'),
-            description: error.message || 'An unexpected error occurred.',
-        });
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    setIsLocating(true);
+    
+    if (!navigator.geolocation) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Geolocation is not supported by your browser.',
+      });
+      setIsLocating(false);
+      return;
     }
-    setIsLoading(false);
-  }
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        setIsLocating(false);
+        setIsLoading(true);
+        setResult(null);
+        try {
+          const data = await predictPrice({
+            lat: position.coords.latitude,
+            lon: position.coords.longitude,
+            commodity: values.commodity.toLowerCase(),
+          });
+          setResult(data);
+          toast({
+            title: 'Success',
+            description: `Found market data for ${values.commodity} in ${data.state}.`,
+          });
+        } catch (error: any) {
+          toast({
+            variant: 'destructive',
+            title: 'Prediction Failed',
+            description: error.message || 'Failed to get price prediction.',
+          });
+        } finally {
+          setIsLoading(false);
+        }
+      },
+      (error) => {
+        setIsLocating(false);
+        toast({
+          variant: 'destructive',
+          title: 'Location Access Denied',
+          description: 'We need your location to find local market prices. Please enable permissions.',
+        });
+      }
+    );
+  };
 
   return (
-    <div className="grid gap-8 lg:grid-cols-2">
-      <Card>
-        <CardHeader>
-          <CardTitle className="font-headline">{t('title')}</CardTitle>
-          <CardDescription>{t('subtitle')}</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <FormField
-                control={form.control}
-                name="crop"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t('crop')}</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g., Wheat" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="region"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t('region')}</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g., Punjab" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="date"
-                render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel>{t('date')}</FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant={'outline'}
-                            className={cn(
-                              'w-full pl-3 text-left font-normal',
-                              !field.value && 'text-muted-foreground'
-                            )}
-                          >
-                            {field.value ? (
-                              format(new Date(field.value), 'PPP')
-                            ) : (
-                              <span>Pick a date</span>
-                            )}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={new Date(field.value)}
-                           onSelect={(day) => field.onChange(day?.toISOString().split('T')[0])}
-                          initialFocus
-                        />
-                      </PopoverContent>
-                    </Popover>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Button type="submit" disabled={isLoading} className="w-full">
-                {isLoading ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                ) : (
-                  <TrendingUp className="mr-2 h-4 w-4" />
-                )}
-                {t('predict')}
-              </Button>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
-      <div className="flex items-center justify-center">
-        {isLoading && (
-          <div className="flex flex-col items-center gap-4 text-center">
-            <Loader2 className="h-12 w-12 animate-spin text-primary" />
-            <h2 className="font-headline text-2xl font-semibold">
-              {t('analyzing')}
-            </h2>
-            <p className="text-muted-foreground">
-              {t('analyzing')}
-            </p>
-          </div>
-        )}
-        {!isLoading && !result && (
-            <Card className="w-full h-full flex flex-col items-center justify-center bg-muted/50 border-dashed">
-                <CardContent className="text-center p-6">
-                    <TrendingUp className="mx-auto h-12 w-12 text-muted-foreground" />
-                    <h3 className="mt-4 text-lg font-medium font-headline">{t('awaiting')}</h3>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                        {t('awaiting-desc')}
-                    </p>
-                </CardContent>
+    <div className="space-y-8">
+      <div className="grid gap-8 lg:grid-cols-3">
+        <Card className="lg:col-span-1 h-fit">
+          <CardHeader>
+            <CardTitle className="font-headline flex items-center gap-2">
+                <Search className="h-5 w-5 text-primary" />
+                Find Local Prices
+            </CardTitle>
+            <CardDescription>Enter a commodity. We will use your current location to find the best local market data.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <FormField
+                  control={form.control}
+                  name="commodity"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t('crop')}</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g., chilli, wheat, onion" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button type="submit" disabled={isLoading || isLocating} className="w-full">
+                  {isLoading || isLocating ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <TrendingUp className="mr-2 h-4 w-4" />
+                  )}
+                  {isLocating ? 'Locating...' : t('predict')}
+                </Button>
+              </form>
+            </Form>
+          </CardContent>
+        </Card>
+
+        <div className="lg:col-span-2">
+          {!result && !isLoading && !isLocating && (
+            <Card className="h-full flex flex-col items-center justify-center bg-muted/50 border-dashed py-20">
+              <CardContent className="text-center">
+                <TrendingUp className="mx-auto h-12 w-12 text-muted-foreground" />
+                <h3 className="mt-4 text-lg font-medium font-headline">{t('awaiting')}</h3>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Your local price analysis will appear here once you submit.
+                </p>
+              </CardContent>
             </Card>
-        )}
-        {result && !result.error && (
-          <Card className="w-full animate-in fade-in-50">
-            <CardHeader>
-              <CardTitle className="font-headline text-2xl">
-                {t('result-title')}
-              </CardTitle>
-               <CardDescription className="capitalize">
-                {result.crop} in {result.region} on {format(new Date(result.date.split('-').reverse().join('-')), 'PPP')}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-                <div className="rounded-lg bg-primary/10 p-6 text-center">
-                  <p className="text-sm font-medium text-primary">
-                    {t('predicted-price')}
-                  </p>
-                  <p className="font-headline text-5xl font-bold text-primary">
-                    {typeof result.price === 'number' ? `₹${result.price.toFixed(2)}` : 'N/A'}
-                  </p>
-                </div>
-            </CardContent>
-          </Card>
-        )}
-         {result?.error && (
-            <Card className="w-full h-full flex flex-col items-center justify-center border-destructive">
-                <CardHeader>
-                    <CardTitle className="text-destructive">{commonT('error')}</CardTitle>
+          )}
+
+          {isLoading && (
+            <Card className="h-full flex flex-col items-center justify-center bg-muted/50 border-dashed py-20">
+              <CardContent className="text-center">
+                <Loader2 className="mx-auto h-12 w-12 animate-spin text-primary" />
+                <h3 className="mt-4 text-lg font-medium">{t('analyzing')}</h3>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Accessing live agricultural market records...
+                </p>
+              </CardContent>
+            </Card>
+          )}
+
+          {result && (
+            <div className="space-y-6 animate-in fade-in-50 duration-500">
+              <Card className="overflow-hidden border-primary/20 shadow-md">
+                <CardHeader className="bg-primary/5 pb-4">
+                  <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
+                    <div>
+                      <CardTitle className="text-2xl font-headline flex items-center gap-2">
+                        <MapPin className="h-5 w-5 text-primary" />
+                        {result.state} Market Forecast
+                      </CardTitle>
+                      <CardDescription className="mt-1">
+                        Analyzing {result.filtered_count} verified market records for {form.getValues('commodity')}
+                      </CardDescription>
+                    </div>
+                    <Badge variant="secondary" className="bg-background border-primary/20 text-primary">
+                      {result.status.toUpperCase()}
+                    </Badge>
+                  </div>
                 </CardHeader>
-                <CardContent className="text-center p-6">
-                    <p className="text-sm text-muted-foreground">{result.error}</p>
+                <CardContent className="pt-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="p-6 rounded-2xl bg-primary/10 border border-primary/20 text-center">
+                      <p className="text-xs font-semibold text-primary uppercase tracking-wider mb-2">Base Price (Quintal)</p>
+                      <p className="text-4xl font-bold text-primary">₹{result.base_price.toLocaleString()}</p>
+                      <p className="text-sm text-muted-foreground mt-2 font-medium">Approx. ₹{result.base_price_kg}/kg</p>
+                    </div>
+                    <div className="p-6 rounded-2xl bg-accent/10 border border-accent/20 text-center">
+                      <p className="text-xs font-semibold text-accent-foreground uppercase tracking-wider mb-2">Max Market Price</p>
+                      <p className="text-4xl font-bold text-accent-foreground">₹{result.max_price.toLocaleString()}</p>
+                      <p className="text-sm text-muted-foreground mt-2 font-medium">Approx. ₹{result.max_price_kg}/kg</p>
+                    </div>
+                  </div>
+
+                  <div className="mt-8">
+                    <div className="flex items-center gap-2 mb-4">
+                      <TableIcon className="h-5 w-5 text-muted-foreground" />
+                      <h4 className="font-bold text-lg">Local APMC Transactions</h4>
+                    </div>
+                    <div className="rounded-md border overflow-hidden">
+                      <Table>
+                        <TableHeader className="bg-muted/50">
+                          <TableRow>
+                            <TableHead>Market Name</TableHead>
+                            <TableHead>District</TableHead>
+                            <TableHead className="text-right">Price</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {result.data.slice(0, 6).map((item, idx) => (
+                            <TableRow key={idx}>
+                              <TableCell className="font-medium">{item.market}</TableCell>
+                              <TableCell>{item.district}</TableCell>
+                              <TableCell className="text-right font-bold text-primary">₹{item.price.toLocaleString()}</TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                    {result.data.length > 6 && (
+                      <p className="text-xs text-center text-muted-foreground mt-4 italic">
+                        Viewing most relevant records for your proximity.
+                      </p>
+                    )}
+                  </div>
                 </CardContent>
-            </Card>
-        )}
+              </Card>
+              
+              <Card className="bg-muted/30 border-dashed border-2">
+                <CardContent className="pt-6">
+                  <div className="flex items-start gap-3">
+                    <Info className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
+                    <div className="text-sm text-muted-foreground space-y-2 leading-relaxed">
+                      <p>
+                        These prices are fetched directly from live <strong>{result.state}</strong> state APMC records. 
+                        The predicted base price assumes standard quality grade.
+                      </p>
+                      <p>
+                        Estimated price volatility range: <strong>₹{result.excel_min}/kg</strong> to <strong>₹{result.excel_max}/kg</strong>. 
+                        Actual realization depends on moisture content and variety.
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
