@@ -15,6 +15,13 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '../ui/badge';
@@ -23,8 +30,18 @@ import { predictPrice, type PricePredictionResponse } from '@/app/actions/predic
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import { Separator } from '../ui/separator';
 
+const commodities = [
+  "onion", "tomato", "potato", "cabbage", "carrot", "chilli", "brinjal",
+  "cucumber", "cauliflower", "beetroot", "bhindi", "garlic", "ginger",
+  "sweet potato", "spring onion", "spinach", "methi", "coriander leaves",
+  "bottle gourd", "ridge gourd", "bitter gourd", "snake gourd", "drumstick",
+  "pumpkin", "capsicum"
+] as const;
+
 const formSchema = z.object({
-  commodity: z.string().min(1, 'Commodity name is required (e.g., chilli).'),
+  commodity: z.enum(commodities, {
+    errorMap: () => ({ message: "Please select a valid commodity from the list." })
+  }),
 });
 
 export function SettingsPricePrediction() {
@@ -38,7 +55,7 @@ export function SettingsPricePrediction() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      commodity: 'chilli',
+      commodity: 'onion',
     },
   });
 
@@ -64,7 +81,7 @@ export function SettingsPricePrediction() {
           const data = await predictPrice({
             lat: position.coords.latitude,
             lon: position.coords.longitude,
-            commodity: values.commodity.toLowerCase(),
+            commodity: values.commodity,
           });
           setResult(data);
           toast({
@@ -101,7 +118,7 @@ export function SettingsPricePrediction() {
                 <Search className="h-5 w-5 text-primary" />
                 Find Local Prices
             </CardTitle>
-            <CardDescription>Enter a commodity. We will use your current location to find the best local market data.</CardDescription>
+            <CardDescription>Select a commodity. We will use your current location to find the best local market data.</CardDescription>
           </CardHeader>
           <CardContent>
             <Form {...form}>
@@ -112,9 +129,20 @@ export function SettingsPricePrediction() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>{t('crop')}</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g., chilli, wheat, onion" {...field} />
-                      </FormControl>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a commodity" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {commodities.map(commodity => (
+                            <SelectItem key={commodity} value={commodity} className="capitalize">
+                              {commodity}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
