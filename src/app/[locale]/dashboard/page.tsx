@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useUser } from '@/firebase';
@@ -21,6 +20,7 @@ import {
   Bot,
   Store,
   Sprout,
+  BarChart3
 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -61,6 +61,13 @@ export default function DashboardPage() {
       description: t('descriptions.weather-prediction'),
       href: '/weather-prediction',
       icon: <CloudSun className="w-8 h-8 text-primary" />,
+      disabled: false,
+    },
+    {
+      title: navT('demand-supply'),
+      description: t('descriptions.demand-supply'),
+      href: '/demand-supply',
+      icon: <BarChart3 className="w-8 h-8 text-primary" />,
       disabled: false,
     },
   ], [navT, t]);

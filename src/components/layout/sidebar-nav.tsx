@@ -1,4 +1,3 @@
-
 'use client';
 
 import {
@@ -31,7 +30,8 @@ import {
   User,
   UserPlus,
   Users,
-  Settings
+  Settings,
+  BarChart3
 } from 'lucide-react';
 import { Link, usePathname } from '@/i18n/routing';
 import { cn } from '@/lib/utils';
@@ -132,6 +132,7 @@ export function SidebarNav() {
     { href: '/disease-diagnosis', label: t('disease-diagnosis'), icon: Bug },
     { href: '/crop-recommendation', label: t('crop-recommendation'), icon: Sprout },
     { href: '/weather-prediction', label: t('weather-prediction'), icon: CloudSun },
+    { href: '/demand-supply', label: t('demand-supply'), icon: BarChart3 },
   ];
 
   const platformNav = [

@@ -1,4 +1,3 @@
-
 {
   "Navigation": {
     "dashboard": "Dashboard",
@@ -6,6 +5,7 @@
     "disease-diagnosis": "Disease Diagnosis",
     "crop-recommendation": "Crop Recommendation",
     "weather-prediction": "Weather & Advice",
+    "demand-supply": "Demand & Supply",
     "marketplace": "Marketplace",
     "community": "Community",
     "messages": "Messages",
@@ -33,6 +33,7 @@
       "disease-diagnosis": "Upload a photo to diagnose crop diseases instantly.",
       "crop-recommendation": "Find the best crops to grow based on your location and weather.",
       "weather-prediction": "Get forecasts and actionable farming tips for your location.",
+      "demand-supply": "Analyze market trends to understand supply gaps and price shifts.",
       "marketplace": "Buy and sell agricultural products directly.",
       "community": "Connect with fellow farmers and share knowledge."
     },
@@ -172,6 +173,27 @@
       "score": "Score",
       "suitable-title": "Also Fully Suitable",
       "partially-title": "Partially Suitable"
+    },
+    "demand-supply": {
+      "title": "Demand & Supply Analysis",
+      "subtitle": "Understand market dynamics by analyzing supply quantity and price trends for your region.",
+      "district": "District",
+      "category": "Category",
+      "commodity": "Commodity",
+      "target-date": "Target Date",
+      "analyze": "Analyze Market",
+      "result-title": "Market Analysis",
+      "live-supply": "Live Supply (Qty)",
+      "live-price": "Live Market Price",
+      "baseline-qty": "Baseline Quantity",
+      "baseline-price": "Baseline Price",
+      "condition": "Market Condition",
+      "confidence": "Analysis Confidence",
+      "supply-gap": "Supply Gap",
+      "price-shift": "Price Shift",
+      "analyzing": "Evaluating supply and demand trends...",
+      "awaiting": "Awaiting Analysis",
+      "awaiting-desc": "Fill in the details to see the strategic market status."
     }
   },
   "Profile": {
