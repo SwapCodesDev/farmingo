@@ -320,7 +320,7 @@ export function DemandSupplyClient() {
                     </CardHeader>
                     <CardContent className="pt-4 text-center">
                         <p className="text-3xl font-bold text-accent-foreground">₹{result.live_price.toLocaleString()}</p>
-                        <p className="text-xs text-muted-foreground mt-1">Per Quintal (Current)</p>
+                        <p className="text-xs text-muted-foreground mt-1">Per Ton (Current)</p>
                     </CardContent>
                 </Card>
               </div>
