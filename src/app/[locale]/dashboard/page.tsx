@@ -128,12 +128,6 @@ export default function DashboardPage() {
 
       {/* Live Data Feed Section */}
       <section className="space-y-6">
-        <div className="flex items-center gap-4">
-            <div className="p-2 rounded-xl bg-primary/10">
-                <Activity className="w-6 h-6 text-primary" />
-            </div>
-            <h2 className="font-headline text-2xl font-bold tracking-tight">Platform Insights</h2>
-        </div>
         <DashboardLiveFeed />
       </section>
 
