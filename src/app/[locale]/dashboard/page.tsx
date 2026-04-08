@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useUser } from '@/firebase';
@@ -14,12 +13,10 @@ import { Button } from '@/components/ui/button';
 import { Link } from '@/i18n/routing';
 import {
   ArrowRight,
-  Users,
   Bug,
   TrendingUp,
   CloudSun,
   Bot,
-  Store,
   Sprout,
   BarChart3,
   Sparkles,
@@ -46,7 +43,7 @@ export default function DashboardPage() {
       title: navT('price-prediction'),
       description: t('descriptions.price-prediction'),
       href: '/price-prediction',
-      icon: <TrendingUp className="w-10 h-10 text-primary" />,
+      icon: <TrendingUp className="w-8 h-8 text-primary" />,
       color: "bg-primary/10",
       featured: true,
     },
@@ -54,7 +51,7 @@ export default function DashboardPage() {
       title: navT('disease-diagnosis'),
       description: t('descriptions.disease-diagnosis'),
       href: '/disease-diagnosis',
-      icon: <Bug className="w-10 h-10 text-accent" />,
+      icon: <Bug className="w-8 h-8 text-accent" />,
       color: "bg-accent/10",
       featured: true,
     },
@@ -117,12 +114,12 @@ export default function DashboardPage() {
           </div>
 
           <div className="space-y-2">
-            <h1 className="font-headline text-4xl md:text-6xl font-extrabold tracking-tight text-foreground">
+            <h1 className="font-headline text-3xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-foreground leading-tight">
                 {loading ? <Skeleton className="h-12 w-64" /> : (
                     user?.displayName ? t('welcome', { name: user.displayName.split(' ')[0] }) : t('welcome-generic')
                 )}
             </h1>
-            <p className="text-xl text-muted-foreground max-w-2xl leading-relaxed">
+            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl leading-relaxed">
                 {t('subtitle')}
             </p>
           </div>
@@ -173,7 +170,7 @@ export default function DashboardPage() {
                 )} />
                 
                 <CardHeader className="relative flex flex-row items-start gap-5 pb-4">
-                  <div className={cn("p-4 rounded-2xl shrink-0 transition-transform duration-500 group-hover:scale-110", feature.color)}>
+                  <div className={cn("p-4 rounded-2xl shrink-0 transition-transform duration-500 group-hover:scale-110 flex items-center justify-center", feature.color)}>
                     {feature.icon}
                   </div>
                   <div className="space-y-1">

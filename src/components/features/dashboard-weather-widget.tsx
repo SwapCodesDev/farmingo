@@ -1,13 +1,11 @@
-
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Cloud, CloudRain, CloudSun, Loader2, MapPin, Sun, Thermometer, Navigation } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { useState } from 'react';
+import { Loader2, MapPin, Sun, Navigation } from 'lucide-react';
 import { getWeatherAnalysisAction } from '@/app/actions/predict-weather';
 import { type WeatherAnalysisOutput } from '@/ai/flows/weather-prediction';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { useTranslations } from 'next-intl';
 
 export function DashboardWeatherWidget() {
@@ -15,17 +13,21 @@ export function DashboardWeatherWidget() {
   const [loading, setLoading] = useState(false);
   const t = useTranslations('AI.weather');
 
-  useEffect(() => {
-    // Attempt auto-fetch on mount
+  const handleFetchWeather = () => {
     if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(async (pos) => {
-        setLoading(true);
-        const { data } = await getWeatherAnalysisAction(pos.coords.latitude, pos.coords.longitude);
-        if (data) setWeather(data);
-        setLoading(false);
-      });
+      setLoading(true);
+      navigator.geolocation.getCurrentPosition(
+        async (pos) => {
+          const { data } = await getWeatherAnalysisAction(pos.coords.latitude, pos.coords.longitude);
+          if (data) setWeather(data);
+          setLoading(false);
+        },
+        () => {
+          setLoading(false);
+        }
+      );
     }
-  }, []);
+  };
 
   if (loading) {
     return (
@@ -41,15 +43,8 @@ export function DashboardWeatherWidget() {
       <Button 
         variant="outline" 
         size="sm" 
-        className="rounded-full bg-background/50 border-primary/20 hover:bg-primary/10 transition-all"
-        onClick={() => {
-            navigator.geolocation.getCurrentPosition(async (pos) => {
-                setLoading(true);
-                const { data } = await getWeatherAnalysisAction(pos.coords.latitude, pos.coords.longitude);
-                if (data) setWeather(data);
-                setLoading(false);
-            });
-        }}
+        className="rounded-full bg-background/50 border-primary/20 hover:bg-primary/10 transition-all shadow-sm"
+        onClick={handleFetchWeather}
       >
         <Navigation className="h-3 w-3 mr-2" />
         <span className="text-xs">Show Local Weather</span>
