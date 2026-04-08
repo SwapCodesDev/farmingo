@@ -1,6 +1,7 @@
+
 import { redirect } from 'next/navigation';
 
-// The default page for /settings should redirect to the profile settings.
-export default function SettingsPage() {
-  redirect('/settings/profile');
+export default function NonLocalizedSettingsPage() {
+  // Rely on middleware to handle locale detection or default to /en
+  redirect('/en/settings/profile');
 }

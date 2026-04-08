@@ -12,19 +12,17 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useTransition } from 'react';
-import { useParams } from 'next/navigation';
 
 export default function LanguageSwitcher() {
   const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
-  const params = useParams();
   const [isPending, startTransition] = useTransition();
 
   const changeLanguage = (nextLocale: string) => {
     startTransition(() => {
-      // @ts-ignore
-      router.replace({ pathname, params }, { locale: nextLocale });
+      // Use the simple string path to avoid undefinedundefined issues with params interpolation
+      router.replace(pathname, { locale: nextLocale });
     });
   };
 
