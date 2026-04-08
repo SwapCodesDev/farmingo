@@ -93,8 +93,13 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-col gap-10 pb-10">
       {/* Hero Header Section */}
-      <div className="relative overflow-hidden rounded-[2.5rem] bg-linear-to-r from-primary/20 via-background to-background border p-8 md:p-12 shadow-sm">
-        <div className="absolute top-0 right-0 -mt-10 -mr-10 opacity-5">
+      <div className="relative overflow-hidden rounded-[2.5rem] bg-background border border-primary/10 p-8 md:p-12 shadow-sm">
+        {/* Decorative background elements */}
+        <div className="absolute -top-24 -right-24 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute -bottom-24 -left-24 w-72 h-72 bg-accent/5 rounded-full blur-3xl" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-linear-to-br from-primary/5 via-transparent to-transparent pointer-events-none" />
+        
+        <div className="absolute top-0 right-0 -mt-10 -mr-10 opacity-5 pointer-events-none">
             <Bot className="w-96 h-96 rotate-12" />
         </div>
         
@@ -110,7 +115,7 @@ export default function DashboardPage() {
           </div>
 
           <div className="space-y-2">
-            <h1 className="font-headline text-3xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-foreground leading-tight">
+            <h1 className="font-headline text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-foreground leading-tight">
                 {loading ? <Skeleton className="h-12 w-64" /> : (
                     user?.displayName ? t('welcome', { name: user.displayName.split(' ')[0] }) : t('welcome-generic')
                 )}
