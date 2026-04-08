@@ -201,22 +201,6 @@ export default function DashboardPage() {
           </div>
         )}
       </section>
-
-      {/* Footer Pro Tip */}
-      <div className="p-8 rounded-[3rem] bg-linear-to-br from-primary to-primary/80 text-primary-foreground shadow-2xl flex flex-col md:flex-row items-center justify-between gap-8 group">
-        <div className="flex items-center gap-6 text-left">
-            <div className="p-5 bg-white/20 rounded-[2rem] backdrop-blur-xl group-hover:rotate-12 transition-transform duration-500">
-                <Sprout className="w-8 h-8 text-white" />
-            </div>
-            <div className="space-y-1">
-                <h4 className="font-black text-2xl uppercase tracking-tighter">Agricultural Optimizer</h4>
-                <p className="text-primary-foreground/80 max-w-md">Use the Crop Recommendation tool to find the perfect variety for your soil moisture today.</p>
-            </div>
-        </div>
-        <Button variant="secondary" size="lg" asChild className="shrink-0 font-bold px-8 py-6 rounded-2xl shadow-xl hover:scale-105 transition-all">
-            <Link href="/crop-recommendation">Launch Optimizer</Link>
-        </Button>
-      </div>
     </div>
   );
 }
