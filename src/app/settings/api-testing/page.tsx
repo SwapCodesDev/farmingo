@@ -1,5 +1,6 @@
+
 import { redirect } from 'next/navigation';
 
-export default function ApiTestingPage() {
+export default function NonLocalizedApiTestingPage() {
   redirect('/settings/profile');
 }
