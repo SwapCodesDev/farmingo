@@ -14,7 +14,8 @@ import {
   TrendingUp,
   AlertCircle,
   Lightbulb,
-  Table as TableIcon
+  Table as TableIcon,
+  History
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -314,13 +315,13 @@ export function DemandSupplyClient() {
                 <Card className="border-accent/20 overflow-hidden">
                     <CardHeader className="bg-accent/5 pb-2">
                         <CardTitle className="text-sm font-semibold text-accent-foreground uppercase tracking-wider flex items-center gap-2">
-                            <AlertCircle className="h-4 w-4" />
-                            {t('live-price')}
+                            <History className="h-4 w-4" />
+                            Historical Demand
                         </CardTitle>
                     </CardHeader>
-                    <CardContent className="pt-4 text-center">
-                        <p className="text-3xl font-bold text-accent-foreground">₹{result.live_price.toLocaleString()}</p>
-                        <p className="text-xs text-muted-foreground mt-1">Per Ton (Current)</p>
+                    <CardContent className="pt-4  text-center">
+                        <p className="text-3xl font-bold text-accent-foreground">{result.baseline_qty.toLocaleString()}</p>
+                        <p className="text-xs text-muted-foreground mt-1">Tons (Historical Baseline)</p>
                     </CardContent>
                 </Card>
               </div>
