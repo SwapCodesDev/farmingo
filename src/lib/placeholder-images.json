@@ -21,7 +21,7 @@
     {
       "id": "product-2",
       "description": "Crisp lettuce heads",
-      "imageUrl": "https://images.unsplash.com/photo-1697862446263-2ae694814ccc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxjcmlzcCUyMGxldHR1Y2V8ZW58MHx8fHwxNzYxNzcxNjkzfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1697862446263-2ae694814ccc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxjcmlzcCUyMGxldHR1Y2V8ZW58MHx8fHwxNzYxNzcxNjkzfDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "crisp lettuce"
     },
     {
@@ -41,6 +41,12 @@
       "description": "Sturdy gardening gloves",
       "imageUrl": "https://images.unsplash.com/photo-1599778150914-88e98e0c3a3e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxnYXJkZW5pbmclMjBnbG92ZXN8ZW58MHx8fHwxNzYxNzQ3MDQzfDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "gardening gloves"
+    },
+    {
+      "id": "dashboard-welcome-bg",
+      "description": "Subtle green plant background for dashboard hero",
+      "imageUrl": "https://images.unsplash.com/photo-1523348837708-15d4a09cfac2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+      "imageHint": "green plant"
     }
   ]
 }

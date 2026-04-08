@@ -31,12 +31,18 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { DashboardWeatherWidget } from '@/components/features/dashboard-weather-widget';
 import { DashboardLiveFeed } from '@/components/features/dashboard-live-feed';
+import Image from 'next/image';
+import { placeholderImages } from '@/lib/placeholder-images';
 
 export default function DashboardPage() {
   const { user, loading } = useUser();
   const { searchTerm } = useSearch();
   const t = useTranslations('Dashboard');
   const navT = useTranslations('Navigation');
+
+  const heroBg = useMemo(() => 
+    placeholderImages.find(img => img.id === 'dashboard-welcome-bg')?.imageUrl || "https://picsum.photos/seed/plant/1080/600",
+  []);
 
   const allAiTools = useMemo(() => [
     {
@@ -99,8 +105,16 @@ export default function DashboardPage() {
         <div className="absolute -bottom-24 -left-24 w-72 h-72 bg-accent/5 rounded-full blur-3xl" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-linear-to-br from-primary/5 via-transparent to-transparent pointer-events-none" />
         
-        <div className="absolute top-0 right-0 -mt-10 -mr-10 opacity-5 pointer-events-none">
-            <Bot className="w-96 h-96 rotate-12" />
+        {/* Faded Green Plant Background */}
+        <div className="absolute top-0 right-0 w-full h-full opacity-10 pointer-events-none overflow-hidden select-none">
+            <Image 
+              src={heroBg}
+              alt="Agricultural background"
+              fill
+              className="object-cover object-right-top grayscale contrast-125"
+              priority
+              data-ai-hint="green plant"
+            />
         </div>
         
         <div className="relative z-10 space-y-6">
@@ -115,12 +129,12 @@ export default function DashboardPage() {
           </div>
 
           <div className="space-y-2">
-            <h1 className="font-headline text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-foreground leading-tight">
+            <h1 className="font-headline text-2xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-foreground leading-tight">
                 {loading ? <Skeleton className="h-12 w-64" /> : (
                     user?.displayName ? t('welcome', { name: user.displayName.split(' ')[0] }) : t('welcome-generic')
                 )}
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl leading-relaxed">
+            <p className="text-base md:text-xl text-muted-foreground max-w-2xl leading-relaxed">
                 {t('subtitle')}
             </p>
           </div>
