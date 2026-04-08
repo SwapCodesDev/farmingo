@@ -329,7 +329,7 @@ export function DemandSupplyClient() {
                 <CardHeader>
                     <CardTitle className="text-xl font-headline flex items-center gap-2">
                         <MapPin className="h-5 w-5 text-primary" />
-                        Strategic Market Report
+                        Market Report
                     </CardTitle>
                     <CardDescription>Comparison against historical baseline for {form.getValues('commodity')}.</CardDescription>
                 </CardHeader>
@@ -404,7 +404,7 @@ export function DemandSupplyClient() {
                 <CardHeader>
                   <CardTitle className="text-lg font-headline flex items-center gap-2">
                     <TableIcon className="h-5 w-5 text-primary" />
-                    📊 Technical Verification Table
+                    Technical Verification Table
                   </CardTitle>
                   <CardDescription>Detailed statistical metrics for this market analysis.</CardDescription>
                 </CardHeader>
@@ -466,6 +466,24 @@ export function DemandSupplyClient() {
                         </TableRow>
                       </TableBody>
                     </Table>
+                  </div>
+
+                  <div className="mt-6 space-y-2 text-xs text-muted-foreground border-t pt-4">
+                    <p className="flex items-start gap-2">
+                        <span className="shrink-0">•</span>
+                        <span>A Z-Score of {result.analysis.z_score.toFixed(2)} indicates how many standard deviations the current supply is from the historical mean.</span>
+                    </p>
+                    <p className="flex items-start gap-2">
+                        <span className="shrink-0">•</span>
+                        <span>The Price Shift of {result.analysis.price_shift_pct.toFixed(2)}% confirms if the volume change is impacting market value.</span>
+                    </p>
+                    <p className="flex items-start gap-2">
+                        <span className="shrink-0">•</span>
+                        <span>Calculation uses a 14-day rolling window for seasonal normalization.</span>
+                    </p>
+                    <p className="mt-4 opacity-60 text-[10px] italic">
+                        Note: Values are provided for statistical reference only.
+                    </p>
                   </div>
                 </CardContent>
               </Card>
