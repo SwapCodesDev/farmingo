@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useUser } from '@/firebase';
@@ -21,7 +22,6 @@ import {
   BarChart3,
   Sparkles,
   SearchX,
-  Activity
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useMemo } from 'react';
@@ -103,12 +103,8 @@ export default function DashboardPage() {
             <div className="flex items-center gap-3">
                 <Badge variant="outline" className="bg-background/50 backdrop-blur-sm border-primary/20 text-primary px-3 py-1">
                     <Sparkles className="w-3 h-3 mr-2" />
-                    AI Intelligence Active
+                    Powered by AI
                 </Badge>
-                <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20">
-                    <Activity className="h-3 w-3 text-green-500 animate-pulse" />
-                    <span className="text-[10px] font-bold text-green-600 uppercase tracking-widest">System Pulse</span>
-                </div>
             </div>
             <DashboardWeatherWidget />
           </div>
