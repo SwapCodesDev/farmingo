@@ -13,7 +13,8 @@ import {
   Calendar as CalendarIcon,
   TrendingUp,
   AlertCircle,
-  Lightbulb
+  Lightbulb,
+  Table as TableIcon
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -40,6 +41,14 @@ import { Separator } from '../ui/separator';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { Calendar } from '../ui/calendar';
 import { cn } from '@/lib/utils';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 // --- Mapping Data ---
 const MAHARASHTRA_DISTRICTS = [
@@ -89,7 +98,6 @@ export function DemandSupplyClient() {
 
   const selectedCategory = form.watch('category') as CategoryName;
 
-  // Update commodity if category changes and current commodity isn't in new list
   const availableCommodities = useMemo(() => {
     return CATEGORY_MAP[selectedCategory] || [];
   }, [selectedCategory]);
@@ -166,7 +174,6 @@ export function DemandSupplyClient() {
                       <FormLabel>{t('category')}</FormLabel>
                       <Select onValueChange={(val) => {
                         field.onChange(val);
-                        // Reset commodity when category changes
                         form.setValue('commodity', CATEGORY_MAP[val as CategoryName][0]);
                       }} defaultValue={field.value}>
                         <FormControl>
@@ -389,6 +396,77 @@ export function DemandSupplyClient() {
                             </div>
                         </div>
                     </div>
+                </CardContent>
+              </Card>
+
+              {/* Technical Verification Table */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg font-headline flex items-center gap-2">
+                    <TableIcon className="h-5 w-5 text-primary" />
+                    📊 Technical Verification Table
+                  </CardTitle>
+                  <CardDescription>Detailed statistical metrics for this market analysis.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="rounded-md border">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="bg-muted/50">
+                          <TableHead className="font-bold">Metric</TableHead>
+                          <TableHead className="font-bold">Value</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        <TableRow>
+                          <TableCell className="font-medium">Data Source Date</TableCell>
+                          <TableCell>{result.date_found}</TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell className="font-medium">Live Supply (T)</TableCell>
+                          <TableCell>{result.live_supply.toLocaleString()}</TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell className="font-medium">Live Price (₹/T)</TableCell>
+                          <TableCell>₹{result.live_price.toLocaleString()}</TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell className="font-medium">Historical Demand (T)</TableCell>
+                          <TableCell>{result.baseline_qty.toLocaleString()}</TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell className="font-medium">Historical Price (₹/T)</TableCell>
+                          <TableCell>₹{result.baseline_price.toLocaleString()}</TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell className="font-medium">Supply Gap (%)</TableCell>
+                          <TableCell className={cn(result.analysis.supply_gap_pct > 0 ? "text-green-600" : "text-destructive")}>
+                            {result.analysis.supply_gap_pct > 0 ? '+' : ''}{result.analysis.supply_gap_pct.toFixed(2)}%
+                          </TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell className="font-medium">Price Shift (%)</TableCell>
+                          <TableCell className={cn(result.analysis.price_shift_pct > 0 ? "text-green-600" : "text-destructive")}>
+                            {result.analysis.price_shift_pct > 0 ? '+' : ''}{result.analysis.price_shift_pct.toFixed(2)}%
+                          </TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell className="font-medium">Z-Score</TableCell>
+                          <TableCell>{result.analysis.z_score.toFixed(2)}</TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell className="font-medium">Condition</TableCell>
+                          <TableCell>{result.analysis.condition}</TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell className="font-medium">Confidence</TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className="capitalize">{result.analysis.confidence}</Badge>
+                          </TableCell>
+                        </TableRow>
+                      </TableBody>
+                    </Table>
+                  </div>
                 </CardContent>
               </Card>
             </div>
