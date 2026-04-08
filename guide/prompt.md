@@ -1,51 +1,57 @@
-# Project Overview: Farmingo
+# Farmingo: Platform Features & Modules
 
-This document serves as a comprehensive technical reference for the Farmingo project, an all-in-one agricultural platform built with Next.js, Firebase, and Genkit AI.
+This document provides a comprehensive overview of the modules and features available on the **Farmingo** platform, designed to explain the value and functionality of each tool to the end user.
 
-## 🏗 Core Architecture
+---
 
-### 1. Generative AI (Genkit & Groq)
-- **`src/ai/genkit.ts`**: Initializes the Genkit instance and configures the Groq SDK.
-- **`src/ai/flows/weather-prediction.ts`**: Orchestrates weather data fetching (OpenWeatherMap) and generates agricultural advisories using Llama 3.3.
-- **`src/ai/flows/crop-disease-diagnosis.ts`**: Uses vision models to analyze plant photos and provide diagnosis, severity, and treatment steps.
-- **`src/ai/flows/crop-price-prediction.ts`**: Analyzes regional market data to forecast crop values.
-- **`src/ai/flows/translate-text.ts`**: Handles multi-string translation while preserving Markdown formatting for agricultural content.
+## 🏠 Core Experience
 
-### 2. Server Actions & API Integrations
-- **`src/app/actions/predict-price.ts`**: Queries a specialized Hugging Face endpoint for coordinate-based APMC price data.
-- **`src/app/actions/demand-supply.ts`**: Processes market trends to calculate supply gaps and price shifts.
-- **`src/app/actions/recommend-crop.ts`**: Fetches crop recommendations based on location and weather metrics.
-- **`src/app/actions/predict-disease-api.ts`**: Proxy for external crop-specific diagnosis models.
+### 1. Personalized Dashboard
+The central hub of the platform. It provides a quick-access overview of all AI tools and platform features. Users can search for specific tools and see personalized greetings, making it easy to navigate the agricultural ecosystem.
 
-### 3. Firebase & Database Layer
-- **`src/firebase/index.ts`**: The central entry point for Firebase Client SDK initialization (Auth, Firestore).
-- **`src/firebase/provider.tsx`**: React context provider making Firebase services available throughout the component tree.
-- **`src/firebase/firestore/use-collection.tsx`**: A custom hook for real-time Firestore collection syncing with automatic error handling.
-- **`src/firebase/firestore/use-doc.tsx`**: A custom hook for real-time document tracking.
-- **`src/lib/actions/community.ts`**: Core logic for creating/editing posts, voting, and nested comment management in the community hub.
-- **`src/lib/actions/marketplace-post.ts`**: Handles the lifecycle of indirect marketplace listings and their social interactions.
-- **`src/lib/actions/messages.ts`**: Manages real-time 1-on-1 conversations, message persistence, and read receipts.
+### 2. User Profiles & Digital Identity
+Every user has a dedicated profile that showcases their contributions, role (Farmer, User, or Expert), and community activity. Users can manage their personal details, track their followers, and establish trust within the marketplace.
 
-### 4. Application Logic & Context
-- **`src/context/cart-provider.tsx`**: Manages a persistent shopping cart for the verified marketplace using local storage.
-- **`src/context/search-provider.tsx`**: Provides global search state for the dashboard and feature filtering.
-- **`src/context/user-profile-dialog-provider.tsx`**: Controls the visibility and content of the shared public profile view.
-- **`src/hooks/use-auth-actions.ts`**: A wrapper hook that injects toast notifications and auth checks into standard server actions.
+---
 
-### 5. Internationalization (I18n)
-- **`src/i18n/routing.ts`**: Defines supported locales (`en`, `hi`, `mr`) and exports localized navigation components (`Link`, `useRouter`).
-- **`messages/*.json`**: Translation dictionaries containing all UI strings for supported languages.
-- **`src/middleware.ts`**: Intercepts requests to handle locale detection and redirection.
+## 🤖 AI-Powered Intelligence Suite
 
-### 6. UI Components (`src/components/`)
-- **`layout/`**: Contains the `AppLayout`, `SidebarNav`, and `Header` which define the application's shell.
-- **`features/`**: Modular components for specific tools:
-    - `marketplace-client.tsx`: The dual-market view.
-    - `weather-prediction-client.tsx`: Coordinates-based weather dashboard.
-    - `post-detail-client.tsx`: High-complexity thread rendering for community discussions.
-    - `image-crop-dialog.tsx`: Reusable utility for processing user uploads before AI analysis or listing creation.
+### 3. Crop Price Prediction
+A data-driven forecasting tool. By selecting a crop, variety, and region, farmers receive AI-powered price predictions. This helps them understand market trends and determine the optimal time to sell their produce for maximum profit.
 
-## 🔒 Security & Standards
-- **`firestore.rules`**: Implements a robust "deny-list" ownership model, protecting immutable metadata while allowing authors to manage their content.
-- **`docs/backend.json`**: The architectural blueprint defining the schema for `UserProfile`, `Post`, `Product`, and `Conversation` entities.
-- **`src/lib/image-processing.ts`**: Handles client-side WebP conversion and cropping to optimize bandwidth and AI processing costs.
+### 4. Crop Disease Diagnosis
+An instant plant health clinic. Farmers can upload a photo of a struggling crop, and the AI vision system diagnoses potential diseases. It provides a severity level, immediate treatment steps, and follow-up advice to save the harvest.
+
+### 5. Weather & Agricultural Advisory
+Beyond a standard forecast. This tool uses real-time GPS coordinates to fetch hyper-localized weather data. It then generates specific "Farmer Advisories"—actionable tips on irrigation, harvesting, and pest control based on upcoming conditions.
+
+### 6. Demand & Supply Analysis
+A strategic market outlook tool. It compares current regional market supply and prices against historical data. It identifies "Supply Gaps" or "Market Gluts," providing a strategic recommendation on whether to sell immediately or hold stock.
+
+### 7. Smart Crop Recommendation
+Find the best crop for your soil and sky. Based on current location and seasonal weather patterns, the AI suggests the most suitable crops to plant, complete with suitability scores to ensure farming success.
+
+---
+
+## ⚙️ Community & Commerce
+
+### 8. Dual Marketplace
+A versatile trade environment divided into two sections:
+- **Verified Market**: A trusted e-commerce space where certified sellers list premium products with a standard shopping cart and checkout experience.
+- **Indirect Market**: A community-driven "classifieds" style board where any user can post items for sale, trade, or hire (like tractors or manual labor).
+
+### 9. Community Hub
+A vibrant social space for knowledge sharing. Farmers can join topic-specific communities (e.g., c/wheat or c/organic), post questions, share photos of their progress, and participate in threaded discussions with peers and experts.
+
+### 10. Direct Messaging
+Secure, real-time 1-on-1 communication. This allows buyers and sellers to negotiate prices privately and enables farmers to seek direct advice from agricultural experts or mentors.
+
+---
+
+## 🌍 Global Accessibility
+
+### 11. Multilingual Support
+Farmingo is built for everyone. The entire platform—including AI insights and community posts—can be toggled between **English**, **Hindi**, and **Marathi**. It even features "Smart Translation" to bridge language gaps in community discussions.
+
+### 12. Responsive Mobile Design
+Designed for the field. The platform is fully optimized for mobile devices, ensuring that farmers can access critical AI diagnosis tools or market prices directly from their farms using a smartphone.
