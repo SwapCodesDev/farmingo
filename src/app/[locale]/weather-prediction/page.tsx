@@ -1,4 +1,4 @@
-import { WeatherPredictionClient } from '@/components/features/weather-prediction-client';
+import { WeatherPredictionClient } from '@/components/features/tools/weather-prediction-client';
 import { getTranslations } from 'next-intl/server';
 
 export default async function WeatherPredictionPage() {

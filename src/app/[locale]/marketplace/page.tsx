@@ -1,5 +1,5 @@
 
-import { MarketplaceClient } from '@/components/features/marketplace-client';
+import { MarketplaceClient } from '@/components/features/marketplace/marketplace-client';
 import { Suspense } from 'react';
 
 export default function MarketplacePage() {

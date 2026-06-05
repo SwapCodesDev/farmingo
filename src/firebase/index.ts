@@ -5,9 +5,9 @@ import { firebaseConfig } from './config';
 
 import { FirebaseProvider, useFirebase, useFirebaseApp, useAuth, useFirestore } from './provider';
 import { FirebaseClientProvider } from './client-provider';
-import { useUser } from './auth/use-user';
-import { useCollection } from './firestore/use-collection';
-import { useDoc } from './firestore/use-doc';
+import { useUser } from '@/hooks/use-user';
+import { useCollection } from '@/hooks/use-collection';
+import { useDoc } from '@/hooks/use-doc';
 
 
 function initializeFirebase() {

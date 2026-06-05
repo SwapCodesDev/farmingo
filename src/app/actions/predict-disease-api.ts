@@ -8,10 +8,8 @@ export async function predictDiseaseApi(formData: FormData): Promise<any> {
     throw new Error('Crop name and an image file are required.');
   }
 
-  // Construct the endpoint with the query parameter
-  const endpoint = `https://swapcodes-farmingo.hf.space/crop_disease_prediction?crop_name=${encodeURIComponent(
-    cropName
-  )}`;
+  const baseEndpoint = process.env.DISEASE_PREDICTION_API_URL || 'https://swapcodes-farmingo.hf.space/crop_disease_prediction';
+  const endpoint = `${baseEndpoint}?crop_name=${encodeURIComponent(cropName)}`;
 
   try {
     const response = await fetch(endpoint, {

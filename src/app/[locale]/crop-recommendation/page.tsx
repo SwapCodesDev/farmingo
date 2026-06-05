@@ -1,4 +1,4 @@
-import { SettingsCropRecommendation } from "@/components/features/settings-crop-recommendation";
+import { CropRecommendationClient } from "@/components/features/tools/crop-recommendation-client";
 import { getTranslations } from "next-intl/server";
 
 export default async function CropRecommendationPage() {
@@ -14,7 +14,7 @@ export default async function CropRecommendationPage() {
                     {t('subtitle')}
                 </p>
             </div>
-            <SettingsCropRecommendation />
+            <CropRecommendationClient />
         </div>
     );
 }

@@ -74,14 +74,27 @@ service cloud.firestore {
     }
 
     match /products/{productId} {
-      function userIsVerifiedSeller(userId) {
-        let userDoc = get(/databases/$(database)/documents/users/$(userId));
-        return userDoc.exists() && userDoc.data.isVerified == true;
-      }
-
       allow read, list: if true;
-      allow create: if request.auth != null && isUser(request.resource.data.uid) && userIsVerifiedSeller(request.auth.uid);
-      allow update, delete: if request.auth != null && isUser(resource.data.uid) && userIsVerifiedSeller(request.auth.uid);
+      allow create: if request.auth != null && 
+                    request.resource.data.uid == request.auth.uid && 
+                    get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isVerified == true;
+      allow update: if request.auth != null && (
+                    (resource.data.uid == request.auth.uid && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isVerified == true) ||
+                    request.resource.data.diff(resource.data).changedKeys().hasOnly(['rating', 'reviewCount'])
+                    );
+      allow delete: if request.auth != null && 
+                    resource.data.uid == request.auth.uid && 
+                    get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isVerified == true;
+
+      match /reviews/{reviewId} {
+        allow read, list: if true;
+        allow create, update: if request.auth != null && 
+                              reviewId == request.auth.uid &&
+                              request.resource.data.uid == request.auth.uid &&
+                              request.resource.data.rating >= 1 && 
+                              request.resource.data.rating <= 5;
+        allow delete: if request.auth != null && reviewId == request.auth.uid;
+      }
     }
 
     match /marketplacePosts/{postId} {
@@ -114,6 +127,12 @@ service cloud.firestore {
         allow create: if request.auth != null && request.auth.uid == request.resource.data.senderId &&
                        request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participants;
       }
+    }
+
+    match /orders/{orderId} {
+      allow read, list: if request.auth != null && resource.data.uid == request.auth.uid;
+      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
+      allow update: if request.auth != null && (resource.data.uid == request.auth.uid || isAdmin());
     }
   }
 }

@@ -50,26 +50,39 @@ export default function CartPage() {
                     </CardHeader>
                     <CardContent className="divide-y">
                         {cart.map(item => (
-                            <div key={item.id} className="flex items-center gap-4 py-4">
+                            <div key={item.id} className="flex items-center gap-4 py-4 flex-wrap sm:flex-nowrap">
                                 <div className="relative h-20 w-20 flex-shrink-0">
                                     <Image src={item.imageUrl} alt={item.name} fill className="rounded-md object-cover border" />
                                 </div>
-                                <div className="flex-grow">
+                                <div className="flex-grow min-w-[150px]">
                                     <h3 className="font-semibold">{item.name}</h3>
-                                    <p className="text-sm text-muted-foreground">₹{item.price.toFixed(2)}</p>
+                                    <p className="text-sm text-muted-foreground">₹{item.price.toFixed(2)} / {item.unit || 'kg'}</p>
+                                    <p className="text-xs text-muted-foreground/85 mt-1">
+                                        Min. Order: {item.moq || 1} {item.unit || 'kg'} | Stock: {item.stock} {item.unit || 'kg'}
+                                    </p>
                                 </div>
-                                <input 
-                                    type="number" 
-                                    min="1" 
-                                    value={item.quantity}
-                                    onChange={(e) => updateQuantity(item.id, parseInt(e.target.value))}
-                                    className="w-16 rounded-md border-input border p-2 text-center"
-                                />
+                                <div className="flex items-center gap-2">
+                                    <input 
+                                        type="number" 
+                                        min={item.moq || 1} 
+                                        max={item.stock || 999}
+                                        value={item.quantity}
+                                        onChange={(e) => {
+                                            const val = parseInt(e.target.value);
+                                            if (!isNaN(val)) {
+                                                updateQuantity(item.id, val);
+                                            }
+                                        }}
+                                        className="w-16 rounded-md border-input border p-2 text-center"
+                                    />
+                                    <span className="text-xs text-muted-foreground">{item.unit || 'kg'}</span>
+                                </div>
                                 <Button variant="ghost" size="icon" onClick={() => removeFromCart(item.id)}>
                                     <Trash2 className="h-4 w-4 text-destructive" />
                                 </Button>
                             </div>
                         ))}
+
                     </CardContent>
                 </Card>
             </div>

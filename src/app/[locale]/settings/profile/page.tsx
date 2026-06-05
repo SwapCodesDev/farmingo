@@ -28,9 +28,10 @@ import { useToast } from '@/hooks/use-toast';
 import { updateUserProfile, sendPasswordReset } from '@/lib/actions/profile';
 import { Separator } from '@/components/ui/separator';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import { ImageCropDialog } from '@/components/features/image-crop-dialog';
+import { ImageCropDialog } from '@/components/features/shared/image-crop-dialog';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useTranslations } from 'next-intl';
+import { useImageCrop } from '@/hooks/use-image-crop';
 
 const profileSchema = z.object({
   displayName: z.string().min(1, 'Display name is required.'),
@@ -56,17 +57,13 @@ export default function ProfileSettingsPage() {
   const [isResetting, setIsResetting] = useState(false);
   const [initialUsername, setInitialUsername] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [cropState, setCropState] = useState<{
-    isOpen: boolean;
-    imageSrc: string | null;
-    aspect: number;
-    onComplete: (croppedImage: string) => void;
-  }>({
-    isOpen: false,
-    imageSrc: null,
-    aspect: 1,
-    onComplete: () => {},
-  });
+  const {
+    imagePreview,
+    setImagePreview,
+    cropState,
+    setCropState,
+    handleImageSelect,
+  } = useImageCrop(1, null);
 
   const form = useForm<z.infer<typeof profileSchema>>({
     resolver: zodResolver(profileSchema),
@@ -82,6 +79,7 @@ export default function ProfileSettingsPage() {
     if (user && firestore) {
       form.setValue('displayName', user.displayName || '');
       form.setValue('photoURL', user.photoURL || '');
+      setImagePreview(user.photoURL || null);
 
       const userDocRef = doc(firestore, 'users', user.uid);
       getDoc(userDocRef).then((docSnap) => {
@@ -93,7 +91,7 @@ export default function ProfileSettingsPage() {
         }
       });
     }
-  }, [user, firestore, form]);
+  }, [user, firestore, form, setImagePreview]);
 
   const isUsernameUnique = async (username: string) => {
     if (!firestore) return false;
@@ -101,31 +99,6 @@ export default function ProfileSettingsPage() {
     const q = query(usersRef, where('username', '==', username));
     const querySnapshot = await getDocs(q);
     return querySnapshot.empty;
-  };
-
-  const handleImageSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      if (file.size > 4 * 1024 * 1024) {
-        toast({ variant: 'destructive', title: "Image too large", description: "Please upload an image smaller than 4MB."});
-        return;
-      }
-      const reader = new FileReader();
-      reader.onload = () => {
-          setCropState({
-              isOpen: true,
-              imageSrc: reader.result as string,
-              aspect: 1,
-              onComplete: (croppedImage) => {
-                  form.setValue('photoURL', croppedImage, { shouldDirty: true });
-              },
-          });
-      };
-      reader.readAsDataURL(file);
-    }
-    if (event.target) {
-        event.target.value = '';
-    }
   };
 
   const onSubmit = async (values: z.infer<typeof profileSchema>) => {
@@ -146,7 +119,7 @@ export default function ProfileSettingsPage() {
 
       await updateUserProfile(firestore, user, values);
       setInitialUsername(values.username);
-      form.reset(values, { keepIsDirty: false });
+      form.reset(values);
       toast({
         title: 'Profile Updated',
         description: 'Your changes have been saved successfully.',
@@ -235,7 +208,7 @@ export default function ProfileSettingsPage() {
                         <Button type="button" variant="outline" size="icon" className="absolute -bottom-1 -right-1 rounded-full h-8 w-8 bg-background shadow-sm" onClick={() => fileInputRef.current?.click()}>
                           <Pencil className="h-4 w-4"/>
                         </Button>
-                        <Input type="file" accept="image/*" ref={fileInputRef} className="hidden" onChange={handleImageSelect} />
+                        <Input type="file" accept="image/*" ref={fileInputRef} className="hidden" onChange={(e) => handleImageSelect(e, (cropped) => form.setValue('photoURL', cropped, { shouldValidate: true, shouldDirty: true }))} />
                       </div>
                     </FormControl>
                     <FormMessage />

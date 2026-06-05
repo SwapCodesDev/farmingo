@@ -1,4 +1,4 @@
-import { DemandSupplyClient } from "@/components/features/demand-supply-client";
+import { DemandSupplyClient } from "@/components/features/tools/demand-supply-client";
 import { getTranslations } from "next-intl/server";
 
 export default async function DemandSupplyPage() {

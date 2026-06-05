@@ -285,6 +285,19 @@
     "desc": "You will receive a confirmation email shortly. This is a demo app, so no real order has been processed.",
     "continue": "Continue Shopping"
   },
+  "Messages": {
+    "title": "Conversations",
+    "search-placeholder": "Search messages...",
+    "loading-conversations": "Loading conversations...",
+    "no-conversations-search": "No conversations found for \"{query}\".",
+    "no-conversations": "You have no conversations yet.",
+    "you": "You",
+    "login-required": "You must be logged in to view messages.",
+    "loading-conversation": "Loading conversation...",
+    "conversation-not-found": "Conversation not found.",
+    "loading-messages": "Loading messages...",
+    "input-placeholder": "Type a message..."
+  },
   "Common": {
     "save": "Save",
     "cancel": "Cancel",

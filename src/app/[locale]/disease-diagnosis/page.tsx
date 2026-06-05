@@ -1,4 +1,4 @@
-import { SettingsDiseasePrediction } from "@/components/features/settings-disease-prediction";
+import { DiseasePredictionClient } from "@/components/features/tools/disease-prediction-client";
 import { getTranslations } from "next-intl/server";
 
 export default async function DiseaseDiagnosisPage() {
@@ -14,7 +14,7 @@ export default async function DiseaseDiagnosisPage() {
                     {t('subtitle')}
                 </p>
             </div>
-            <SettingsDiseasePrediction />
+            <DiseasePredictionClient />
         </div>
     );
 }

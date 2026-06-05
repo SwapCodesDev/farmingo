@@ -1,14 +1,17 @@
-
 'use client';
+import type { Product } from '@/types';
+
 import { useMemo } from 'react';
 import { useFirestore, useUser, useCollection } from '@/firebase';
 import { collection, query, where, orderBy, Timestamp } from 'firebase/firestore';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import { Loader2, Package, PackageCheck, PackageX, ShoppingBag } from 'lucide-react';
-import type { Product } from '@/components/features/marketplace-client';
+import { Link } from '@/i18n/routing';
+
 import { formatTimestamp } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
 
@@ -107,12 +110,19 @@ export default function MyOrdersPage() {
                                         <Image src={item.imageUrl} alt={item.name} width={64} height={64} className="rounded-md object-cover border" />
                                         <div className="flex-grow">
                                             <h4 className="font-semibold">{item.name}</h4>
-                                            <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
+                                            <p className="text-sm text-muted-foreground">Qty: {item.quantity} {item.unit || 'kg'}</p>
                                         </div>
                                         <p className="font-medium">₹{(item.price * item.quantity).toFixed(2)}</p>
                                     </div>
                                 ))}
                             </CardContent>
+                            <CardFooter className="flex justify-end border-t pt-4">
+                                <Button asChild variant="outline" size="sm">
+                                    <Link href={`/settings/orders/${order.id}`}>
+                                        Track Order
+                                    </Link>
+                                </Button>
+                            </CardFooter>
                         </Card>
                     )})}
                 </div>

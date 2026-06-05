@@ -35,7 +35,7 @@ export type PricePredictionResponse = {
 export async function predictPrice(
   values: z.infer<typeof formSchema>
 ): Promise<PricePredictionResponse> {
-  const endpoint = 'https://swapcodes-farmingo.hf.space/price_prediction';
+  const endpoint = process.env.PRICE_PREDICTION_API_URL || 'https://swapcodes-farmingo.hf.space/price_prediction';
 
   try {
     const response = await fetch(endpoint, {

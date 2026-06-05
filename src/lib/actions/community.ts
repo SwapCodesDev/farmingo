@@ -22,46 +22,7 @@ import {
   type SecurityRuleContext,
 } from '@/firebase/errors';
 import type { User } from 'firebase/auth';
-import type { UserProfile } from '@/types';
-
-
-export type Post = {
-  id: string;
-  uid: string;
-  author: string;
-  authorPhotoURL: string;
-  authorRole?: UserProfile['role'];
-  title: string;
-  text: string;
-  communityId: string;
-  createdAt: any;
-  imageUrl?: string;
-  commentCount?: number;
-  upvotes?: string[];
-  downvotes?: string[];
-  pinnedCommentId?: string;
-};
-
-export type Comment = {
-  id: string;
-  uid: string;
-  author: string;
-  authorPhotoURL: string;
-  authorRole?: UserProfile['role'];
-  text: string;
-  createdAt: any;
-  parentId: string | null;
-  upvotes?: string[];
-  downvotes?: string[];
-};
-
-
-export type PostData = {
-  title: string;
-  text: string;
-  communityId: string;
-  imageUrl?: string;
-};
+import type { UserProfile, Post, Comment, PostData } from '@/types';
 
 export async function createPost(
   firestore: Firestore,

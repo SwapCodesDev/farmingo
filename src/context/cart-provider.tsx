@@ -1,8 +1,7 @@
-
 'use client';
+import type { Product } from '@/types';
 
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import type { Product } from '@/components/features/marketplace-client';
 
 type CartItem = Product & { quantity: number };
 
@@ -38,18 +37,22 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   }, [cart]);
 
-
   const addToCart = (product: Product, quantity = 1) => {
     setCart((prevCart) => {
       const existingItem = prevCart.find((item) => item.id === product.id);
+      const stockLimit = typeof product.stock === 'number' ? product.stock : 999;
+      const minOrder = typeof product.moq === 'number' ? product.moq : 1;
+
       if (existingItem) {
+        const newQty = Math.min(existingItem.quantity + quantity, stockLimit);
         return prevCart.map((item) =>
           item.id === product.id
-            ? { ...item, quantity: item.quantity + quantity }
+            ? { ...item, quantity: newQty }
             : item
         );
       }
-      return [...prevCart, { ...product, quantity }];
+      const initialQty = Math.min(Math.max(minOrder, quantity), stockLimit);
+      return [...prevCart, { ...product, quantity: initialQty }];
     });
   };
 
@@ -62,9 +65,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
       removeFromCart(productId);
     } else {
       setCart((prevCart) =>
-        prevCart.map((item) =>
-          item.id === productId ? { ...item, quantity } : item
-        )
+        prevCart.map((item) => {
+          if (item.id === productId) {
+            const stockLimit = typeof item.stock === 'number' ? item.stock : 999;
+            const minOrder = typeof item.moq === 'number' ? item.moq : 1;
+            const clampedQty = Math.min(Math.max(minOrder, quantity), stockLimit);
+            return { ...item, quantity: clampedQty };
+          }
+          return item;
+        })
       );
     }
   };
@@ -72,6 +81,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const clearCart = () => {
     setCart([]);
   };
+
 
   return (
     <CartContext.Provider

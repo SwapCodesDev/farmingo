@@ -16,7 +16,7 @@ Farmingo is designed with the modern farmer in mind, providing a comprehensive s
 
 ### ⚙️ Integrated Platform Tools
 -   **🛒 Dual Marketplace**: A versatile e-commerce system:
-    -   **Verified Market**: A trusted space for certified sellers to list high-quality products directly.
+    -   **Verified Market**: A trusted space for certified sellers to list high-quality products directly. Features an interactive **product review system** with detailed specs modals, average star ratings, and review creation & editing (backed by transaction-safe atomic calculations).
     -   **Indirect Market**: A community-driven forum where any user can post items for sale, trade, or hire.
 -   **💬 Community Hub**: A dynamic social forum where farmers can connect, ask questions, share knowledge, and build a supportive network with peers and agricultural experts.
 -   **👤 User Profiles & Messaging**: Manage your public profile, set a default location for weather predictions, follow other users, and engage in private one-on-one conversations with direct messaging.
@@ -61,13 +61,21 @@ To get a local copy up and running, follow these simple steps.
     npm install
     ```
 
-3.  **Run the Development Server:**
+3.  **Configure Environment Variables:**
+    Create a `.env` file in the root directory and configure it based on [.env.example](file:///.env.example):
+    ```env
+    FARMINGO_API_BASE_URL=https://swapcodes-farmingo.hf.space
+    DEMAND_SUPPLY_API_BASE_URL=https://psychological-odelia-unincriminated.ngrok-free.dev
+    WEATHER_API_BASE_URL=https://api.openweathermap.org/data/2.5
+    ```
+
+4.  **Run the Development Server:**
     Once dependencies are installed, start the Next.js development server.
     ```bash
     npm run dev
     ```
 
-4.  **Open the App:**
+5.  **Open the App:**
     The application will be available at [http://localhost:9002](http://localhost:9002).
 
 ### Running Genkit Flows (Optional)

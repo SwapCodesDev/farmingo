@@ -1,4 +1,4 @@
-import { SettingsPricePrediction } from "@/components/features/settings-price-prediction";
+import { PricePredictionClient } from "@/components/features/tools/price-prediction-client";
 import { getTranslations } from "next-intl/server";
 
 export default async function PricePredictionPage() {
@@ -14,7 +14,7 @@ export default async function PricePredictionPage() {
                     {t('subtitle')}
                 </p>
             </div>
-            <SettingsPricePrediction />
+            <PricePredictionClient />
         </div>
     );
 }

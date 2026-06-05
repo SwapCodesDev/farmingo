@@ -1,11 +1,11 @@
+import type { Post } from '@/types';
 
-import { PostDetailClient } from '@/components/features/post-detail-client';
+import { PostDetailClient } from '@/components/features/community/post-detail-client';
 import { Suspense } from 'react';
 import type { Metadata, ResolvingMetadata } from 'next';
 import { doc, getDoc, getFirestore } from 'firebase/firestore';
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { firebaseConfig } from '@/firebase/config';
-import type { Post } from '@/lib/actions/community';
 
 // Initialize Firebase Admin SDK-like access on the server
 let app;

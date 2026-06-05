@@ -22,10 +22,6 @@ const sidebarNavItems = [
     title: 'Translation',
     href: '/settings/translation',
   },
-  {
-    title: 'My Orders',
-    href: '/settings/orders',
-  },
 ];
 
 export function SettingsNav() {

@@ -1,7 +1,7 @@
 
 'use client';
 import React from 'react';
-import { ConversationClient } from '@/components/features/conversation-client';
+import { ConversationClient } from '@/components/features/messages/conversation-client';
 import { Suspense } from 'react';
 
 export default function ConversationPage({

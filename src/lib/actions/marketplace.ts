@@ -8,6 +8,7 @@ import {
   serverTimestamp,
   deleteDoc,
   updateDoc,
+  runTransaction,
 } from 'firebase/firestore';
 import { errorEmitter } from '@/firebase/error-emitter';
 import {
@@ -23,38 +24,68 @@ export type ProductData = {
   description: string;
   price: number;
   imageUrl: string;
+  category: string;
+  stock: number;
+  unit: string;
+  moq: number;
+  origin: string;
 };
 
-const demoProducts: Omit<ProductData, 'uid' | 'sellerName' | 'sellerPhotoURL'>[] = [
+const demoProducts: ProductData[] = [
   {
     name: 'Fresh Organic Tomatoes',
     description: 'Plump, juicy, and bursting with flavor. Straight from our farm to your table. Perfect for salads, sauces, or just eating raw!',
     price: 250,
     imageUrl: placeholderImages.find(img => img.id === 'product-1')?.imageUrl || "https://picsum.photos/seed/tomato/400/300",
+    category: 'Vegetables',
+    stock: 150,
+    unit: 'kg',
+    moq: 5,
+    origin: 'Nashik, Maharashtra',
   },
   {
     name: 'Crisp Lettuce Heads',
     description: 'Crisp and refreshing green lettuce. Grown using sustainable methods to ensure the highest quality and taste.',
     price: 120,
     imageUrl: placeholderImages.find(img => img.id === 'product-2')?.imageUrl || "https://picsum.photos/seed/lettuce/400/300",
+    category: 'Vegetables',
+    stock: 80,
+    unit: 'crate',
+    moq: 2,
+    origin: 'Pune, Maharashtra',
   },
   {
     name: 'Handmade Wooden Crate',
     description: 'A sturdy and rustic handmade wooden crate. Ideal for harvesting, storage, or as a decorative piece for your farmhouse.',
     price: 800,
     imageUrl: placeholderImages.find(img => img.id === 'product-3')?.imageUrl || "https://picsum.photos/seed/crate/400/300",
+    category: 'Tools & Equipment',
+    stock: 25,
+    unit: 'piece',
+    moq: 1,
+    origin: 'Sahranpur, Uttar Pradesh',
   },
   {
     name: 'Organic Fertilizer (20kg)',
     description: 'Enrich your soil with our premium organic fertilizer. Packed with nutrients to help your crops thrive.',
     price: 1500,
     imageUrl: placeholderImages.find(img => img.id === 'product-4')?.imageUrl || "https://picsum.photos/seed/fertilizer/400/300",
+    category: 'Fertilizers',
+    stock: 200,
+    unit: 'packet',
+    moq: 10,
+    origin: 'Anand, Gujarat',
   },
   {
     name: 'Durable Gardening Gloves',
     description: 'Protect your hands with these durable, all-weather gardening gloves. Provides excellent grip and comfort for long hours in the field.',
     price: 450,
     imageUrl: placeholderImages.find(img => img.id === 'product-5')?.imageUrl || "https://picsum.photos/seed/gloves/400/300",
+    category: 'Tools & Equipment',
+    stock: 50,
+    unit: 'piece',
+    moq: 2,
+    origin: 'Ludhiana, Punjab',
   },
 ];
 
@@ -110,7 +141,9 @@ export async function createProduct(
   };
 
   const productsCollection = collection(firestore, 'products');
-  addDoc(productsCollection, newProduct).catch(async (serverError) => {
+  try {
+    await addDoc(productsCollection, newProduct);
+  } catch (serverError: any) {
     const permissionError = new FirestorePermissionError({
       path: productsCollection.path,
       operation: 'create',
@@ -118,7 +151,7 @@ export async function createProduct(
     });
     errorEmitter.emit('permission-error', permissionError);
     throw serverError;
-  });
+  }
 }
 
 export async function updateProduct(firestore: Firestore, productId: string, productData: ProductData) {
@@ -127,27 +160,108 @@ export async function updateProduct(firestore: Firestore, productId: string, pro
         ...productData,
         updatedAt: serverTimestamp(),
     };
-    updateDoc(productRef, updateData)
-        .catch(async (serverError) => {
-            const permissionError = new FirestorePermissionError({
-                path: productRef.path,
-                operation: 'update',
-                requestResourceData: updateData,
-            });
-            errorEmitter.emit('permission-error', permissionError);
-            throw serverError;
+    try {
+        await updateDoc(productRef, updateData);
+    } catch (serverError: any) {
+        const permissionError = new FirestorePermissionError({
+            path: productRef.path,
+            operation: 'update',
+            requestResourceData: updateData,
         });
+        errorEmitter.emit('permission-error', permissionError);
+        throw serverError;
+    }
 }
 
 export async function deleteProduct(firestore: Firestore, productId: string) {
     const productRef = doc(firestore, 'products', productId);
-    deleteDoc(productRef)
-        .catch(async (serverError) => {
-            const permissionError = new FirestorePermissionError({
-                path: productRef.path,
-                operation: 'delete',
-            });
-            errorEmitter.emit('permission-error', permissionError);
-            throw serverError;
+    try {
+        await deleteDoc(productRef);
+    } catch (serverError: any) {
+        const permissionError = new FirestorePermissionError({
+            path: productRef.path,
+            operation: 'delete',
         });
+        errorEmitter.emit('permission-error', permissionError);
+        throw serverError;
+    }
 }
+
+export async function submitProductReview(
+  firestore: Firestore,
+  user: User,
+  productId: string,
+  rating: number,
+  comment: string
+) {
+  const reviewRef = doc(firestore, 'products', productId, 'reviews', user.uid);
+  const productRef = doc(firestore, 'products', productId);
+
+  let exists = false;
+  try {
+    await runTransaction(firestore, async (transaction) => {
+      // 1. Fetch the review document to check if it exists
+      const reviewDoc = await transaction.get(reviewRef);
+      exists = reviewDoc.exists();
+
+      // 2. Fetch the product document to get current rating and reviewCount
+      const productDoc = await transaction.get(productRef);
+      if (!productDoc.exists()) {
+        throw new Error('Product not found.');
+      }
+
+      const productData = productDoc.data();
+      const currentRating = productData.rating || 0;
+      const currentReviewCount = productData.reviewCount || 0;
+
+      let newRating = currentRating;
+      let newReviewCount = currentReviewCount;
+
+      if (exists) {
+        // Edit/Update case
+        const oldReviewData = reviewDoc.data();
+        const oldRating = oldReviewData?.rating || 0;
+        
+        if (currentReviewCount > 0) {
+          newRating = (currentRating * currentReviewCount - oldRating + rating) / currentReviewCount;
+        } else {
+          newRating = rating;
+          newReviewCount = 1;
+        }
+      } else {
+        // Create/New case
+        newReviewCount = currentReviewCount + 1;
+        newRating = (currentRating * currentReviewCount + rating) / newReviewCount;
+      }
+
+      // 3. Create/Update the review document
+      const reviewData = {
+        id: user.uid,
+        uid: user.uid,
+        username: user.displayName || 'Anonymous',
+        userPhotoURL: user.photoURL || '',
+        rating,
+        comment,
+        createdAt: serverTimestamp(),
+      };
+
+      transaction.set(reviewRef, reviewData);
+
+      // 4. Update the product's average rating and reviewCount
+      transaction.update(productRef, {
+        rating: newRating,
+        reviewCount: newReviewCount,
+      });
+    });
+  } catch (serverError: any) {
+    if (serverError.code === 'permission-denied') {
+      const permissionError = new FirestorePermissionError({
+        path: reviewRef.path,
+        operation: exists ? 'update' : 'create',
+      });
+      errorEmitter.emit('permission-error', permissionError);
+    }
+    throw serverError;
+  }
+}
+

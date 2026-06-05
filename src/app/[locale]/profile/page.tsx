@@ -19,12 +19,11 @@ import {
 } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Calendar, Edit, Loader2 } from 'lucide-react';
-import { PostCard } from '@/components/features/post-card';
+import { PostCard } from '@/components/features/community/post-card';
 import { useAuthActions } from '@/hooks/use-auth-actions';
 import { Link } from '@/i18n/routing';
 import { formatUsername, formatTimestamp } from '@/lib/utils';
-import type { UserProfile } from '@/types';
-import type { Post } from '@/lib/actions/community';
+import type { UserProfile, Post } from '@/types';
 
 export default function ProfilePage() {
   const { user, loading: userLoading } = useUser();

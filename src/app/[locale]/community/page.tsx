@@ -1,7 +1,7 @@
 
 'use client';
 
-import { CommunityListClient } from '@/components/features/community-list-client';
+import { CommunityListClient } from '@/components/features/community/community-list-client';
 import { Suspense } from 'react';
 import { useTranslations } from 'next-intl';
 

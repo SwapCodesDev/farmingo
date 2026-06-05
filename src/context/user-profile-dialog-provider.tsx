@@ -1,6 +1,6 @@
 'use client';
 
-import { UserProfileDialog } from '@/components/features/user-profile-dialog';
+import { UserProfileDialog } from '@/components/features/shared/user-profile-dialog';
 import { createContext, useContext, useState, ReactNode } from 'react';
 
 type UserProfileDialogContextType = {

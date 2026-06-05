@@ -29,8 +29,8 @@ import { useSearch } from '@/context/search-provider';
 import { useTranslations } from 'next-intl';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { DashboardWeatherWidget } from '@/components/features/dashboard-weather-widget';
-import { DashboardLiveFeed } from '@/components/features/dashboard-live-feed';
+import { DashboardWeatherWidget } from '@/components/features/dashboard/dashboard-weather-widget';
+import { DashboardLiveFeed } from '@/components/features/dashboard/dashboard-live-feed';
 import Image from 'next/image';
 import { placeholderImages } from '@/lib/placeholder-images';
 

@@ -5,7 +5,7 @@ import { useUser } from '@/firebase';
 import { useRouter } from '@/i18n/routing';
 import { useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
-import { WelcomePage } from '@/components/features/welcome-page';
+import { WelcomePage } from '@/components/features/dashboard/welcome-page';
 
 export default function HomePage() {
   const { user, loading } = useUser();

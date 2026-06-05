@@ -34,7 +34,7 @@ export type DemandSupplyResponse = {
 export async function analyzeDemandSupply(
   values: z.infer<typeof formSchema>
 ): Promise<DemandSupplyResponse> {
-  const endpoint = 'https://psychological-odelia-unincriminated.ngrok-free.dev/demand_supply';
+  const endpoint = process.env.DEMAND_SUPPLY_API_URL || 'https://psychological-odelia-unincriminated.ngrok-free.dev/demand_supply';
 
   try {
     const response = await fetch(endpoint, {

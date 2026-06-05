@@ -17,7 +17,7 @@ import { Bell, LogOut, Search, User as UserIcon, Settings } from 'lucide-react';
 import { Link, useRouter, usePathname } from '@/i18n/routing';
 import { signOut } from 'firebase/auth';
 import { ThemeToggle } from './theme-toggle';
-import LanguageSwitcher from './LanguageSwitcher';
+import LanguageSwitcher from './language-switcher';
 import { Input } from '../ui/input';
 import { useSearch } from '@/context/search-provider';
 import { useState } from 'react';

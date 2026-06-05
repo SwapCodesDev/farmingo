@@ -3,7 +3,7 @@
 
 import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { SearchResultsClient } from '@/components/features/search-results-client';
+import { SearchResultsClient } from '@/components/features/tools/search-results-client';
 
 function SearchPageContent() {
   const searchParams = useSearchParams();

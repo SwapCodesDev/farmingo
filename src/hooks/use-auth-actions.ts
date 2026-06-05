@@ -1,5 +1,6 @@
 'use client';
 import { useFirestore, useUser } from '@/firebase';
+import type { PostData } from '@/types';
 import {
   createPost as createPostAction,
   updatePost as updatePostAction,
@@ -13,7 +14,6 @@ import {
   createCommunity as createCommunityAction,
   updateCommunity as updateCommunityAction,
   deleteCommunity as deleteCommunityAction,
-  type PostData,
   type CommunityData,
   type CommunityUpdateData,
 } from '@/lib/actions/community';

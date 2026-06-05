@@ -1,10 +1,10 @@
 
 'use client';
 
-import { PostList } from '@/components/features/post-list';
+import { PostList } from '@/components/features/community/post-list';
 import { Button } from '@/components/ui/button';
 import { Link } from '@/i18n/routing';
-import { CreatePostDialog } from '@/components/features/create-post-dialog';
+import { CreatePostDialog } from '@/components/features/community/create-post-dialog';
 import { Plus, Rss, Settings, MoreHorizontal, Shield, Pencil, Calendar, Globe, MessageSquare, Loader2 } from 'lucide-react';
 import { Suspense, useMemo } from 'react';
 import { doc } from 'firebase/firestore';
@@ -14,8 +14,7 @@ import { Separator } from '@/components/ui/separator';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatTimestamp } from '@/lib/utils';
 import type { Community } from '@/lib/actions/community';
-import { useDoc } from '@/firebase/firestore/use-doc';
-import { useFirestore, useUser } from '@/firebase';
+import { useFirestore, useUser, useDoc } from '@/firebase';
 import React from 'react';
 import { useTranslations } from 'next-intl';
 

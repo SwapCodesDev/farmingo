@@ -1,11 +1,11 @@
+import type { MarketplacePost } from '@/types';
 
-import { MarketplacePostDetailClient } from '@/components/features/marketplace-post-detail-client';
+import { MarketplacePostDetailClient } from '@/components/features/marketplace/marketplace-post-detail-client';
 import { Suspense } from 'react';
 import type { Metadata, ResolvingMetadata } from 'next';
 import { doc, getDoc, getFirestore } from 'firebase/firestore';
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { firebaseConfig } from '@/firebase/config';
-import type { MarketplacePost } from '@/components/features/marketplace-client';
 
 // Initialize Firebase Admin SDK-like access on the server
 let app;
