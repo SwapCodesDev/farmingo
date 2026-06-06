@@ -1,6 +1,7 @@
 'use server';
 
 import { z } from 'zod';
+import { getApiEndpoint } from '@/lib/utils';
 
 const formSchema = z.object({
   district: z.string().min(1, 'District is required.'),
@@ -34,7 +35,12 @@ export type DemandSupplyResponse = {
 export async function analyzeDemandSupply(
   values: z.infer<typeof formSchema>
 ): Promise<DemandSupplyResponse> {
-  const endpoint = process.env.DEMAND_SUPPLY_API_URL || 'https://psychological-odelia-unincriminated.ngrok-free.dev/demand_supply';
+  const endpoint = getApiEndpoint(
+    process.env.DEMAND_SUPPLY_API_URL,
+    process.env.DEMAND_SUPPLY_API_BASE_URL,
+    'https://psychological-odelia-unincriminated.ngrok-free.dev',
+    '/demand_supply'
+  );
 
   try {
     const response = await fetch(endpoint, {

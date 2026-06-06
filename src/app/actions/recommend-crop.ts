@@ -1,5 +1,7 @@
 'use server';
 
+import { getApiEndpoint } from '@/lib/utils';
+
 type RecommendCropPayload = {
     auto_location: boolean;
     latitude?: number;
@@ -7,7 +9,12 @@ type RecommendCropPayload = {
 }
 
 export async function recommendCrop(payload: RecommendCropPayload): Promise<any> {
-    const endpoint = process.env.CROP_RECOMMENDATION_API_URL || 'https://swapcodes-farmingo.hf.space/recommend';
+    const endpoint = getApiEndpoint(
+      process.env.CROP_RECOMMENDATION_API_URL,
+      process.env.FARMINGO_API_BASE_URL,
+      'https://swapcodes-farmingo.hf.space',
+      '/recommend'
+    );
     try {
         const response = await fetch(endpoint, {
             method: 'POST',

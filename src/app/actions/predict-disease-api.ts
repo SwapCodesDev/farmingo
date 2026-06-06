@@ -1,5 +1,7 @@
 'use server';
 
+import { getApiEndpoint } from '@/lib/utils';
+
 export async function predictDiseaseApi(formData: FormData): Promise<any> {
   const cropName = formData.get('crop_name') as string;
   const file = formData.get('file') as File;
@@ -8,7 +10,12 @@ export async function predictDiseaseApi(formData: FormData): Promise<any> {
     throw new Error('Crop name and an image file are required.');
   }
 
-  const baseEndpoint = process.env.DISEASE_PREDICTION_API_URL || 'https://swapcodes-farmingo.hf.space/crop_disease_prediction';
+  const baseEndpoint = getApiEndpoint(
+    process.env.DISEASE_PREDICTION_API_URL,
+    process.env.FARMINGO_API_BASE_URL,
+    'https://swapcodes-farmingo.hf.space',
+    '/crop_disease_prediction'
+  );
   const endpoint = `${baseEndpoint}?crop_name=${encodeURIComponent(cropName)}`;
 
   try {

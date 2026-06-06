@@ -1,6 +1,7 @@
 'use server';
 
 import { z } from 'zod';
+import { getApiEndpoint } from '@/lib/utils';
 
 const formSchema = z.object({
   lat: z.number(),
@@ -35,7 +36,12 @@ export type PricePredictionResponse = {
 export async function predictPrice(
   values: z.infer<typeof formSchema>
 ): Promise<PricePredictionResponse> {
-  const endpoint = process.env.PRICE_PREDICTION_API_URL || 'https://swapcodes-farmingo.hf.space/price_prediction';
+  const endpoint = getApiEndpoint(
+    process.env.PRICE_PREDICTION_API_URL,
+    process.env.FARMINGO_API_BASE_URL,
+    'https://swapcodes-farmingo.hf.space',
+    '/price_prediction'
+  );
 
   try {
     const response = await fetch(endpoint, {

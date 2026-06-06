@@ -6,6 +6,7 @@
 
 import { ai, groq, GROQ_MODELS } from '@/ai/genkit';
 import { z } from 'genkit';
+import { getApiEndpoint } from '@/lib/utils';
 
 const OPENWEATHER_API_KEY = process.env.OPENWEATHER_API_KEY;
 
@@ -33,7 +34,12 @@ const fetchWeatherData = ai.defineTool(
     if (!OPENWEATHER_API_KEY) {
       throw new Error('OPENWEATHER_API_KEY is not defined in environment variables.');
     }
-    const weatherApiUrl = process.env.WEATHER_API_URL || 'https://api.openweathermap.org/data/2.5/weather';
+    const weatherApiUrl = getApiEndpoint(
+      process.env.WEATHER_API_URL,
+      process.env.WEATHER_API_BASE_URL,
+      'https://api.openweathermap.org/data/2.5',
+      '/weather'
+    );
     const url = `${weatherApiUrl}?lat=${lat}&lon=${lon}&appid=${OPENWEATHER_API_KEY}&units=metric`;
     
     const response = await fetch(url);

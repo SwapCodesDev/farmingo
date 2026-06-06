@@ -41,3 +41,17 @@ export function formatTimestamp(timestamp: any, options: {
 
   return formatDistanceToNowStrict(date, { addSuffix });
 }
+
+export function getApiEndpoint(
+  envUrlVar: string | undefined,
+  baseVar: string | undefined,
+  fallbackBase: string,
+  path: string
+): string {
+  if (!envUrlVar || envUrlVar.includes('$')) {
+    const base = baseVar || fallbackBase;
+    return `${base}${path}`;
+  }
+  return envUrlVar;
+}
+
