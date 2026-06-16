@@ -1,5 +1,5 @@
 'use client';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -14,6 +14,7 @@ import type { User } from 'firebase/auth';
 import { useFirestore, useCollection } from '@/firebase';
 import { collection, query, where, Timestamp } from 'firebase/firestore';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { markMessageAsDelivered } from '@/lib/actions/messages';
 
 
 type ConversationDoc = {
@@ -21,11 +22,15 @@ type ConversationDoc = {
     participants: string[];
     participantDetails: { [key: string]: { username: string, photoURL?: string }};
     lastMessage: {
+        id: string;
         text: string;
         senderId: string;
         createdAt: Timestamp;
+        status: 'sent' | 'delivered' | 'read';
+        imageUrl?: string;
     };
     lastRead: { [key: string]: Timestamp };
+    unreadCount?: { [key: string]: number };
 }
 
 interface MessagesClientProps {
@@ -48,6 +53,25 @@ export function MessagesClient({ currentUser }: MessagesClientProps) {
   }, [firestore, currentUser.uid]);
 
   const { data: conversations, loading } = useCollection<ConversationDoc>(conversationsQuery);
+  
+  // Effect to mark loaded incoming messages as delivered
+  useEffect(() => {
+    if (!firestore || !conversations) return;
+    conversations.forEach(async (conv) => {
+      if (
+        conv.lastMessage &&
+        conv.lastMessage.senderId !== currentUser.uid &&
+        conv.lastMessage.status === 'sent' &&
+        conv.lastMessage.id
+      ) {
+        try {
+          await markMessageAsDelivered(firestore, conv.id, conv.lastMessage.id);
+        } catch (err) {
+          console.error("Failed to mark message as delivered:", err);
+        }
+      }
+    });
+  }, [firestore, conversations, currentUser.uid]);
   
   const sortedAndFilteredConversations = useMemo(() => {
     if (!conversations) return [];
@@ -105,11 +129,15 @@ export function MessagesClient({ currentUser }: MessagesClientProps) {
                 ? conv.lastMessage.createdAt.toDate() 
                 : new Date();
 
-            const lastReadDate = conv.lastRead?.[currentUser.uid] instanceof Timestamp
-                ? conv.lastRead[currentUser.uid].toDate()
-                : new Date(0);
+            const rawUnread = conv.lastMessage.createdAt instanceof Timestamp && conv.lastRead?.[currentUser.uid] instanceof Timestamp
+                ? conv.lastMessage.createdAt.toDate() > conv.lastRead[currentUser.uid].toDate()
+                : false;
 
-            const isUnread = lastMessageDate > lastReadDate && conv.lastMessage.senderId !== currentUser.uid;
+            const unreadCount = conv.unreadCount !== undefined
+                ? (conv.unreadCount[currentUser.uid] || 0)
+                : (rawUnread && conv.lastMessage.senderId !== currentUser.uid ? 1 : 0);
+
+            const isUnread = unreadCount > 0 && conv.lastMessage.senderId !== currentUser.uid;
 
           return (
             <Link
@@ -135,10 +163,13 @@ export function MessagesClient({ currentUser }: MessagesClientProps) {
                 </div>
                 <div className="flex justify-between items-start gap-2">
                     <p className={cn("text-sm text-muted-foreground truncate", isUnread && "font-semibold text-foreground")}>
-                        {conv.lastMessage.senderId === currentUser.uid && `${t('you')}: `}{conv.lastMessage.text}
+                        {conv.lastMessage.senderId === currentUser.uid && `${t('you') || 'You'}: `}
+                        {conv.lastMessage.imageUrl ? `📷 Photo` : conv.lastMessage.text}
                     </p>
-                    {isUnread && (
-                        <div className="h-2.5 w-2.5 rounded-full bg-primary flex-shrink-0 mt-1"></div>
+                    {isUnread && unreadCount > 0 && (
+                        <div className="flex items-center justify-center bg-primary text-primary-foreground text-[10px] font-bold rounded-full h-5 min-w-[20px] px-1.5 flex-shrink-0 mt-1">
+                            {unreadCount}
+                        </div>
                     )}
                 </div>
                 </div>
