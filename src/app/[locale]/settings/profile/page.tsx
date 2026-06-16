@@ -45,10 +45,11 @@ const profileSchema = z.object({
     ),
     region: z.string().min(1, 'Region is required.'),
     photoURL: z.string().optional(),
+    bannerURL: z.string().optional(),
 });
 
 export default function ProfileSettingsPage() {
-  const { user, loading: userLoading } = useUser();
+  const { user, firebaseUser, loading: userLoading } = useUser();
   const firestore = useFirestore();
   const auth = useAuth();
   const { toast } = useToast();
@@ -57,13 +58,23 @@ export default function ProfileSettingsPage() {
   const [isResetting, setIsResetting] = useState(false);
   const [initialUsername, setInitialUsername] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const bannerInputRef = useRef<HTMLInputElement>(null);
+
   const {
-    imagePreview,
-    setImagePreview,
-    cropState,
-    setCropState,
-    handleImageSelect,
+    imagePreview: avatarPreview,
+    setImagePreview: setAvatarPreview,
+    cropState: avatarCropState,
+    setCropState: setAvatarCropState,
+    handleImageSelect: handleAvatarSelect,
   } = useImageCrop(1, null);
+
+  const {
+    imagePreview: bannerPreview,
+    setImagePreview: setBannerPreview,
+    cropState: bannerCropState,
+    setCropState: setBannerCropState,
+    handleImageSelect: handleBannerSelect,
+  } = useImageCrop(3, null);
 
   const form = useForm<z.infer<typeof profileSchema>>({
     resolver: zodResolver(profileSchema),
@@ -72,6 +83,7 @@ export default function ProfileSettingsPage() {
       username: '',
       region: '',
       photoURL: '',
+      bannerURL: '',
     },
   });
 
@@ -79,7 +91,7 @@ export default function ProfileSettingsPage() {
     if (user && firestore) {
       form.setValue('displayName', user.displayName || '');
       form.setValue('photoURL', user.photoURL || '');
-      setImagePreview(user.photoURL || null);
+      setAvatarPreview(user.photoURL || null);
 
       const userDocRef = doc(firestore, 'users', user.uid);
       getDoc(userDocRef).then((docSnap) => {
@@ -87,11 +99,13 @@ export default function ProfileSettingsPage() {
           const userData = docSnap.data();
           form.setValue('username', userData.username || '');
           form.setValue('region', userData.region || '');
+          form.setValue('bannerURL', userData.bannerURL || '');
+          setBannerPreview(userData.bannerURL || null);
           setInitialUsername(userData.username || '');
         }
       });
     }
-  }, [user, firestore, form, setImagePreview]);
+  }, [user, firestore, form, setAvatarPreview, setBannerPreview]);
 
   const isUsernameUnique = async (username: string) => {
     if (!firestore) return false;
@@ -102,7 +116,7 @@ export default function ProfileSettingsPage() {
   };
 
   const onSubmit = async (values: z.infer<typeof profileSchema>) => {
-    if (!user || !firestore) return;
+    if (!user || !firebaseUser || !firestore) return;
     setIsLoading(true);
     try {
       if (values.username !== initialUsername) {
@@ -117,7 +131,7 @@ export default function ProfileSettingsPage() {
         }
       }
 
-      await updateUserProfile(firestore, user, values);
+      await updateUserProfile(firestore, firebaseUser, values);
       setInitialUsername(values.username);
       form.reset(values);
       toast({
@@ -195,6 +209,46 @@ export default function ProfileSettingsPage() {
           <CardContent className="pt-6 space-y-6">
              <FormField
                 control={form.control}
+                name="bannerURL"
+                render={() => (
+                  <FormItem className="flex flex-col items-center">
+                    <FormLabel>{t('profile-banner')}</FormLabel>
+                    <FormControl>
+                      <div 
+                        className="relative w-full max-w-xl h-40 rounded-lg border-2 border-dashed border-muted flex items-center justify-center overflow-hidden bg-muted group cursor-pointer hover:border-primary/50 transition-colors" 
+                        onClick={() => bannerInputRef.current?.click()}
+                      >
+                        {bannerPreview ? (
+                          <img src={bannerPreview} alt="Banner Preview" className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="text-center text-muted-foreground p-4">
+                            <span className="text-sm font-medium">Click to upload custom banner (3:1)</span>
+                          </div>
+                        )}
+                        <Button 
+                          type="button" 
+                          variant="outline" 
+                          size="icon" 
+                          className="absolute bottom-2 right-2 rounded-full h-8 w-8 bg-background shadow-sm hover:scale-105 transition-transform" 
+                          onClick={(e) => { e.stopPropagation(); bannerInputRef.current?.click(); }}
+                        >
+                          <Pencil className="h-4 w-4"/>
+                        </Button>
+                        <Input 
+                          type="file" 
+                          accept="image/*" 
+                          ref={bannerInputRef} 
+                          className="hidden" 
+                          onChange={(e) => handleBannerSelect(e, (cropped) => form.setValue('bannerURL', cropped, { shouldValidate: true, shouldDirty: true }))} 
+                        />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+             <FormField
+                control={form.control}
                 name="photoURL"
                 render={() => (
                   <FormItem className="flex flex-col items-center">
@@ -208,7 +262,7 @@ export default function ProfileSettingsPage() {
                         <Button type="button" variant="outline" size="icon" className="absolute -bottom-1 -right-1 rounded-full h-8 w-8 bg-background shadow-sm" onClick={() => fileInputRef.current?.click()}>
                           <Pencil className="h-4 w-4"/>
                         </Button>
-                        <Input type="file" accept="image/*" ref={fileInputRef} className="hidden" onChange={(e) => handleImageSelect(e, (cropped) => form.setValue('photoURL', cropped, { shouldValidate: true, shouldDirty: true }))} />
+                        <Input type="file" accept="image/*" ref={fileInputRef} className="hidden" onChange={(e) => handleAvatarSelect(e, (cropped) => form.setValue('photoURL', cropped, { shouldValidate: true, shouldDirty: true }))} />
                       </div>
                     </FormControl>
                     <FormMessage />
@@ -328,11 +382,18 @@ export default function ProfileSettingsPage() {
       </form>
     </Form>
     <ImageCropDialog 
-        isOpen={cropState.isOpen}
-        onOpenChange={(isOpen) => setCropState(prev => ({...prev, isOpen}))}
-        imageSrc={cropState.imageSrc}
-        aspect={cropState.aspect}
-        onCropComplete={cropState.onComplete}
+        isOpen={avatarCropState.isOpen}
+        onOpenChange={(isOpen) => setAvatarCropState(prev => ({...prev, isOpen}))}
+        imageSrc={avatarCropState.imageSrc}
+        aspect={avatarCropState.aspect}
+        onCropComplete={avatarCropState.onComplete}
+      />
+    <ImageCropDialog 
+        isOpen={bannerCropState.isOpen}
+        onOpenChange={(isOpen) => setBannerCropState(prev => ({...prev, isOpen}))}
+        imageSrc={bannerCropState.imageSrc}
+        aspect={bannerCropState.aspect}
+        onCropComplete={bannerCropState.onComplete}
       />
     </>
   );

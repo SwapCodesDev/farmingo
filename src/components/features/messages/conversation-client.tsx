@@ -60,16 +60,16 @@ export function ConversationClient({ conversationId }: ConversationClientProps) 
   const t = useTranslations('Messages');
 
   const conversationRef = useMemo(() => {
-    if (!firestore) return null;
+    if (!firestore || !currentUser) return null;
     return doc(firestore, 'conversations', conversationId);
-  }, [firestore, conversationId]);
+  }, [firestore, conversationId, currentUser]);
 
   const { data: conversation, loading: conversationLoading } = useDoc<ConversationDoc>(conversationRef);
 
   const messagesQuery = useMemo(() => {
-    if (!firestore) return null;
+    if (!firestore || !currentUser) return null;
     return query(collection(firestore, 'conversations', conversationId, 'messages'), orderBy('createdAt', 'asc'));
-  }, [firestore, conversationId]);
+  }, [firestore, conversationId, currentUser]);
 
   const { data: messages, loading: messagesLoading } = useCollection<MessageDoc>(messagesQuery);
 

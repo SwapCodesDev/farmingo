@@ -45,7 +45,7 @@ export async function createMarketplacePost(
     ...postData,
     uid: user.uid,
     author: username,
-    authorPhotoURL: user.photoURL || '',
+    authorPhotoURL: userData?.photoURL || user.photoURL || '',
     authorRole: userData?.role || 'user',
     createdAt: serverTimestamp(),
     commentCount: 0,
@@ -86,7 +86,7 @@ export async function addMarketplaceComment(
   const newComment = {
     uid: user.uid,
     author: username,
-    authorPhotoURL: user.photoURL || '',
+    authorPhotoURL: userData?.photoURL || user.photoURL || '',
     authorRole: userData?.role || 'user',
     text: text,
     createdAt: serverTimestamp(),

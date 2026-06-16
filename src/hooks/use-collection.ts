@@ -10,7 +10,7 @@ import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 
 interface HookResponse<T> {
-  data: (T & { id: string })[] | null;
+  data: (T & { id: string; refPath: string })[] | null;
   loading: boolean;
   error: FirestoreError | null;
 }
@@ -27,7 +27,7 @@ function getQueryKey(query: Query | null): string {
 export function useCollection<T = DocumentData>(
   query: Query | null
 ): HookResponse<T> {
-  const [data, setData] = useState<(T & { id: string })[] | null>(null);
+  const [data, setData] = useState<(T & { id: string; refPath: string })[] | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<FirestoreError | null>(null);
   
@@ -51,7 +51,7 @@ export function useCollection<T = DocumentData>(
       query,
       (snapshot) => {
         const docs = snapshot.docs.map(
-          (doc) => ({ id: doc.id, ...doc.data() } as T & { id: string })
+          (doc) => ({ id: doc.id, refPath: doc.ref.path, ...doc.data() } as T & { id: string; refPath: string })
         );
         setData(docs);
         setLoading(false);

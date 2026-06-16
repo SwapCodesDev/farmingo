@@ -1,8 +1,9 @@
 'use client';
 import { useState, useEffect, useContext } from 'react';
 import type { User as FirebaseAuthUser } from 'firebase/auth';
-import { AuthContext } from '@/firebase/provider';
+import { AuthContext, FirestoreContext } from '@/firebase/provider';
 import { onIdTokenChanged } from 'firebase/auth';
+import { doc, onSnapshot } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 
 export interface AppUser extends FirebaseAuthUser {
@@ -11,6 +12,7 @@ export interface AppUser extends FirebaseAuthUser {
 
 export const useUser = () => {
   const auth = useContext(AuthContext);
+  const firestore = useContext(FirestoreContext);
   const [user, setUser] = useState<AppUser | null>(null);
   const [firebaseUser, setFirebaseUser] = useState<FirebaseAuthUser | null>(
     null
@@ -23,13 +25,45 @@ export const useUser = () => {
       setLoading(false);
       return;
     }
-    const unsubscribe = onIdTokenChanged(
+
+    let unsubscribeFirestore: (() => void) | null = null;
+
+    const unsubscribeAuth = onIdTokenChanged(
       auth,
       async (fbUser) => {
         setFirebaseUser(fbUser);
+
+        if (unsubscribeFirestore) {
+          unsubscribeFirestore();
+          unsubscribeFirestore = null;
+        }
+
         if (fbUser) {
           const token = await fbUser.getIdToken();
           setUser({ ...fbUser, token });
+
+          if (firestore) {
+            const userDocRef = doc(firestore, 'users', fbUser.uid);
+            unsubscribeFirestore = onSnapshot(
+              userDocRef,
+              (snapshot) => {
+                if (snapshot.exists()) {
+                  const userData = snapshot.data();
+                  setUser((currentUser) => {
+                    if (!currentUser) return null;
+                    return {
+                      ...currentUser,
+                      displayName: userData.displayName || currentUser.displayName,
+                      photoURL: userData.photoURL || currentUser.photoURL,
+                    };
+                  });
+                }
+              },
+              (error) => {
+                console.error('Error listening to user document:', error);
+              }
+            );
+          }
         } else {
           setUser(null);
         }
@@ -41,8 +75,13 @@ export const useUser = () => {
       }
     );
 
-    return () => unsubscribe();
-  }, [auth, router]);
+    return () => {
+      unsubscribeAuth();
+      if (unsubscribeFirestore) {
+        unsubscribeFirestore();
+      }
+    };
+  }, [auth, firestore, router]);
 
   return { user, firebaseUser, loading };
 };

@@ -11,4 +11,11 @@ export type UserProfile = {
     role: 'admin' | 'moderator' | 'farmer' | 'user';
     region: string;
     isVerified: boolean;
+    bannerURL?: string;
+    privacySettings?: {
+        postsVisibility?: 'public' | 'followers' | 'private';
+        commentsVisibility?: 'public' | 'followers' | 'private';
+        followersVisibility?: 'public' | 'followers' | 'private';
+        followingVisibility?: 'public' | 'followers' | 'private';
+    };
 }

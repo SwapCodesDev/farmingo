@@ -133,7 +133,7 @@ export async function createProduct(
     ...productData,
     uid: user.uid,
     sellerName: username,
-    sellerPhotoURL: user.photoURL || '',
+    sellerPhotoURL: userData?.photoURL || user.photoURL || '',
     sellerRole: userData?.role || 'user',
     createdAt: serverTimestamp(),
     rating: 0,

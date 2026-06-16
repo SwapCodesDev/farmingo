@@ -25,6 +25,14 @@ service cloud.firestore {
       return request.auth != null && resource.data.uid == request.auth.uid;
     }
 
+    function getPrivacy(userId, fieldName) {
+      let userRef = /databases/$(database)/documents/users/$(userId);
+      let userData = exists(userRef) ? get(userRef).data : null;
+      return (userData != null && 'privacySettings' in userData && fieldName in userData.privacySettings)
+        ? userData.privacySettings[fieldName]
+        : 'public';
+    }
+
     // Common check for updates: Allow owners to update everything except protected metadata fields.
     function isValidUpdate(resource) {
       return !request.resource.data.diff(resource.data).changedKeys().hasAny(['uid', 'createdAt', 'id', 'communityId', 'creatorId']);
@@ -40,6 +48,24 @@ service cloud.firestore {
 
       match /cart/{productId} {
         allow read, list, write, delete: if isUser(userId);
+      }
+
+      match /followers/{followerUserId} {
+        allow read: if request.auth != null && (
+          userId == request.auth.uid ||
+          getPrivacy(userId, 'followers') == 'public' ||
+          (getPrivacy(userId, 'followers') == 'followers' && exists(/databases/$(database)/documents/users/$(userId)/followers/$(request.auth.uid)))
+        );
+        allow create, delete: if request.auth != null && request.auth.uid == followerUserId;
+      }
+
+      match /following/{followingUserId} {
+        allow read: if request.auth != null && (
+          userId == request.auth.uid ||
+          getPrivacy(userId, 'following') == 'public' ||
+          (getPrivacy(userId, 'following') == 'followers' && exists(/databases/$(database)/documents/users/$(userId)/followers/$(request.auth.uid)))
+        );
+        allow create, delete: if request.auth != null && request.auth.uid == userId;
       }
     }
 
@@ -126,6 +152,10 @@ service cloud.firestore {
         allow read: if request.auth != null && request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participants;
         allow create: if request.auth != null && request.auth.uid == request.resource.data.senderId &&
                        request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participants;
+        allow update: if request.auth != null &&
+                       request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participants &&
+                       request.resource.data.diff(resource.data).changedKeys().hasOnly(['status']) &&
+                       request.resource.data.status in ['delivered', 'read'];
       }
     }
 
@@ -133,6 +163,10 @@ service cloud.firestore {
       allow read, list: if request.auth != null && resource.data.uid == request.auth.uid;
       allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
       allow update: if request.auth != null && (resource.data.uid == request.auth.uid || isAdmin());
+    }
+
+    match /{path=**}/comments/{commentId} {
+      allow read, list: if true;
     }
   }
 }

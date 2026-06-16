@@ -19,7 +19,7 @@ export function formatUsername(username: string, role?: UserProfile['role']) {
 }
 
 export function formatTimestamp(timestamp: any, options: {
-  format?: 'short' | 'full';
+  format?: 'short' | 'full' | 'date';
   addSuffix?: boolean;
 } = {}) {
   const { format: formatType = 'short', addSuffix = true } = options;
@@ -37,6 +37,10 @@ export function formatTimestamp(timestamp: any, options: {
 
   if (formatType === 'full') {
     return format(date, 'PPP p');
+  }
+
+  if (formatType === 'date') {
+    return format(date, 'PPP');
   }
 
   return formatDistanceToNowStrict(date, { addSuffix });
