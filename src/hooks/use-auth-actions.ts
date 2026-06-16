@@ -176,7 +176,7 @@ export function useAuthActions() {
   );
   
   const updateCommunity = useCallback(
-    async (communityId: string, communityData: CommunityUpdateData) => {
+    async (communityId: string, communityData: Partial<CommunityUpdateData>) => {
         if (!user || !firestore) {
             toast({
                 variant: 'destructive',
