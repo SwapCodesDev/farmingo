@@ -1,6 +1,6 @@
 'use client';
 import { useMemo, useState, useEffect } from 'react';
-import { collection, query, where, limit, orderBy, getCountFromServer, doc, getDoc, collectionGroup, Timestamp } from 'firebase/firestore';
+import { collection, query, where, limit, orderBy, getCountFromServer, doc, getDoc, collectionGroup, Timestamp, onSnapshot } from 'firebase/firestore';
 import { useFirestore, useUser, useCollection, useDoc } from '@/firebase';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -59,7 +59,15 @@ export function UserProfileClient({ username }: UserProfileClientProps) {
   }, [firestore, currentUser, userProfile]);
 
   const { data: followingDoc, loading: followingLoading } = useDoc(followingRef);
-  const isFollowing = !!followingDoc;
+  const realIsFollowing = !!followingDoc;
+  const [isFollowing, setIsFollowing] = useState<boolean>(false);
+
+  // Sync optimistic state with real props when they change from snapshot
+  useEffect(() => {
+    if (!followingLoading) {
+      setIsFollowing(realIsFollowing);
+    }
+  }, [realIsFollowing, followingLoading]);
 
   // Fetch target user stats
   useEffect(() => {
@@ -70,28 +78,57 @@ export function UserProfileClient({ username }: UserProfileClientProps) {
     const postsQ = query(postsColl, where('uid', '==', userProfile.uid));
 
     const commentsColl = collectionGroup(firestore, 'comments');
-    const commentsQ = query(commentsColl, where('uid', '==', userProfile.uid), orderBy('createdAt', 'desc'));
+    const commentsQ = query(commentsColl, where('uid', '==', userProfile.uid));
 
     const followersColl = collection(firestore, 'users', userProfile.uid, 'followers');
     const followingColl = collection(firestore, 'users', userProfile.uid, 'following');
 
-    Promise.all([
-      getCountFromServer(postsQ),
-      getCountFromServer(commentsQ),
-      getCountFromServer(followersColl),
-      getCountFromServer(followingColl)
-    ]).then(([postsSnap, commentsSnap, followersSnap, followingSnap]) => {
-      setStats({
-        posts: postsSnap.data().count,
-        comments: commentsSnap.data().count,
-        followers: followersSnap.data().count,
-        following: followingSnap.data().count
-      });
-      setStatsLoading(false);
-    }).catch(err => {
-      console.error("Error fetching stats:", err);
-      setStatsLoading(false);
+    let loadedCount = 0;
+    const checkLoading = () => {
+      loadedCount++;
+      if (loadedCount >= 4) {
+        setStatsLoading(false);
+      }
+    };
+
+    const unsubFollowers = onSnapshot(followersColl, (snap) => {
+      setStats((prev) => ({ ...prev, followers: snap.size }));
+      checkLoading();
+    }, (err) => {
+      console.error(err);
+      checkLoading();
     });
+
+    const unsubFollowing = onSnapshot(followingColl, (snap) => {
+      setStats((prev) => ({ ...prev, following: snap.size }));
+      checkLoading();
+    }, (err) => {
+      console.error(err);
+      checkLoading();
+    });
+
+    const unsubPosts = onSnapshot(postsQ, (snap) => {
+      setStats((prev) => ({ ...prev, posts: snap.size }));
+      checkLoading();
+    }, (err) => {
+      console.error(err);
+      checkLoading();
+    });
+
+    const unsubComments = onSnapshot(commentsQ, (snap) => {
+      setStats((prev) => ({ ...prev, comments: snap.size }));
+      checkLoading();
+    }, (err) => {
+      console.error(err);
+      checkLoading();
+    });
+
+    return () => {
+      unsubFollowers();
+      unsubFollowing();
+      unsubPosts();
+      unsubComments();
+    };
   }, [firestore, userProfile?.uid]);
 
   // Privacy Checking Helpers
@@ -212,9 +249,18 @@ export function UserProfileClient({ username }: UserProfileClientProps) {
 
   const handleFollowToggle = async () => {
     if (!currentUser || !userProfile || !firestore || isFollowingTransition) return;
+
+    // Optimistic Update
+    const wasFollowing = isFollowing;
+    setIsFollowing(!wasFollowing);
+    setStats((prev) => ({
+      ...prev,
+      followers: prev.followers + (wasFollowing ? -1 : 1),
+    }));
+
     setIsFollowingTransition(true);
     try {
-      if (isFollowing) {
+      if (wasFollowing) {
         await unfollowUser(firestore, currentUser.uid, userProfile.uid);
         toast({
           title: "Unfollowed",
@@ -228,6 +274,13 @@ export function UserProfileClient({ username }: UserProfileClientProps) {
         });
       }
     } catch (error: any) {
+      console.error("Failed to toggle follow status:", error);
+      // Revert optimistic updates on failure
+      setIsFollowing(wasFollowing);
+      setStats((prev) => ({
+        ...prev,
+        followers: prev.followers + (wasFollowing ? 1 : -1),
+      }));
       toast({
         variant: 'destructive',
         title: "Action failed",
@@ -272,8 +325,8 @@ export function UserProfileClient({ username }: UserProfileClientProps) {
             : "You must follow u/" + userProfile.username + " to view their activity."}
         </p>
         {!isPrivate && !isFollowing && currentUser && (
-          <Button size="sm" className="mt-4 gap-1.5" onClick={handleFollowToggle} disabled={isFollowingTransition}>
-            {isFollowingTransition ? <Loader2 className="h-4 w-4 animate-spin" /> : <UserPlus className="h-4 w-4" />}
+          <Button size="sm" className="mt-4 gap-1.5" onClick={handleFollowToggle} disabled={isFollowingTransition || followingLoading}>
+            {isFollowingTransition || followingLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <UserPlus className="h-4 w-4" />}
             {t('follow')}
           </Button>
         )}
