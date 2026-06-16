@@ -153,8 +153,8 @@ export function PostCard({ post, voteAction, isDetailView = false }: PostCardPro
 
   return (
     <>
-      <div className="bg-card p-4 rounded-lg border hover:border-primary/50 transition-colors duration-200 flex flex-col">
-        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+      <div className="bg-card p-4 rounded-lg border hover:border-primary/50 transition-colors duration-200 flex flex-col relative">
+        <div className="flex items-center gap-3 text-xs text-muted-foreground relative z-10">
             <Link href={`/c/${post.communityId}`} className="font-bold text-foreground hover:underline">
                 c/{post.communityId}
             </Link>
@@ -212,34 +212,55 @@ export function PostCard({ post, voteAction, isDetailView = false }: PostCardPro
               </DropdownMenu>
         </div>
 
-        <Link href={postUrl} className='cursor-pointer group'>
-            <h2 className="font-bold text-lg mt-2 group-hover:underline">{isTranslating && !hasTranslation ? 'Translating title...' : displayedTitle}</h2>
-            
-            <div 
-                className={cn("mt-2 text-sm relative overflow-hidden", !isDetailView && "max-h-[250px]")}
-            >
-              {post.imageUrl && (
-                  <div className="relative aspect-video w-full my-2">
-                      <Image src={post.imageUrl} alt={post.title} layout="fill" objectFit="contain" className="rounded-md border" />
-                  </div>
-              )}
-              <div className={cn('prose', isLongPost && 'mask-gradient')}>
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                  {isTranslating ? "Translating content..." : displayedText}
-                </ReactMarkdown>
-              </div>
-              {isLongPost && (
-                <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-card to-transparent pointer-events-none" />
-              )}
+        <div className="flex flex-col">
+          {isDetailView ? (
+            <h2 className="font-bold text-2xl mt-2 relative z-10">
+              {isTranslating && !hasTranslation ? 'Translating title...' : displayedTitle}
+            </h2>
+          ) : (
+            <h2 className="font-bold text-lg mt-2 relative z-10">
+              <Link href={postUrl} className="hover:underline after:absolute after:inset-0 after:z-0">
+                {isTranslating && !hasTranslation ? 'Translating title...' : displayedTitle}
+              </Link>
+            </h2>
+          )}
+          
+          <div 
+              className={cn("mt-2 text-sm relative overflow-hidden", !isDetailView && "max-h-[250px]")}
+          >
+            {post.imageUrl && (
+                <div className="relative aspect-video w-full my-2">
+                    <Image src={post.imageUrl} alt={post.title} layout="fill" objectFit="contain" className="rounded-md border" />
+                </div>
+            )}
+            <div className={cn('prose', isLongPost && 'mask-gradient')}>
+              <ReactMarkdown 
+                remarkPlugins={[remarkGfm]}
+                components={{
+                  a: ({ node, ...props }) => (
+                    <a
+                      {...props}
+                      className="text-primary hover:underline relative z-10"
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  ),
+                }}
+              >
+                {isTranslating ? "Translating content..." : displayedText}
+              </ReactMarkdown>
             </div>
-        </Link>
+            {isLongPost && (
+              <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-card to-transparent pointer-events-none" />
+            )}
+          </div>
+        </div>
         {hasTranslation && (
-          <Button variant="link" className="p-0 h-auto text-xs justify-start mt-1" onClick={clearTranslation}>
+          <Button variant="link" className="p-0 h-auto text-xs justify-start mt-1 relative z-10" onClick={clearTranslation}>
             Show original
           </Button>
         )}
 
-        <div className="flex items-center gap-2 text-muted-foreground mt-4 -ml-1">
+        <div className="flex items-center gap-2 text-muted-foreground mt-4 -ml-1 relative z-10">
           <VoteControl post={post} voteAction={voteAction} />
            <Button variant="ghost" size="sm" asChild className="bg-muted/50 hover:bg-muted rounded-full">
             <Link href={postUrl}>
