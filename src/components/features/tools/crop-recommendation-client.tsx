@@ -142,7 +142,7 @@ export function CropRecommendationClient() {
                         {response.fully_suitable.length > 0 && (
                             <div>
                                 <h4 className="font-semibold mb-2 flex items-center gap-2">
-                                    <CheckCircle2 className="h-5 w-5 text-green-600" />
+                                    <CheckCircle2 className="h-5 w-5 text-primary" />
                                     {t('suitable-title')}
                                 </h4>
                                 <div className="flex flex-wrap gap-2">
@@ -153,7 +153,7 @@ export function CropRecommendationClient() {
                         {response.partially_suitable.length > 0 && (
                              <div>
                                 <h4 className="font-semibold mb-2 flex items-center gap-2">
-                                    <Cloudy className="h-5 w-5 text-amber-600" />
+                                    <Cloudy className="h-5 w-5 text-accent" />
                                     {t('partially-title')}
                                 </h4>
                                 <div className="flex flex-wrap gap-2">

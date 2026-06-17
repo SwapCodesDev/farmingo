@@ -1,6 +1,7 @@
 import type { Post } from '@/types';
 
 import { PostDetailClient } from '@/components/features/community/post-detail-client';
+import { PostListSkeleton } from '@/components/features/shared/skeletons';
 import { Suspense } from 'react';
 import type { Metadata, ResolvingMetadata } from 'next';
 import { doc, getDoc, getFirestore } from 'firebase/firestore';
@@ -72,7 +73,7 @@ export async function generateMetadata(
 export default async function PostPage({ params }: Props) {
   const { postId } = await params;
   return (
-    <Suspense fallback={<p>Loading post...</p>}>
+    <Suspense fallback={<PostListSkeleton />}>
       <PostDetailClient postId={postId} />
     </Suspense>
   );

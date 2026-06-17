@@ -41,7 +41,16 @@
     "no-matching-platform": "No matching platform features found."
   },
   "Welcome": {
-    "tagline": "Get AI-powered crop insights, connect with a community of farmers, and trade on our exclusive marketplace."
+    "tagline": "Get AI-powered crop insights, connect with a community of farmers, and trade on our exclusive marketplace.",
+    "explore-features": "Explore Our Features",
+    "explore-features-desc": "Cutting-edge agricultural technology tailored to boost yield and market connectivity.",
+    "stats-heading": "Farmingo by the Numbers",
+    "stats-desc": "Empowering growers with digital intelligence and collaborative growth.",
+    "stat-farmers-lbl": "Active Users",
+    "stat-products-lbl": "Products Listed",
+    "stat-posts-lbl": "Shared Discussions",
+    "stat-communities-lbl": "Active Communities",
+    "footer-text": "Farmingo © 2026. Cultivating the future of intelligent agriculture."
   },
   "Auth": {
     "login-title": "Login",
@@ -321,5 +330,15 @@
     "back": "Back",
     "next": "Next",
     "submit": "Submit"
+  },
+  "Notifications": {
+    "title": "Notifications",
+    "markAllAsRead": "Mark all as read",
+    "clearAll": "Clear all",
+    "noNotifications": "No notifications yet",
+    "unread": "unread",
+    "markAsRead": "Mark as read",
+    "delete": "Delete",
+    "recent": "Recent Notifications"
   }
 }

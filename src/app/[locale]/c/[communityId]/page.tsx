@@ -1,6 +1,7 @@
 'use client';
 
 import { PostList } from '@/components/features/community/post-list';
+import { PostListSkeleton } from '@/components/features/shared/skeletons';
 import { Button } from '@/components/ui/button';
 import { Link } from '@/i18n/routing';
 import { CreatePostDialog } from '@/components/features/community/create-post-dialog';
@@ -221,7 +222,7 @@ export default function CommunitySubPage({ params }: { params: Promise<{ communi
       {/* Main Content */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2 space-y-6">
-          <Suspense fallback={<p className="text-muted-foreground">{t('loading-posts')}</p>}>
+          <Suspense fallback={<PostListSkeleton />}>
             <PostList communityId={communityId} />
           </Suspense>
         </div>

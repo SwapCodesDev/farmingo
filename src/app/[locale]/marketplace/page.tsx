@@ -1,5 +1,6 @@
 
 import { MarketplaceClient } from '@/components/features/marketplace/marketplace-client';
+import { MarketplaceSkeleton } from '@/components/features/shared/skeletons';
 import { Suspense } from 'react';
 
 export default function MarketplacePage() {
@@ -13,7 +14,7 @@ export default function MarketplacePage() {
           Buy and sell fresh produce and farming supplies directly.
         </p>
       </div>
-      <Suspense fallback={<p>Loading marketplace...</p>}>
+      <Suspense fallback={<MarketplaceSkeleton />}>
         <MarketplaceClient />
       </Suspense>
     </div>

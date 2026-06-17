@@ -231,7 +231,7 @@ async function onDiseaseSubmit(values: z.infer<typeof diseaseFormSchema>) {
                             <p className="text-sm text-muted-foreground">{diseaseResponse.symptoms}</p>
                         </div>
                          <div>
-                            <h4 className="font-semibold mb-2 flex items-center gap-2"><ShieldCheck className="h-5 w-5 text-blue-600" /> Precautions</h4>
+                            <h4 className="font-semibold mb-2 flex items-center gap-2"><ShieldCheck className="h-5 w-5 text-blue-600 dark:text-blue-400" /> Precautions</h4>
                             <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
                                 {diseaseResponse.precautions.map((p, i) => <li key={i}>{p}</li>)}
                             </ul>
@@ -239,13 +239,13 @@ async function onDiseaseSubmit(values: z.infer<typeof diseaseFormSchema>) {
                         <Separator />
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <h4 className="font-semibold mb-2 flex items-center gap-2"><FlaskConical className="h-5 w-5 text-amber-600" /> Chemical Cures</h4>
+                                <h4 className="font-semibold mb-2 flex items-center gap-2"><FlaskConical className="h-5 w-5 text-accent" /> Chemical Cures</h4>
                                  <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
                                     {diseaseResponse.cure.chemical.map((c, i) => <li key={i}>{c}</li>)}
                                 </ul>
                             </div>
                              <div>
-                                <h4 className="font-semibold mb-2 flex items-center gap-2"><TestTube className="h-5 w-5 text-green-600" /> Organic Cures</h4>
+                                <h4 className="font-semibold mb-2 flex items-center gap-2"><TestTube className="h-5 w-5 text-primary" /> Organic Cures</h4>
                                  <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
                                     {diseaseResponse.cure.organic.map((c, i) => <li key={i}>{c}</li>)}
                                 </ul>

@@ -18,7 +18,9 @@ import { Link, useRouter, usePathname } from '@/i18n/routing';
 import { signOut } from 'firebase/auth';
 import { ThemeToggle } from './theme-toggle';
 import LanguageSwitcher from './language-switcher';
+import NotificationDropdown from './notification-dropdown';
 import { Input } from '../ui/input';
+import { Breadcrumbs } from './breadcrumbs';
 import { useSearch } from '@/context/search-provider';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
@@ -55,9 +57,12 @@ export function Header() {
   return (
     <header className="sticky top-0 z-40 flex h-16 items-center gap-4 border-b bg-background/80 px-4 backdrop-blur-md sm:px-6 transition-all duration-300">
       <SidebarTrigger />
+      <Breadcrumbs />
+
+      <div className="flex-1" />
 
       {showDashboardSearch && (
-         <div className="relative flex-1">
+         <div className="relative w-full max-w-xs sm:max-w-sm md:max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search dashboard features..."
@@ -69,7 +74,7 @@ export function Header() {
       )}
 
       {showCommunitySearch && (
-        <form onSubmit={handleCommunitySearch} className="relative flex-1">
+        <form onSubmit={handleCommunitySearch} className="relative w-full max-w-xs sm:max-w-sm md:max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
                 placeholder="Search community..."
@@ -80,20 +85,11 @@ export function Header() {
         </form>
       )}
 
-      {!showDashboardSearch && !showCommunitySearch && (
-        <div className="flex-1" />
-      )}
-
 
       <div className="flex items-center gap-2">
         <ThemeToggle />
         <LanguageSwitcher />
-        {user && (
-          <Button variant="ghost" size="icon">
-            <Bell className="h-5 w-5" />
-            <span className="sr-only">Notifications</span>
-          </Button>
-        )}
+        {user && <NotificationDropdown />}
 
         {user ? (
           <DropdownMenu>

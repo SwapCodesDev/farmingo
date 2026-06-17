@@ -2,6 +2,7 @@
 'use client';
 
 import { CommunityListClient } from '@/components/features/community/community-list-client';
+import { CommunitySkeleton } from '@/components/features/shared/skeletons';
 import { Suspense } from 'react';
 import { useTranslations } from 'next-intl';
 
@@ -19,7 +20,7 @@ export default function CommunityPage() {
         </p>
       </div>
 
-      <Suspense fallback={<p>{t('loading-communities')}</p>}>
+      <Suspense fallback={<CommunitySkeleton />}>
         <CommunityListClient />
       </Suspense>
     </div>

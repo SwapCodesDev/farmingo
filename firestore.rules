@@ -50,6 +50,10 @@ service cloud.firestore {
         allow read, list, write, delete: if isUser(userId);
       }
 
+      match /notifications/{notificationId} {
+        allow read, list, write, delete: if isUser(userId);
+      }
+
       match /followers/{followerUserId} {
         allow read: if request.auth != null && (
           userId == request.auth.uid ||

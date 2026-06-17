@@ -339,13 +339,13 @@ export function DemandSupplyClient() {
                         <div className="space-y-2">
                             <div className="flex justify-between text-sm">
                                 <span className="text-muted-foreground">{t('supply-gap')}</span>
-                                <span className={cn("font-bold", result.analysis.supply_gap_pct < 0 ? "text-destructive" : "text-green-600")}>
+                                <span className={cn("font-bold", result.analysis.supply_gap_pct < 0 ? "text-destructive" : "text-primary")}>
                                     {result.analysis.supply_gap_pct > 0 ? '+' : ''}{result.analysis.supply_gap_pct.toFixed(2)}%
                                 </span>
                             </div>
                             <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
                                 <div 
-                                    className={cn("h-full", result.analysis.supply_gap_pct < 0 ? "bg-destructive" : "bg-green-600")}
+                                    className={cn("h-full", result.analysis.supply_gap_pct < 0 ? "bg-destructive" : "bg-primary")}
                                     style={{ width: `${Math.min(Math.abs(result.analysis.supply_gap_pct), 100)}%` }}
                                 />
                             </div>
@@ -353,13 +353,13 @@ export function DemandSupplyClient() {
                         <div className="space-y-2">
                             <div className="flex justify-between text-sm">
                                 <span className="text-muted-foreground">{t('price-shift')}</span>
-                                <span className={cn("font-bold", result.analysis.price_shift_pct < 0 ? "text-destructive" : "text-green-600")}>
+                                <span className={cn("font-bold", result.analysis.price_shift_pct < 0 ? "text-destructive" : "text-primary")}>
                                     {result.analysis.price_shift_pct > 0 ? '+' : ''}{result.analysis.price_shift_pct.toFixed(2)}%
                                 </span>
                             </div>
                             <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
                                 <div 
-                                    className={cn("h-full", result.analysis.price_shift_pct < 0 ? "bg-destructive" : "bg-green-600")}
+                                    className={cn("h-full", result.analysis.price_shift_pct < 0 ? "bg-destructive" : "bg-primary")}
                                     style={{ width: `${Math.min(Math.abs(result.analysis.price_shift_pct), 100)}%` }}
                                 />
                             </div>
@@ -441,13 +441,13 @@ export function DemandSupplyClient() {
                         </TableRow>
                         <TableRow>
                           <TableCell className="font-medium">Supply Gap (%)</TableCell>
-                          <TableCell className={cn(result.analysis.supply_gap_pct > 0 ? "text-green-600" : "text-destructive")}>
+                          <TableCell className={cn(result.analysis.supply_gap_pct > 0 ? "text-primary" : "text-destructive")}>
                             {result.analysis.supply_gap_pct > 0 ? '+' : ''}{result.analysis.supply_gap_pct.toFixed(2)}%
                           </TableCell>
                         </TableRow>
                         <TableRow>
                           <TableCell className="font-medium">Price Shift (%)</TableCell>
-                          <TableCell className={cn(result.analysis.price_shift_pct > 0 ? "text-green-600" : "text-destructive")}>
+                          <TableCell className={cn(result.analysis.price_shift_pct > 0 ? "text-primary" : "text-destructive")}>
                             {result.analysis.price_shift_pct > 0 ? '+' : ''}{result.analysis.price_shift_pct.toFixed(2)}%
                           </TableCell>
                         </TableRow>

@@ -24,6 +24,7 @@ import {
   SearchX,
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { DashboardSkeleton } from '@/components/features/shared/skeletons';
 import { useMemo } from 'react';
 import { useSearch } from '@/context/search-provider';
 import { useTranslations } from 'next-intl';
@@ -65,24 +66,24 @@ export default function DashboardPage() {
       title: navT('crop-recommendation'),
       description: t('descriptions.crop-recommendation'),
       href: '/crop-recommendation',
-      icon: <Sprout className="w-8 h-8 text-green-600" />,
-      color: "bg-green-100",
+      icon: <Sprout className="w-8 h-8 text-primary" />,
+      color: "bg-primary/10",
       featured: false,
     },
     {
       title: navT('weather-prediction'),
       description: t('descriptions.weather-prediction'),
       href: '/weather-prediction',
-      icon: <CloudSun className="w-8 h-8 text-blue-500" />,
-      color: "bg-blue-100",
+      icon: <CloudSun className="w-8 h-8 text-blue-600 dark:text-blue-400" />,
+      color: "bg-blue-500/10",
       featured: false,
     },
     {
       title: navT('demand-supply'),
       description: t('descriptions.demand-supply'),
       href: '/demand-supply',
-      icon: <BarChart3 className="w-8 h-8 text-orange-500" />,
-      color: "bg-orange-100",
+      icon: <BarChart3 className="w-8 h-8 text-accent" />,
+      color: "bg-accent/10",
       featured: false,
     },
   ], [navT, t]);
@@ -95,6 +96,10 @@ export default function DashboardPage() {
         tool.description.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [searchTerm, allAiTools]);
+
+  if (loading) {
+    return <DashboardSkeleton />;
+  }
 
   return (
     <div className="flex flex-col gap-10 pb-10">
