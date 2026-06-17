@@ -16,7 +16,11 @@
     "signup": "Sign Up",
     "ai-tools": "AI Tools",
     "platform": "Platform",
-    "account": "Account"
+    "account": "Account",
+    "logout-confirm-title": "Are you sure you want to log out?",
+    "logout-confirm-description": "You will need to sign in again to access your marketplace dashboard, communities, and messages.",
+    "logout-confirm-action": "Log Out",
+    "logout-confirm-cancel": "Cancel"
   },
   "Dashboard": {
     "title": "Dashboard",

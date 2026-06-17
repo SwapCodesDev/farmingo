@@ -1,7 +1,7 @@
 'use client';
 import { useFirestore, useUser, useCollection } from '@/firebase';
 import { collection, orderBy, query, Timestamp } from 'firebase/firestore';
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
 import { Card, CardDescription, CardHeader, CardTitle, CardFooter } from '../../ui/card';
 import { Button } from '../../ui/button';
 import { Edit, MoreVertical, Plus, Trash2 } from 'lucide-react';

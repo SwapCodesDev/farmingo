@@ -5,6 +5,9 @@ import { useUser } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import { ArrowBigDown, ArrowBigUp, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { motion } from 'framer-motion';
+
+const AnimatedButton = motion(Button);
 
 interface CommentVoteControlProps {
   comment: Comment & { id: string; upvotes?: string[]; downvotes?: string[] };
@@ -91,21 +94,37 @@ export function CommentVoteControl({ comment, voteAction }: CommentVoteControlPr
 
   return (
     <div className={cn("flex items-center gap-1 bg-muted/50 rounded-full")}>
-      <Button variant="ghost" size="icon" className="h-6 w-6 rounded-full" onClick={() => handleVote('up')} disabled={!user || votingType !== null}>
+      <AnimatedButton
+        variant="ghost"
+        size="icon"
+        className="h-6 w-6 rounded-full"
+        onClick={() => handleVote('up')}
+        disabled={!user || votingType !== null}
+        whileTap={{ scale: 0.8 }}
+        transition={{ type: "spring", stiffness: 400, damping: 12 }}
+      >
         {votingType === 'up' ? (
           <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
         ) : (
           <ArrowBigUp className={cn("h-4 w-4", optimisticVote === 'up' && 'fill-primary text-primary')} />
         )}
-      </Button>
+      </AnimatedButton>
       <span className="font-bold text-xs min-w-[2ch] text-center">{optimisticScore}</span>
-      <Button variant="ghost" size="icon" className="h-6 w-6 rounded-full" onClick={() => handleVote('down')} disabled={!user || votingType !== null}>
+      <AnimatedButton
+        variant="ghost"
+        size="icon"
+        className="h-6 w-6 rounded-full"
+        onClick={() => handleVote('down')}
+        disabled={!user || votingType !== null}
+        whileTap={{ scale: 0.8 }}
+        transition={{ type: "spring", stiffness: 400, damping: 12 }}
+      >
         {votingType === 'down' ? (
           <Loader2 className="h-3.5 w-3.5 animate-spin text-destructive" />
         ) : (
           <ArrowBigDown className={cn("h-4 w-4", optimisticVote === 'down' && 'fill-destructive text-destructive')} />
         )}
-      </Button>
+      </AnimatedButton>
     </div>
   );
 }

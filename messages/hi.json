@@ -16,7 +16,11 @@
     "signup": "साइन अप",
     "ai-tools": "एआई टूल्स",
     "platform": "प्लेटफॉर्म",
-    "account": "खाता"
+    "account": "खाता",
+    "logout-confirm-title": "क्या आप वाकई लॉग आउट करना चाहते हैं?",
+    "logout-confirm-description": "अपने मार्केटप्लेस डैशबोर्ड, समुदायों और संदेशों तक पहुँचने के लिए आपको फिर से साइन इन करना होगा।",
+    "logout-confirm-action": "लॉग आउट करें",
+    "logout-confirm-cancel": "रद्द करें"
   },
   "Dashboard": {
     "title": "डैशबोर्ड",

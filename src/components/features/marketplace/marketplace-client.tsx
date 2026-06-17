@@ -26,6 +26,7 @@ import { Alert, AlertDescription, AlertTitle } from '../../ui/alert';
 import { useTranslations } from 'next-intl';
 import { Skeleton } from '@/components/ui/skeleton';
 import { PostListSkeleton } from '@/components/features/shared/skeletons';
+import { EmptyState } from '@/components/features/shared/empty-state';
 
 function ProductSkeletonGrid() {
   return (
@@ -427,15 +428,13 @@ export function MarketplaceClient() {
             <TabsContent value="verified" className="mt-6">
                 {isInitialProductsLoading && <ProductSkeletonGrid />}
                 {!isInitialProductsLoading && products.length === 0 && (
-                    <div className="text-center py-20 px-6 text-muted-foreground bg-muted/30 rounded-lg border-2 border-dashed">
-                        <ShoppingCart className="mx-auto h-16 w-16 opacity-50" />
-                        <h3 className="font-headline text-2xl mt-6">{t('no-products')}</h3>
-                        <p className="mt-2 max-w-md mx-auto">
-                            {searchTerm 
-                                ? `No products found for "${searchTerm}".`
-                                : `There are currently no products listed from verified sellers.`}
-                        </p>
-                    </div>
+                    <EmptyState
+                        type={searchTerm ? 'search' : 'products'}
+                        title={searchTerm ? undefined : t('no-products')}
+                        description={searchTerm 
+                            ? `No products found for "${searchTerm}".`
+                            : `There are currently no products listed from verified sellers.`}
+                    />
                 )}
                 {!isInitialProductsLoading && products.length > 0 && (
                   <>
@@ -464,15 +463,13 @@ export function MarketplaceClient() {
             <TabsContent value="indirect" className="mt-6">
                 {isInitialPostsLoading && <PostListSkeleton />}
                  {!isInitialPostsLoading && marketplacePosts.length === 0 && (
-                    <div className="text-center py-20 px-6 text-muted-foreground bg-muted/30 rounded-lg border-2 border-dashed">
-                        <ShoppingCart className="mx-auto h-16 w-16 opacity-50" />
-                        <h3 className="font-headline text-2xl mt-6">{t('no-products')}</h3>
-                        <p className="mt-2 max-w-md mx-auto">
-                            {searchTerm 
-                                ? `No posts found for "${searchTerm}".`
-                                : `There are currently no items listed here. Be the first to post something for sale!`}
-                        </p>
-                    </div>
+                    <EmptyState
+                        type={searchTerm ? 'search' : 'posts'}
+                        title={searchTerm ? undefined : t('no-products')}
+                        description={searchTerm 
+                            ? `No posts found for "${searchTerm}".`
+                            : `There are currently no items listed here. Be the first to post something for sale!`}
+                    />
                 )}
                 {!isInitialPostsLoading && marketplacePosts.length > 0 && (
                   <>

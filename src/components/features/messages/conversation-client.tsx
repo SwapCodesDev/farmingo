@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { Send, ArrowLeft, Loader2, Check, CheckCheck, ImageIcon, X } from 'lucide-react';
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useFirestore, useDoc, useCollection, useUser } from '@/firebase';
 import { doc, collection, query, orderBy, Timestamp } from 'firebase/firestore';

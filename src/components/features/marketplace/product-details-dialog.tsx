@@ -16,12 +16,15 @@ import { useToast } from '@/hooks/use-toast';
 import { useFirestore, useUser, useCollection } from '@/firebase';
 import { collection, orderBy, query, Timestamp } from 'firebase/firestore';
 import { Star, MapPin, ShoppingCart, Loader2, MessageSquare, Calendar } from 'lucide-react';
-import { formatUsername } from '@/lib/utils';
+import { formatUsername, cn } from '@/lib/utils';
 import { submitProductReview } from '@/lib/actions/marketplace';
 import type { Product, ProductReview } from '@/types';
 import Image from 'next/image';
 import { useCart } from '@/context/cart-provider';
 import { useUserProfileDialog } from '@/context/user-profile-dialog-provider';
+import { motion, AnimatePresence } from 'framer-motion';
+
+const AnimatedButton = motion(Button);
 
 interface ProductDetailsDialogProps {
   isOpen: boolean;
@@ -45,6 +48,7 @@ export function ProductDetailsDialog({
   const [comment, setComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [isAdded, setIsAdded] = useState(false);
 
   const handleOpenChange = (open: boolean) => {
     onOpenChange(open);
@@ -52,6 +56,7 @@ export function ProductDetailsDialog({
       setIsEditing(false);
       setRating(0);
       setComment('');
+      setIsAdded(false);
     }
   };
 
@@ -87,6 +92,10 @@ export function ProductDetailsDialog({
       title: 'Added to Cart',
       description: `${product.name} (Qty: ${qty} ${product.unit || 'kg'}) has been added to your cart.`,
     });
+    setIsAdded(true);
+    setTimeout(() => {
+      setIsAdded(false);
+    }, 2000);
   };
 
   const handleSubmitReview = async (e: React.FormEvent) => {
@@ -218,14 +227,57 @@ export function ProductDetailsDialog({
               </div>
             </div>
 
-            <Button
-              className="w-full mt-6 py-6 text-base shadow-lg hover:shadow-primary/20 transition-all duration-300 font-bold"
+            <AnimatedButton
+              className={cn(
+                "w-full mt-6 py-6 text-base shadow-lg transition-all duration-300 font-bold",
+                isAdded ? "bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-500/20" : "hover:shadow-primary/20"
+              )}
               onClick={handleAddToCart}
-              disabled={product.stock === 0}
+              disabled={product.stock === 0 || isAdded}
+              animate={isAdded ? { scale: [1, 1.05, 1] } : {}}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
             >
-              <ShoppingCart className="mr-2 h-5 w-5" />
-              {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
-            </Button>
+              <AnimatePresence mode="wait">
+                {isAdded ? (
+                  <motion.span
+                    key="added"
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0.8, opacity: 0 }}
+                    transition={{ type: "spring", stiffness: 500, damping: 15 }}
+                    className="flex items-center justify-center gap-2"
+                  >
+                    <motion.svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="h-5 w-5"
+                      initial={{ pathLength: 0 }}
+                      animate={{ pathLength: 1 }}
+                      transition={{ delay: 0.1, duration: 0.3 }}
+                    >
+                      <polyline points="20 6 9 17 4 12" />
+                    </motion.svg>
+                    Added!
+                  </motion.span>
+                ) : (
+                  <motion.span
+                    key="add"
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0.8, opacity: 0 }}
+                    transition={{ type: "spring", stiffness: 500, damping: 15 }}
+                    className="flex items-center justify-center gap-2"
+                  >
+                    <ShoppingCart className="h-5 w-5" />
+                    {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
+                  </motion.span>
+                )}
+              </AnimatePresence>
+            </AnimatedButton>
           </div>
 
           {/* Right Column: Title, Desc, and Reviews */}

@@ -14,9 +14,13 @@
     "logout": "लॉगआउट",
     "login": "लॉगिन",
     "signup": "साइन अप",
-    "ai-tools": "एआय साधने",
+    "ai-tools": "एयाय साधने",
     "platform": "प्लॅटफॉर्म",
-    "account": "खाते"
+    "account": "खाते",
+    "logout-confirm-title": "तुम्ही नक्की लॉग आउट करू इच्छिता?",
+    "logout-confirm-description": "तुमचे मार्केटप्लेस डॅशबोर्ड, समुदाय आणि संदेशांमध्ये प्रवेश करण्यासाठी तुम्हाला पुन्हा साइन इन करावे लागेल.",
+    "logout-confirm-action": "लॉग आउट करा",
+    "logout-confirm-cancel": "रद्द करा"
   },
   "Dashboard": {
     "title": "डॅशबोर्ड",

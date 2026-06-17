@@ -10,7 +10,7 @@ import { Loader2, ArrowLeft, Pin } from 'lucide-react';
 import { PostCard } from './post-card';
 import { CommentThread } from './comment-thread';
 import { Card, CardContent } from '../../ui/card';
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
 import { useToast } from '@/hooks/use-toast';
 import type { UserProfile, Comment, Post } from '@/types';
 import { Separator } from '../../ui/separator';

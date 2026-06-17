@@ -33,10 +33,11 @@ import {
   Settings,
   BarChart3
 } from 'lucide-react';
-import { Link, usePathname } from '@/i18n/routing';
+import { Link, usePathname, useRouter } from '@/i18n/routing';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { LogoutDialog } from './logout-dialog';
 
 type NavCategoryProps = {
   title: string;
@@ -115,15 +116,17 @@ function NavCategory({ title, items, user, pathname }: NavCategoryProps) {
 
 export function SidebarNav() {
   const pathname = usePathname();
+  const router = useRouter();
   const { user } = useUser();
   const auth = useAuth();
   const t = useTranslations('Navigation');
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
 
   const handleLogout = async () => {
     if (auth) {
       await signOut(auth);
       // Redirect to home or login page after logout
-      window.location.href = '/';
+      router.replace('/');
     }
   };
 
@@ -197,7 +200,11 @@ export function SidebarNav() {
         <SidebarMenu>
           {user ? (
             <SidebarMenuItem>
-              <SidebarMenuButton onClick={handleLogout} tooltip={t('logout')}>
+              <SidebarMenuButton
+                onClick={() => setLogoutDialogOpen(true)}
+                tooltip={t('logout')}
+                className="hover:text-destructive hover:bg-destructive/10"
+              >
                 <LogOut />
                 <span>{t('logout')}</span>
               </SidebarMenuButton>
@@ -224,6 +231,11 @@ export function SidebarNav() {
           )}
         </SidebarMenu>
       </SidebarFooter>
+      <LogoutDialog
+        open={logoutDialogOpen}
+        onOpenChange={setLogoutDialogOpen}
+        onConfirm={handleLogout}
+      />
     </>
   );
 }

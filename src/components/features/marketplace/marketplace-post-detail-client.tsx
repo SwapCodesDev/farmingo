@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Loader2, ArrowLeft, MoreVertical, Edit, Trash2, Tag, Tractor, Wrench, MessageSquare, Share2, Phone, MapPin, Pin } from 'lucide-react';
 import Image from 'next/image';
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
 import { Card, CardContent } from '../../ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
@@ -18,7 +18,7 @@ import { Badge } from '../../ui/badge';
 import { voteOnMarketplacePost, deleteMarketplacePost } from '@/lib/actions/marketplace-post';
 
 import { CommentThread } from '../community/comment-thread';
-import { VoteControl } from '../community/vote-control';
+import { VoteControl } from './vote-control';
 import {
     DropdownMenu,
     DropdownMenuContent,

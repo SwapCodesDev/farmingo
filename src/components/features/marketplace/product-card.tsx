@@ -36,11 +36,13 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { deleteProduct } from '@/lib/actions/marketplace';
 import { EditProductDialog } from './edit-product-dialog';
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
 import { useCart } from '@/context/cart-provider';
-import { formatUsername } from '@/lib/utils';
+import { formatUsername, cn } from '@/lib/utils';
 import { ProductDetailsDialog } from './product-details-dialog';
+import { motion, AnimatePresence } from 'framer-motion';
 
+const AnimatedButton = motion(Button);
 
 interface ProductCardProps {
   product: Product;
@@ -57,6 +59,7 @@ export function ProductCard({ product }: ProductCardProps) {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const { addToCart } = useCart();
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [isAdded, setIsAdded] = useState(false);
 
 
   const getInitials = (name: string) => {
@@ -86,6 +89,10 @@ export function ProductCard({ product }: ProductCardProps) {
         title: "Added to Cart",
         description: `${product.name} (Qty: ${qty} ${product.unit || 'kg'}) has been added to your cart.`,
     });
+    setIsAdded(true);
+    setTimeout(() => {
+      setIsAdded(false);
+    }, 2000);
   }
 
   const truncatedDescription = product.description.length > DESCRIPTION_TRUNCATE_LENGTH
@@ -186,14 +193,57 @@ export function ProductCard({ product }: ProductCardProps) {
         </div>
       </CardContent>
       <CardFooter className="p-4 pt-0 mt-auto">
-        <Button 
-          className="w-full" 
+        <AnimatedButton 
+          className={cn(
+            "w-full transition-all duration-300", 
+            isAdded && "bg-emerald-600 hover:bg-emerald-700 text-white font-medium shadow-lg shadow-emerald-500/20"
+          )}
           onClick={handleAddToCart}
-          disabled={product.stock === 0}
+          disabled={product.stock === 0 || isAdded}
+          animate={isAdded ? { scale: [1, 1.05, 1] } : {}}
+          transition={{ duration: 0.3, ease: "easeInOut" }}
         >
-            <ShoppingCart className="mr-2 h-4 w-4"/>
-            {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
-        </Button>
+          <AnimatePresence mode="wait">
+            {isAdded ? (
+              <motion.span
+                key="added"
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.8, opacity: 0 }}
+                transition={{ type: "spring", stiffness: 500, damping: 15 }}
+                className="flex items-center justify-center gap-2"
+              >
+                <motion.svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="h-4 w-4"
+                  initial={{ pathLength: 0 }}
+                  animate={{ pathLength: 1 }}
+                  transition={{ delay: 0.1, duration: 0.3 }}
+                >
+                  <polyline points="20 6 9 17 4 12" />
+                </motion.svg>
+                Added!
+              </motion.span>
+            ) : (
+              <motion.span
+                key="add"
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.8, opacity: 0 }}
+                transition={{ type: "spring", stiffness: 500, damping: 15 }}
+                className="flex items-center justify-center gap-2"
+              >
+                <ShoppingCart className="h-4 w-4"/>
+                {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
+              </motion.span>
+            )}
+          </AnimatePresence>
+        </AnimatedButton>
       </CardFooter>
     </Card>
 

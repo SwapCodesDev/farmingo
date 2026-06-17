@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn, formatTimestamp } from '@/lib/utils';
 import { Search, Users, MessageSquare } from 'lucide-react';
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
 import { Card } from '../../ui/card';
 import { Button } from '../../ui/button';
 import { usePathname } from 'next/navigation';
@@ -15,6 +15,7 @@ import { useFirestore, useCollection } from '@/firebase';
 import { collection, query, where, Timestamp } from 'firebase/firestore';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { markMessageAsDelivered } from '@/lib/actions/messages';
+import { EmptyState } from '@/components/features/shared/empty-state';
 
 
 type ConversationDoc = {
@@ -115,9 +116,13 @@ export function MessagesClient({ currentUser }: MessagesClientProps) {
       <ScrollArea className="h-[calc(100vh-22rem)]">
         {loading && <p className="p-4 text-center text-muted-foreground">{t('loading-conversations')}</p>}
         {!loading && sortedAndFilteredConversations?.length === 0 && (
-            <p className="p-4 text-center text-muted-foreground">
-                {searchTerm ? t('no-conversations-search', { query: searchTerm }) : t('no-conversations')}
-            </p>
+          <div className="p-4">
+            <EmptyState
+              type={searchTerm ? 'search' : 'messages'}
+              title={searchTerm ? undefined : t('no-conversations')}
+              description={searchTerm ? t('no-conversations-search', { query: searchTerm }) : undefined}
+            />
+          </div>
         )}
         {sortedAndFilteredConversations?.map((conv: ConversationDoc) => {
             const otherParticipantId = conv.participants.find((p: string) => p !== currentUser.uid);

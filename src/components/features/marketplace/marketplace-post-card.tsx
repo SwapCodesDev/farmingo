@@ -9,7 +9,7 @@ import { Timestamp } from 'firebase/firestore';
 import { MessageSquare, MoreVertical, Trash2, Edit, Share2, Tag, Tractor, Wrench } from 'lucide-react';
 import { cn, formatUsername, formatTimestamp } from '@/lib/utils';
 import Image from 'next/image';
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,7 +29,7 @@ import {
 import { useUserProfileDialog } from '@/context/user-profile-dialog-provider';
 import type { MarketplacePost } from '@/types';
 import { Badge } from '../../ui/badge';
-import { VoteControl } from '../community/vote-control';
+import { VoteControl } from './vote-control';
 import { deleteMarketplacePost } from '@/lib/actions/marketplace-post';
 import { useFirestore } from '@/firebase';
 import { EditMarketplacePostDialog } from './edit-marketplace-post-dialog';

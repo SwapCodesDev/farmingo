@@ -25,7 +25,7 @@ import type { Post, Comment } from '@/types';
 import { PostCard } from '../community/post-card';
 import { useAuthActions } from '@/hooks/use-auth-actions';
 import type { UserProfile } from '@/types';
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
 import Image from 'next/image';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../../ui/card';
 import { formatTimestamp, formatUsername } from '@/lib/utils';

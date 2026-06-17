@@ -24,6 +24,7 @@ import { Breadcrumbs } from './breadcrumbs';
 import { useSearch } from '@/context/search-provider';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { LogoutDialog } from './logout-dialog';
 
 export function Header() {
   const { user } = useUser();
@@ -35,10 +36,12 @@ export function Header() {
 
   // State for the community search bar
   const [communitySearchQuery, setCommunitySearchQuery] = useState('');
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
 
   const handleLogout = async () => {
     if (auth) {
       await signOut(auth);
+      router.replace('/');
     }
   };
 
@@ -131,7 +134,10 @@ export function Header() {
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleLogout}>
+              <DropdownMenuItem
+                onClick={() => setLogoutDialogOpen(true)}
+                className="text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer"
+              >
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>{t('logout')}</span>
               </DropdownMenuItem>
@@ -148,6 +154,11 @@ export function Header() {
           </div>
         )}
       </div>
+      <LogoutDialog
+        open={logoutDialogOpen}
+        onOpenChange={setLogoutDialogOpen}
+        onConfirm={handleLogout}
+      />
     </header>
   );
 }

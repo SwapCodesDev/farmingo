@@ -10,7 +10,7 @@ import { MessageSquare, MoreVertical, Trash2, Edit, Share2, Languages, Loader2 }
 import { cn, formatUsername, formatTimestamp } from '@/lib/utils';
 import { useAuthActions } from '@/hooks/use-auth-actions';
 import Image from 'next/image';
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
 import {
   DropdownMenu,
   DropdownMenuContent,
