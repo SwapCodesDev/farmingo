@@ -49,7 +49,7 @@ export default function LoginPage() {
   const router = useRouter();
   const { toast } = useToast();
   const t = useTranslations('Auth');
-  const commonT = useTranslations('Common');
+  const navT = useTranslations('Navigation');
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -300,7 +300,7 @@ export default function LoginPage() {
           <div className="mt-4 text-center text-sm">
             {t('dont-have-account')}{' '}
             <Link href="/signup" className="underline font-semibold hover:text-primary">
-              {commonT('edit') === 'Edit' ? 'Sign up' : 'साइन अप करा'}
+              {navT('signup')}
             </Link>
           </div>
         </CardContent>

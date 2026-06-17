@@ -4,32 +4,34 @@
 import { Link, usePathname } from '@/i18n/routing';
 import { cn } from '@/lib/utils';
 import { buttonVariants } from '@/components/ui/button';
-
-const sidebarNavItems = [
-  {
-    title: 'Profile',
-    href: '/settings/profile',
-  },
-  {
-    title: 'Privacy',
-    href: '/settings/privacy',
-  },
-  {
-    title: 'Appearance',
-    href: '/settings/appearance',
-  },
-  {
-    title: 'Notifications',
-    href: '/settings/notifications',
-  },
-  {
-    title: 'Translation',
-    href: '/settings/translation',
-  },
-];
+import { useTranslations } from 'next-intl';
 
 export function SettingsNav() {
   const pathname = usePathname();
+  const t = useTranslations('Settings');
+
+  const sidebarNavItems = [
+    {
+      title: t('profile'),
+      href: '/settings/profile',
+    },
+    {
+      title: t('privacy'),
+      href: '/settings/privacy',
+    },
+    {
+      title: t('appearance'),
+      href: '/settings/appearance',
+    },
+    {
+      title: t('notifications'),
+      href: '/settings/notifications',
+    },
+    {
+      title: t('translation'),
+      href: '/settings/translation',
+    },
+  ];
 
   return (
     <nav className="flex space-x-2 lg:flex-col lg:space-x-0 lg:space-y-1">
@@ -51,3 +53,4 @@ export function SettingsNav() {
     </nav>
   );
 }
+
