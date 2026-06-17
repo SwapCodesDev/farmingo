@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/dialog';
 import { CreateMarketplacePostForm } from './create-marketplace-post-form';
 
-export function CreateMarketplacePostDialog({ children }: { children: React.ReactNode }) {
+export function CreateMarketplacePostDialog({ children, onSuccess }: { children: React.ReactNode; onSuccess?: () => void }) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -24,7 +24,10 @@ export function CreateMarketplacePostDialog({ children }: { children: React.Reac
             List an item for sale or trade in the Indirect Market.
           </DialogDescription>
         </DialogHeader>
-        <CreateMarketplacePostForm onPostCreated={() => setIsOpen(false)} />
+        <CreateMarketplacePostForm onPostCreated={() => {
+          setIsOpen(false);
+          onSuccess?.();
+        }} />
       </DialogContent>
     </Dialog>
   );

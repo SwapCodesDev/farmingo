@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/dialog';
 import { CreateProductForm } from './create-product-form';
 
-export function CreateProductDialog({ children }: { children: React.ReactNode }) {
+export function CreateProductDialog({ children, onSuccess }: { children: React.ReactNode; onSuccess?: () => void }) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -24,7 +24,10 @@ export function CreateProductDialog({ children }: { children: React.ReactNode })
             Add a new item to the Verified Marketplace.
           </DialogDescription>
         </DialogHeader>
-        <CreateProductForm onProductCreated={() => setIsOpen(false)} />
+        <CreateProductForm onProductCreated={() => {
+          setIsOpen(false);
+          onSuccess?.();
+        }} />
       </DialogContent>
     </Dialog>
   );

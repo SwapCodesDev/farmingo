@@ -11,6 +11,8 @@ import {
 import { Header } from './header';
 import { SidebarNav } from './sidebar-nav';
 import { Loader2 } from 'lucide-react';
+import { PageTransition } from './page-transition';
+import { BottomNav } from './bottom-nav';
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -63,7 +65,10 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       </Sidebar>
       <SidebarInset>
         <Header />
-        <main className="p-4 sm:p-6 lg:p-8 bg-background">{children}</main>
+        <main className="p-4 pb-20 sm:p-6 sm:pb-6 lg:p-8 bg-background">
+          <PageTransition>{children}</PageTransition>
+        </main>
+        <BottomNav />
       </SidebarInset>
     </SidebarProvider>
   );
