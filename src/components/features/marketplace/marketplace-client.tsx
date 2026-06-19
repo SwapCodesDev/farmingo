@@ -414,13 +414,15 @@ export function MarketplaceClient() {
                 <AlertTitle className="text-amber-500">Want to sell here?</AlertTitle>
                 <AlertDescription className="space-y-2">
                   <p>Only users with a verified seller account can list products in this marketplace. Verification is handled by administrators.</p>
-                  <div className="bg-background/80 border p-2.5 rounded-md text-xs font-mono space-y-1 max-w-md mt-2">
-                    <p className="font-semibold text-foreground border-b pb-1 mb-1">Authenticated Session Debug Info:</p>
-                    <p>• Your UID: <span className="text-primary select-all font-semibold">{user.uid}</span></p>
-                    <p>• Profile Exists: <span className="font-semibold">{userProfile ? 'Yes' : 'No'}</span></p>
-                    <p>• Role: <span className="font-semibold">{userProfile?.role || 'none'}</span></p>
-                    <p>• isVerified: <span className="font-semibold text-destructive">{userProfile?.isVerified === true ? 'true' : 'false'}</span></p>
-                  </div>
+                  {process.env.NODE_ENV === 'development' && (
+                    <div className="bg-background/80 border p-2.5 rounded-md text-xs font-mono space-y-1 max-w-md mt-2">
+                      <p className="font-semibold text-foreground border-b pb-1 mb-1">Authenticated Session Debug Info:</p>
+                      <p>• Your UID: <span className="text-primary select-all font-semibold">{user.uid}</span></p>
+                      <p>• Profile Exists: <span className="font-semibold">{userProfile ? 'Yes' : 'No'}</span></p>
+                      <p>• Role: <span className="font-semibold">{userProfile?.role || 'none'}</span></p>
+                      <p>• isVerified: <span className="font-semibold text-destructive">{userProfile?.isVerified === true ? 'true' : 'false'}</span></p>
+                    </div>
+                  )}
                 </AlertDescription>
               </Alert>
             )}
