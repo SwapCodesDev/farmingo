@@ -36,6 +36,8 @@ const privacySchema = z.object({
   followingVisibility: z.enum(['public', 'followers', 'private']),
 });
 
+import { PrivacySettingsSkeleton } from '@/components/features/shared/skeletons';
+
 export default function PrivacySettingsPage() {
   const { user, loading: userLoading } = useUser();
   const firestore = useFirestore();
@@ -93,11 +95,7 @@ export default function PrivacySettingsPage() {
   };
 
   if (userLoading) {
-    return (
-      <div className="flex items-center justify-center h-48">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-      </div>
-    );
+    return <PrivacySettingsSkeleton />;
   }
 
   const visibilityOptions = [

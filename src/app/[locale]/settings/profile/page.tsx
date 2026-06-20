@@ -48,6 +48,8 @@ const profileSchema = z.object({
     bannerURL: z.string().optional(),
 });
 
+import { ProfileSettingsSkeleton } from '@/components/features/shared/skeletons';
+
 export default function ProfileSettingsPage() {
   const { user, firebaseUser, loading: userLoading } = useUser();
   const firestore = useFirestore();
@@ -191,7 +193,7 @@ export default function ProfileSettingsPage() {
   const watchPhotoUrl = form.watch('photoURL');
 
   if (userLoading) {
-    return <p>Loading profile...</p>;
+    return <ProfileSettingsSkeleton />;
   }
 
   return (

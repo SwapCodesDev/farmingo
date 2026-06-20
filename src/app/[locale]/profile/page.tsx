@@ -30,6 +30,8 @@ import type { UserProfile, Post, Comment } from '@/types';
 import { useTranslations } from 'next-intl';
 import { useUserProfileDialog } from '@/context/user-profile-dialog-provider';
 
+import { ProfileSkeleton } from '@/components/features/shared/skeletons';
+
 export default function ProfilePage() {
   const { user, loading: userLoading } = useUser();
   const firestore = useFirestore();
@@ -187,11 +189,7 @@ export default function ProfilePage() {
   const loading = userLoading || profileLoading;
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-96">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
+    return <ProfileSkeleton />;
   }
 
   if (!user || !userProfile) {

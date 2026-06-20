@@ -35,6 +35,8 @@ type RecommendationResponse = {
 };
 
 
+import { CropRecommendationResultsSkeleton } from "@/components/features/shared/skeletons";
+
 export function CropRecommendationClient() {
     const [isLoading, setIsLoading] = useState(false);
     const [response, setResponse] = useState<RecommendationResponse | null>(null);
@@ -105,12 +107,7 @@ export function CropRecommendationClient() {
                 </CardContent>
             </Card>
 
-            {isLoading && (
-                <div className="flex items-center justify-center py-12">
-                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                    <p className="ml-4 text-muted-foreground">{t('fetching')}</p>
-                </div>
-            )}
+            {isLoading && <CropRecommendationResultsSkeleton />}
 
             {response && !response.error && (
                  <Card className="animate-in fade-in-50">

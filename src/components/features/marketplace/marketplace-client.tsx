@@ -27,6 +27,7 @@ import { useTranslations } from 'next-intl';
 import { Skeleton } from '@/components/ui/skeleton';
 import { PostListSkeleton } from '@/components/features/shared/skeletons';
 import { EmptyState } from '@/components/features/shared/empty-state';
+import { MarketplaceFilters } from './marketplace-filters';
 
 function ProductSkeletonGrid() {
   return (
@@ -72,6 +73,42 @@ export function MarketplaceClient() {
   // Refs for infinite scroll sentinels
   const productsSentinelRef = useRef<HTMLDivElement>(null);
   const postsSentinelRef = useRef<HTMLDivElement>(null);
+
+  const [category, setCategory] = useState('all');
+  const [priceRange, setPriceRange] = useState({ min: '', max: '' });
+
+  const filteredProducts = useMemo(() => {
+    return products.filter((product) => {
+      if (category && category !== 'all' && product.category !== category) {
+        return false;
+      }
+      if (priceRange.min && product.price < Number(priceRange.min)) {
+        return false;
+      }
+      if (priceRange.max && product.price > Number(priceRange.max)) {
+        return false;
+      }
+      return true;
+    });
+  }, [products, category, priceRange]);
+
+  const filteredMarketplacePosts = useMemo(() => {
+    return marketplacePosts.filter((post) => {
+      if (priceRange.min && post.price < Number(priceRange.min)) {
+        return false;
+      }
+      if (priceRange.max && post.price > Number(priceRange.max)) {
+        return false;
+      }
+      return true;
+    });
+  }, [marketplacePosts, priceRange]);
+
+  const handleClearFilters = () => {
+    setSearchTerm('');
+    setCategory('all');
+    setPriceRange({ min: '', max: '' });
+  };
 
   // Debounce search term
   useEffect(() => {
@@ -383,65 +420,46 @@ export function MarketplaceClient() {
                 )}
             </div>
 
-            <div className="flex flex-col md:flex-row items-center justify-between gap-4 p-4 border rounded-lg bg-card mt-4">
-              <div className="relative w-full md:flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input 
-                    placeholder={t('search-placeholder')}
-                    className="pl-9" 
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-              <div className="flex items-center gap-4 w-full md:w-auto">
-                <Select value={sortBy} onValueChange={setSortBy}>
-                    <SelectTrigger className="w-full md:w-[180px]">
-                        <SelectValue placeholder="Sort by" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="createdAt_desc">Newest</SelectItem>
-                        <SelectItem value="price_asc">Price: Low to High</SelectItem>
-                        <SelectItem value="price_desc">Price: High to Low</SelectItem>
-                        <SelectItem value={activeTab === 'verified' ? 'name_asc' : 'itemName_asc'}>Name: A-Z</SelectItem>
-                    </SelectContent>
-                </Select>
-              </div>
+            <div className="mt-4">
+              <MarketplaceFilters
+                searchTerm={searchTerm}
+                onSearchChange={setSearchTerm}
+                category={category}
+                onCategoryChange={setCategory}
+                priceRange={priceRange}
+                onPriceRangeChange={setPriceRange}
+                sortBy={sortBy}
+                onSortChange={setSortBy}
+                onClearFilters={handleClearFilters}
+                activeTab={activeTab}
+              />
             </div>
 
             {user && !isVerifiedSeller && activeTab === 'verified' && (
               <Alert className="mt-4 border-amber-500/25 bg-amber-500/5">
                 <Info className="h-4 w-4 text-amber-500" />
                 <AlertTitle className="text-amber-500">Want to sell here?</AlertTitle>
-                <AlertDescription className="space-y-2">
+                <AlertDescription>
                   <p>Only users with a verified seller account can list products in this marketplace. Verification is handled by administrators.</p>
-                  {process.env.NODE_ENV === 'development' && (
-                    <div className="bg-background/80 border p-2.5 rounded-md text-xs font-mono space-y-1 max-w-md mt-2">
-                      <p className="font-semibold text-foreground border-b pb-1 mb-1">Authenticated Session Debug Info:</p>
-                      <p>• Your UID: <span className="text-primary select-all font-semibold">{user.uid}</span></p>
-                      <p>• Profile Exists: <span className="font-semibold">{userProfile ? 'Yes' : 'No'}</span></p>
-                      <p>• Role: <span className="font-semibold">{userProfile?.role || 'none'}</span></p>
-                      <p>• isVerified: <span className="font-semibold text-destructive">{userProfile?.isVerified === true ? 'true' : 'false'}</span></p>
-                    </div>
-                  )}
                 </AlertDescription>
               </Alert>
             )}
 
             <TabsContent value="verified" className="mt-6">
                 {isInitialProductsLoading && <ProductSkeletonGrid />}
-                {!isInitialProductsLoading && products.length === 0 && (
+                {!isInitialProductsLoading && filteredProducts.length === 0 && (
                     <EmptyState
-                        type={searchTerm ? 'search' : 'products'}
-                        title={searchTerm ? undefined : t('no-products')}
-                        description={searchTerm 
-                            ? `No products found for "${searchTerm}".`
+                        type={searchTerm || category !== 'all' || priceRange.min || priceRange.max ? 'search' : 'products'}
+                        title={searchTerm || category !== 'all' || priceRange.min || priceRange.max ? undefined : t('no-products')}
+                        description={searchTerm || category !== 'all' || priceRange.min || priceRange.max
+                            ? `No products found matching your active filters.`
                             : `There are currently no products listed from verified sellers.`}
                     />
                 )}
-                {!isInitialProductsLoading && products.length > 0 && (
+                {!isInitialProductsLoading && filteredProducts.length > 0 && (
                   <>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                        {products.map((product: Product) => (
+                        {filteredProducts.map((product: Product) => (
                         <ProductCard key={product.id} product={product} />
                         ))}
                     </div>
@@ -464,19 +482,19 @@ export function MarketplaceClient() {
             </TabsContent>
             <TabsContent value="indirect" className="mt-6">
                 {isInitialPostsLoading && <PostListSkeleton />}
-                 {!isInitialPostsLoading && marketplacePosts.length === 0 && (
+                 {!isInitialPostsLoading && filteredMarketplacePosts.length === 0 && (
                     <EmptyState
-                        type={searchTerm ? 'search' : 'posts'}
-                        title={searchTerm ? undefined : t('no-products')}
-                        description={searchTerm 
-                            ? `No posts found for "${searchTerm}".`
+                        type={searchTerm || priceRange.min || priceRange.max ? 'search' : 'posts'}
+                        title={searchTerm || priceRange.min || priceRange.max ? undefined : t('no-products')}
+                        description={searchTerm || priceRange.min || priceRange.max
+                            ? `No posts found matching your active filters.`
                             : `There are currently no items listed here. Be the first to post something for sale!`}
                     />
                 )}
-                {!isInitialPostsLoading && marketplacePosts.length > 0 && (
+                {!isInitialPostsLoading && filteredMarketplacePosts.length > 0 && (
                   <>
                     <div className="space-y-6">
-                        {marketplacePosts.map((post: MarketplacePost) => (
+                        {filteredMarketplacePosts.map((post: MarketplacePost) => (
                             <MarketplacePostCard key={post.id} post={post} voteAction={(vote) => handleVoteOnPost(post.id, vote)} />
                         ))}
                     </div>

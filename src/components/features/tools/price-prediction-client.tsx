@@ -44,6 +44,8 @@ const formSchema = z.object({
   }),
 });
 
+import { PricePredictionResultsSkeleton } from '@/components/features/shared/skeletons';
+
 export function PricePredictionClient() {
   const [result, setResult] = useState<PricePredictionResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -173,17 +175,7 @@ export function PricePredictionClient() {
             </Card>
           )}
 
-          {isLoading && (
-            <Card className="h-full flex flex-col items-center justify-center bg-muted/50 border-dashed py-20">
-              <CardContent className="text-center">
-                <Loader2 className="mx-auto h-12 w-12 animate-spin text-primary" />
-                <h3 className="mt-4 text-lg font-medium">{t('analyzing')}</h3>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Accessing live agricultural market records...
-                </p>
-              </CardContent>
-            </Card>
-          )}
+          {isLoading && <PricePredictionResultsSkeleton />}
 
           {result && (
             <div className="space-y-6 animate-in fade-in-50 duration-500">

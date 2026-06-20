@@ -18,6 +18,8 @@ import { markMessageAsDelivered } from '@/lib/actions/messages';
 import { EmptyState } from '@/components/features/shared/empty-state';
 
 
+import { MessagesSidebarListSkeleton } from '@/components/features/shared/skeletons';
+
 type ConversationDoc = {
     id: string;
     participants: string[];
@@ -114,7 +116,7 @@ export function MessagesClient({ currentUser }: MessagesClientProps) {
         </div>
       </div>
       <ScrollArea className="h-[calc(100vh-22rem)]">
-        {loading && <p className="p-4 text-center text-muted-foreground">{t('loading-conversations')}</p>}
+        {loading && <MessagesSidebarListSkeleton />}
         {!loading && sortedAndFilteredConversations?.length === 0 && (
           <div className="p-4">
             <EmptyState

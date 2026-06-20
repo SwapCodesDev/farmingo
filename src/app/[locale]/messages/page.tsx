@@ -8,17 +8,15 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { MessageSquare } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
+import { ConversationSkeleton } from '@/components/features/shared/skeletons';
+
 export default function MessagesPage() {
   const { user, loading } = useUser();
   const isMobile = useIsMobile();
   const t = useTranslations('Messages');
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center h-full">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-      </div>
-    );
+    return <ConversationSkeleton />;
   }
 
   if (!user) {

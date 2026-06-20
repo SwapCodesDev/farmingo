@@ -66,6 +66,8 @@ interface PageProps {
   params: Promise<{ orderId: string }>;
 }
 
+import { OrderTrackingSkeleton } from '@/components/features/shared/skeletons';
+
 export default function OrderTrackingPage({ params }: PageProps) {
   const { orderId } = use(params);
   const { user } = useUser();
@@ -225,12 +227,7 @@ export default function OrderTrackingPage({ params }: PageProps) {
   };
 
   if (loading) {
-    return (
-      <div className="flex flex-col justify-center items-center min-h-[400px] gap-4">
-        <Loader2 className="h-10 w-10 animate-spin text-primary" />
-        <p className="text-sm text-muted-foreground">Retrieving shipment logs...</p>
-      </div>
-    );
+    return <OrderTrackingSkeleton />;
   }
 
   if (error || !order) {

@@ -7,17 +7,15 @@ import { MessagesClient } from '@/components/features/messages/messages-client';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Card } from '@/components/ui/card';
 
+import { MessagesSkeleton } from '@/components/features/shared/skeletons';
+
 export default function MessagesLayout({ children }: { children: React.ReactNode }) {
   const { user, loading } = useUser();
   const pathname = usePathname();
   const isMobile = useIsMobile();
   
   if (loading) {
-    return (
-      <div className="flex justify-center items-center h-[calc(100vh-8.5rem)]">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-      </div>
-    );
+    return <MessagesSkeleton />;
   }
 
   if (!user) {

@@ -17,6 +17,8 @@ import { format } from 'date-fns';
 import { useUserProfileDialog } from '@/context/user-profile-dialog-provider';
 import { useTranslations } from 'next-intl';
 
+import { ConversationSkeleton } from '@/components/features/shared/skeletons';
+
 type ConversationDoc = {
   id: string;
   participants: string[];
@@ -181,7 +183,7 @@ export function ConversationClient({ conversationId }: ConversationClientProps) 
   };
 
   if (userLoading) {
-    return <div className="flex items-center justify-center h-full"><Loader2 className="h-8 w-8 animate-spin" /></div>;
+    return <ConversationSkeleton />;
   }
 
   if (!currentUser) {
@@ -195,7 +197,7 @@ export function ConversationClient({ conversationId }: ConversationClientProps) 
   }
 
   if (conversationLoading) {
-    return <div className="flex items-center justify-center h-full"><p>{t('loading-conversation')}</p></div>;
+    return <ConversationSkeleton />;
   }
 
   if (!conversation) {

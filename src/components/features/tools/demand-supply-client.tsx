@@ -80,6 +80,8 @@ const formSchema = z.object({
   }),
 });
 
+import { DemandSupplyResultsSkeleton } from '@/components/features/shared/skeletons';
+
 export function DemandSupplyClient() {
   const [result, setResult] = useState<DemandSupplyResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -285,17 +287,7 @@ export function DemandSupplyClient() {
             </Card>
           )}
 
-          {isLoading && (
-            <Card className="h-full flex flex-col items-center justify-center bg-muted/50 border-dashed py-20">
-              <CardContent className="text-center">
-                <Loader2 className="mx-auto h-12 w-12 animate-spin text-primary" />
-                <h3 className="mt-4 text-lg font-medium">{t('analyzing')}</h3>
-                <p className="mt-1 text-sm text-muted-foreground italic">
-                  Evaluating supply and demand trends...
-                </p>
-              </CardContent>
-            </Card>
-          )}
+          {isLoading && <DemandSupplyResultsSkeleton />}
 
           {result && (
             <div className="space-y-6 animate-in fade-in-50 duration-500">

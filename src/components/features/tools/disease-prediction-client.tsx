@@ -58,6 +58,8 @@ type DiseaseResponse = {
     error?: string;
 }
 
+import { DiseaseDiagnosisResultsSkeleton } from '@/components/features/shared/skeletons';
+
 export function DiseasePredictionClient() {
   const [diseaseResponse, setDiseaseResponse] = useState<DiseaseResponse | null>(null);
   const [isDiseaseLoading, setIsDiseaseLoading] = useState(false);
@@ -196,15 +198,7 @@ async function onDiseaseSubmit(values: z.infer<typeof diseaseFormSchema>) {
       </Card>
       
       {isDiseaseLoading ? (
-            <Card className="flex items-center justify-center animate-pulse">
-                <div className="text-center p-6">
-                    <Loader2 className="mx-auto h-12 w-12 animate-spin text-primary" />
-                    <h3 className="mt-4 text-lg font-medium">{t('analyzing')}</h3>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                        {t('analyzing-desc')}
-                    </p>
-                </div>
-            </Card>
+            <DiseaseDiagnosisResultsSkeleton />
         ) : diseaseResponse ? (
             diseaseResponse.error ? (
                 <Card className="flex items-center justify-center border-destructive">
