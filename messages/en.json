@@ -345,5 +345,11 @@
     "markAsRead": "Mark as read",
     "delete": "Delete",
     "recent": "Recent Notifications"
+  },
+  "NotFound": {
+    "title": "Page Not Found",
+    "description": "Oops! The page you are looking for has wandered off the field or never existed. Let's get you back on track.",
+    "go-to-dashboard": "Go to Dashboard",
+    "go-back": "Go Back"
   }
 }
