@@ -340,21 +340,21 @@ export default function OrderTrackingPage({ params }: PageProps) {
             ) : (
               <div className="relative flex justify-between items-center w-full max-w-3xl mx-auto px-4">
                 {/* Stepper Line Background */}
-                <div className="absolute left-8 right-8 top-1/2 h-1 bg-muted -translate-y-1/2 z-0" />
-                
-                {/* Stepper Line Fill */}
-                <div 
-                  className="absolute left-8 top-1/2 h-1 bg-primary -translate-y-1/2 z-0 transition-all duration-500 ease-in-out"
-                  style={{ 
-                    right: `calc(100% - 16px - ${(currentStep / 4) * 100}% - 8px)`
-                  }}
-                />
+                <div className="absolute left-8 right-8 top-1/2 h-1 bg-muted -translate-y-1/2 z-0 overflow-hidden rounded-full">
+                  {/* Stepper Line Fill */}
+                  <div 
+                    className="h-full bg-primary transition-all duration-500 ease-in-out"
+                    style={{ 
+                      width: `${(currentStep / 4) * 100}%`
+                    }}
+                  />
+                </div>
 
                 {/* Steps */}
                 {steps.map((step, idx) => {
                   const StepIcon = step.icon;
-                  const isCompleted = idx < currentStep;
-                  const isActive = idx === currentStep;
+                  const isCompleted = idx < currentStep || (currentStep === 4 && idx === 4);
+                  const isActive = idx === currentStep && currentStep !== 4;
                   const isFuture = idx > currentStep;
 
                   return (

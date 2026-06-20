@@ -44,10 +44,12 @@ export default function SimulatorDialog({
   const [startX, setStartX] = useState(0);
 
   const trackRef = useRef<HTMLDivElement>(null);
+  const hasCompleted = useRef(false);
 
   // Reset simulator states when dialog opens
   useEffect(() => {
     if (open && paymentMethod) {
+      hasCompleted.current = false;
       setOtpValue('');
       setOtpError('');
       setUpiTimer(180);
@@ -107,6 +109,8 @@ export default function SimulatorDialog({
   }, [open, paymentMethod, simulationState]);
 
   const handleOrderCreation = async () => {
+    if (hasCompleted.current) return;
+    hasCompleted.current = true;
     setSimulationState('loading');
     try {
       await onCompletePayment();
@@ -116,6 +120,7 @@ export default function SimulatorDialog({
         onSuccessStep();
       }, 2000);
     } catch (error) {
+      hasCompleted.current = false;
       setSimulationState('failure');
     }
   };
@@ -146,13 +151,13 @@ export default function SimulatorDialog({
 
   // Slider Mouse/Touch Event Handlers
   const handleStart = (clientX: number) => {
-    if (slideConfirmed) return;
+    if (slideConfirmed || hasCompleted.current) return;
     setIsSliding(true);
     setStartX(clientX - slideProgress);
   };
 
   const handleMove = (clientX: number) => {
-    if (!isSliding || slideConfirmed || !trackRef.current) return;
+    if (!isSliding || slideConfirmed || !trackRef.current || hasCompleted.current) return;
     const maxSlide = trackRef.current.clientWidth - 56; // 48px size + margin
     const deltaX = Math.max(0, Math.min(maxSlide, clientX - startX));
     setSlideProgress(deltaX);
@@ -211,7 +216,7 @@ export default function SimulatorDialog({
             <div className="space-y-4">
               <CheckCircle2 className="h-16 w-16 text-emerald-500 mx-auto animate-in zoom-in" />
               <h3 className="text-lg font-bold text-emerald-500">Payment Authorized!</h3>
-              <p className="text-sm text-muted-foreground">Your order is being registered in our system.</p>
+              <p className="text-sm font-medium text-muted-foreground animate-pulse">Processing your order...</p>
             </div>
           )}
 
@@ -221,14 +226,14 @@ export default function SimulatorDialog({
               <h3 className="text-lg font-bold text-destructive">Transaction Declined</h3>
               <p className="text-sm text-muted-foreground">The simulated transaction could not be processed.</p>
               <div className="flex justify-center gap-4 pt-4">
-                <Button variant="outline" onClick={() => onOpenChange(false)}>
+                <Button variant="outline" onClick={() => onOpenChange(false)} disabled={hasCompleted.current}>
                   Back to Checkout
                 </Button>
                 {paymentMethod === 'card' && (
-                  <Button onClick={handleResendOtp}>Retry Payment</Button>
+                  <Button onClick={handleResendOtp} disabled={hasCompleted.current}>Retry Payment</Button>
                 )}
                 {paymentMethod === 'upi' && (
-                  <Button onClick={() => { setSimulationState('upi_qr'); setUpiTimer(180); }}>Retry UPI</Button>
+                  <Button onClick={() => { setSimulationState('upi_qr'); setUpiTimer(180); }} disabled={hasCompleted.current}>Retry UPI</Button>
                 )}
               </div>
             </div>
@@ -276,13 +281,13 @@ export default function SimulatorDialog({
               </div>
 
               <div className="flex gap-4 pt-2">
-                <Button variant="outline" className="w-1/2" onClick={() => onOpenChange(false)}>
+                <Button variant="outline" className="w-1/2" onClick={() => onOpenChange(false)} disabled={hasCompleted.current}>
                   Cancel
                 </Button>
                 <Button
                   className="w-1/2"
                   onClick={handleVerifyOtp}
-                  disabled={otpValue.length !== 6 || otpTimer === 0}
+                  disabled={otpValue.length !== 6 || otpTimer === 0 || hasCompleted.current}
                 >
                   Verify OTP
                 </Button>
@@ -365,10 +370,10 @@ export default function SimulatorDialog({
               </div>
 
               <div className="flex gap-4 pt-2">
-                <Button variant="outline" className="w-1/2" onClick={() => onOpenChange(false)}>
+                <Button variant="outline" className="w-1/2" onClick={() => onOpenChange(false)} disabled={hasCompleted.current}>
                   Cancel
                 </Button>
-                <Button className="w-1/2" onClick={handleOrderCreation}>
+                <Button className="w-1/2" onClick={handleOrderCreation} disabled={hasCompleted.current}>
                   Simulate App Approval
                 </Button>
               </div>
@@ -426,7 +431,7 @@ export default function SimulatorDialog({
               </div>
 
               <div className="flex gap-4 pt-2">
-                <Button variant="outline" className="w-full" onClick={() => onOpenChange(false)}>
+                <Button variant="outline" className="w-full" onClick={() => onOpenChange(false)} disabled={hasCompleted.current}>
                   Cancel and Change Payment Method
                 </Button>
               </div>

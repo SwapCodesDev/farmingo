@@ -304,9 +304,12 @@
     "continue-shopping": "Continue Shopping"
   },
   "OrderPlaced": {
-    "title": "Order Placed!",
-    "subtitle": "Thank you for your purchase. Your order has been successfully submitted.",
-    "desc": "You will receive a confirmation email shortly. This is a demo app, so no real order has been processed.",
+    "title": "Order Placed Successfully!",
+    "subtitle": "Thank you for shopping with Farmingo. Your fresh produce will be delivered soon.",
+    "order-id-label": "Order ID",
+    "delivery-label": "Estimated Delivery",
+    "delivery-value": "3-5 Business Days (AgriExpress Logistics)",
+    "view-orders": "View My Orders",
     "continue": "Continue Shopping"
   },
   "Messages": {
@@ -351,5 +354,15 @@
     "description": "Oops! The page you are looking for has wandered off the field or never existed. Let's get you back on track.",
     "go-to-dashboard": "Go to Dashboard",
     "go-back": "Go Back"
+  },
+  "Error": {
+    "title": "Something went wrong",
+    "description": "An unexpected error occurred while loading this page. Please try again.",
+    "try-again": "Try Again",
+    "go-to-dashboard": "Go to Dashboard",
+    "dashboard-failed": "We couldn't load your dashboard. Please try refreshing.",
+    "marketplace-failed": "We couldn't load the marketplace. Please check your internet connection or try again later.",
+    "community-failed": "We couldn't load the community discussions. Please check back in a moment.",
+    "messages-failed": "We couldn't load your messages. Please check your connection."
   }
 }

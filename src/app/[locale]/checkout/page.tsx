@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from '@/i18n/routing';
@@ -18,7 +18,7 @@ import SimulatorDialog from '@/components/features/checkout/simulator-dialog';
 import { Link } from '@/i18n/routing';
 import { CheckCircle2 } from 'lucide-react';
 
-const steps = ['Shipping', 'Payment', 'Review', 'Success'] as const;
+const steps = ['Shipping', 'Payment', 'Review'] as const;
 
 export default function CheckoutPage() {
   const { cart, clearCart } = useCart();
@@ -29,6 +29,7 @@ export default function CheckoutPage() {
   const [currentStep, setCurrentStep] = useState<number>(0);
   const [showSimulator, setShowSimulator] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const isOrderSubmitted = useRef(false);
 
   const form = useForm<CheckoutFormValues>({
     resolver: zodResolver(checkoutSchema),
@@ -43,10 +44,10 @@ export default function CheckoutPage() {
   });
 
   useEffect(() => {
-    if (cart.length === 0 && currentStep !== 3) {
+    if (cart.length === 0) {
       router.replace('/cart');
     }
-  }, [cart, currentStep, router]);
+  }, [cart, router]);
 
   const subtotal = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
   const total = subtotal * 1.05;
@@ -66,11 +67,31 @@ export default function CheckoutPage() {
 
   const handleOrderCreation = async () => {
     if (!user || !firestore) throw new Error('Auth or DB not available');
+    if (isOrderSubmitted.current) return;
     setIsProcessing(true);
     try {
       const { name, address1, city, state, pincode, paymentMethod } = values;
-      await createOrder(firestore, user, cart, total, { name, address1, city, state, pincode }, paymentMethod);
+
+      let idempotencyKey = sessionStorage.getItem('checkout_idempotency_key');
+      if (!idempotencyKey) {
+        idempotencyKey = `idemp-${user.uid}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        sessionStorage.setItem('checkout_idempotency_key', idempotencyKey);
+      }
+
+      const orderId = await createOrder(
+        firestore,
+        user,
+        cart,
+        total,
+        { name, address1, city, state, pincode },
+        paymentMethod,
+        idempotencyKey
+      );
+
+      isOrderSubmitted.current = true;
+      sessionStorage.removeItem('checkout_idempotency_key');
       clearCart();
+      router.push(`/order-placed?orderId=${orderId}`);
     } catch (error: any) {
       toast({
         variant: 'destructive',
@@ -83,7 +104,7 @@ export default function CheckoutPage() {
     }
   };
 
-  if (cart.length === 0 && currentStep !== 3) return null;
+  if (cart.length === 0) return null;
 
   return (
     <FormProvider {...form}>
@@ -107,53 +128,44 @@ export default function CheckoutPage() {
           ))}
         </div>
 
-        {currentStep === 3 ? (
-          <Card className="max-w-md mx-auto text-center shadow-xl border-primary/20 p-6 space-y-4">
-            <CheckCircle2 className="h-16 w-16 text-emerald-500 mx-auto animate-bounce" />
-            <h2 className="text-3xl font-headline font-bold">Order Confirmed!</h2>
-            <p className="text-muted-foreground text-sm">Thank you for shopping with Farmingo. Your fresh produce will be delivered soon.</p>
-            <Button asChild className="w-full mt-4"><Link href="/marketplace">Continue Shopping</Link></Button>
-          </Card>
-        ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2">
-              <Card>
-                <CardHeader><CardTitle>{steps[currentStep]}</CardTitle></CardHeader>
-                <CardContent>
-                  {currentStep === 0 && <ShippingForm />}
-                  {currentStep === 1 && <PaymentSelector />}
-                  {currentStep === 2 && (
-                    <div className="space-y-6">
-                      <div className="border rounded-lg p-4 space-y-2 bg-muted/40">
-                        <h4 className="font-bold text-sm">Shipping Address</h4>
-                        <p className="text-sm">{values.name}</p>
-                        <p className="text-sm text-muted-foreground">{values.address1}, {values.city}, {values.state} - {values.pincode}</p>
-                      </div>
-                      <div className="border rounded-lg p-4 space-y-2 bg-muted/40">
-                        <h4 className="font-bold text-sm">Payment Details</h4>
-                        <p className="text-sm capitalize">{values.paymentMethod === 'cod' ? 'Cash on Delivery' : values.paymentMethod === 'upi' ? `UPI ID: ${values.upiId}` : `Card Ending in ${values.cardNumber?.slice(-4)}`}</p>
-                      </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2">
+            <Card>
+              <CardHeader><CardTitle>{steps[currentStep]}</CardTitle></CardHeader>
+              <CardContent>
+                {currentStep === 0 && <ShippingForm />}
+                {currentStep === 1 && <PaymentSelector />}
+                {currentStep === 2 && (
+                  <div className="space-y-6">
+                    <div className="border rounded-lg p-4 space-y-2 bg-muted/40">
+                      <h4 className="font-bold text-sm">Shipping Address</h4>
+                      <p className="text-sm">{values.name}</p>
+                      <p className="text-sm text-muted-foreground">{values.address1}, {values.city}, {values.state} - {values.pincode}</p>
                     </div>
-                  )}
-                  <div className="flex justify-between mt-8">
-                    {currentStep > 0 && <Button type="button" variant="outline" onClick={() => setCurrentStep(prev => prev - 1)}>Back</Button>}
-                    {currentStep < 2 ? (
-                      <Button type="button" onClick={handleNext} className="ml-auto">Next</Button>
-                    ) : (
-                      <Button type="button" onClick={() => setShowSimulator(true)} disabled={isProcessing} className="ml-auto">Confirm and Pay</Button>
-                    )}
+                    <div className="border rounded-lg p-4 space-y-2 bg-muted/40">
+                      <h4 className="font-bold text-sm">Payment Details</h4>
+                      <p className="text-sm capitalize">{values.paymentMethod === 'cod' ? 'Cash on Delivery' : values.paymentMethod === 'upi' ? `UPI ID: ${values.upiId}` : `Card Ending in ${values.cardNumber?.slice(-4)}`}</p>
+                    </div>
                   </div>
-                </CardContent>
-              </Card>
-            </div>
-            <div className="lg:col-span-1">
-              <Card className="sticky top-20">
-                <CardHeader><CardTitle>Order Summary</CardTitle></CardHeader>
-                <CardContent><OrderSummary /></CardContent>
-              </Card>
-            </div>
+                )}
+                <div className="flex justify-between mt-8">
+                  {currentStep > 0 && <Button type="button" variant="outline" onClick={() => setCurrentStep(prev => prev - 1)}>Back</Button>}
+                  {currentStep < 2 ? (
+                    <Button type="button" onClick={handleNext} className="ml-auto">Next</Button>
+                  ) : (
+                    <Button type="button" onClick={() => setShowSimulator(true)} disabled={isProcessing} className="ml-auto">Confirm and Pay</Button>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
           </div>
-        )}
+          <div className="lg:col-span-1">
+            <Card className="sticky top-20">
+              <CardHeader><CardTitle>Order Summary</CardTitle></CardHeader>
+              <CardContent><OrderSummary /></CardContent>
+            </Card>
+          </div>
+        </div>
       </div>
 
       <SimulatorDialog
@@ -163,7 +175,7 @@ export default function CheckoutPage() {
         total={total}
         formData={values}
         onCompletePayment={handleOrderCreation}
-        onSuccessStep={() => setCurrentStep(3)}
+        onSuccessStep={() => {}}
       />
     </FormProvider>
   );

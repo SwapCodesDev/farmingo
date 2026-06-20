@@ -6,6 +6,9 @@ import {
     doc,
     Firestore,
     serverTimestamp,
+    query,
+    where,
+    getDocs,
 } from 'firebase/firestore';
 import { errorEmitter } from '@/firebase/error-emitter';
 import {
@@ -30,8 +33,32 @@ export async function createOrder(
     cart: CartItem[],
     total: number,
     shippingAddress: ShippingAddress,
-    paymentMethod: 'cod' | 'upi' | 'card'
-) {
+    paymentMethod: 'cod' | 'upi' | 'card',
+    idempotencyKey?: string | null
+): Promise<string> {
+    const ordersCollection = collection(firestore, 'orders');
+
+    // Idempotency check: check if an order with this idempotency key already exists for this user
+    if (idempotencyKey) {
+        try {
+            const q = query(
+                ordersCollection,
+                where('idempotencyKey', '==', idempotencyKey),
+                where('uid', '==', user.uid)
+            );
+            const querySnapshot = await getDocs(q);
+            if (!querySnapshot.empty) {
+                const existingOrder = querySnapshot.docs[0].data();
+                if (process.env.NODE_ENV === 'development') {
+                    console.log('Duplicate submission detected. Returning existing orderId:', existingOrder.trackingId);
+                }
+                return existingOrder.trackingId as string;
+            }
+        } catch (err) {
+            console.error('Error checking idempotency key:', err);
+            // Fall back to creating a new order if query fails
+        }
+    }
 
     const orderId = `FMG-${Math.floor(1000000 + Math.random() * 9000000)}`;
     const estDeliveryDate = new Date();
@@ -41,6 +68,7 @@ export async function createOrder(
     
     const newOrder = {
         uid: user.uid,
+        idempotencyKey: idempotencyKey || null,
         items: cart,
         total,
         shippingAddress,
@@ -62,10 +90,9 @@ export async function createOrder(
         ]
     };
 
-    const ordersCollection = collection(firestore, 'orders');
-    
     try {
         await addDoc(ordersCollection, newOrder);
+        return orderId;
     } catch (serverError: any) {
         const permissionError = new FirestorePermissionError({
             path: ordersCollection.path,
