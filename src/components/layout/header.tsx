@@ -142,13 +142,13 @@ export function Header() {
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
                 <Link href="/profile">
-                  <UserIcon className="mr-2 h-4 w-4" />
+                  <UserIcon className="h-4 w-4" />
                   <span>{t('profile')}</span>
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link href="/settings">
-                  <Settings className="mr-2 h-4 w-4" />
+                  <Settings className="h-4 w-4" />
                   <span>{t('settings')}</span>
                 </Link>
               </DropdownMenuItem>
@@ -156,9 +156,11 @@ export function Header() {
               {/* Mobile-only Theme Submenu */}
               <DropdownMenuSub>
                 <DropdownMenuSubTrigger className="sm:hidden">
-                  <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-                  <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-                  <span className="ml-6">{tSettings('theme') || 'Theme'}</span>
+                  <div className="relative h-4 w-4 shrink-0">
+                    <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                    <Moon className="absolute inset-0 h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                  </div>
+                  <span>{tSettings('theme') || 'Theme'}</span>
                 </DropdownMenuSubTrigger>
                 <DropdownMenuPortal>
                   <DropdownMenuSubContent>
@@ -178,7 +180,7 @@ export function Header() {
               {/* Mobile-only Language Submenu */}
               <DropdownMenuSub>
                 <DropdownMenuSubTrigger className="sm:hidden">
-                  <Languages className="mr-2 h-4 w-4" />
+                  <Languages />
                   <span>Language</span>
                 </DropdownMenuSubTrigger>
                 <DropdownMenuPortal>
@@ -202,7 +204,7 @@ export function Header() {
                 onClick={() => setLogoutDialogOpen(true)}
                 className="text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer"
               >
-                <LogOut className="mr-2 h-4 w-4" />
+                <LogOut className="h-4 w-4" />
                 <span>{t('logout')}</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
