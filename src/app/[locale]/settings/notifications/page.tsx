@@ -44,41 +44,47 @@ export default function NotificationsSettingsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex items-center space-x-2">
-            <Checkbox id="mentions" defaultChecked />
-            <label
-              htmlFor="mentions"
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-            >
-              {t('mentions')}
-            </label>
-            <p className="text-sm text-muted-foreground ml-auto">
-              {t('mentions-desc')}
-            </p>
+          <div className="flex items-start space-x-3 rounded-lg border p-4">
+            <Checkbox id="mentions" defaultChecked className="mt-0.5" />
+            <div className="space-y-1">
+              <label
+                htmlFor="mentions"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+              >
+                {t('mentions')}
+              </label>
+              <p className="text-sm text-muted-foreground">
+                {t('mentions-desc')}
+              </p>
+            </div>
           </div>
-          <div className="flex items-center space-x-2">
-            <Checkbox id="new-messages" defaultChecked/>
-            <label
-              htmlFor="new-messages"
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-            >
-              {t('new-messages')}
-            </label>
-             <p className="text-sm text-muted-foreground ml-auto">
-              {t('new-messages-desc')}
-            </p>
+          <div className="flex items-start space-x-3 rounded-lg border p-4">
+            <Checkbox id="new-messages" defaultChecked className="mt-0.5" />
+            <div className="space-y-1">
+              <label
+                htmlFor="new-messages"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+              >
+                {t('new-messages')}
+              </label>
+              <p className="text-sm text-muted-foreground">
+                {t('new-messages-desc')}
+              </p>
+            </div>
           </div>
-          <div className="flex items-center space-x-2">
-            <Checkbox id="product-updates" />
-            <label
-              htmlFor="product-updates"
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-            >
-              {t('product-updates')}
-            </label>
-             <p className="text-sm text-muted-foreground ml-auto">
-              {t('product-updates-desc')}
-            </p>
+          <div className="flex items-start space-x-3 rounded-lg border p-4">
+            <Checkbox id="product-updates" className="mt-0.5" />
+            <div className="space-y-1">
+              <label
+                htmlFor="product-updates"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+              >
+                {t('product-updates')}
+              </label>
+              <p className="text-sm text-muted-foreground">
+                {t('product-updates-desc')}
+              </p>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -91,7 +97,7 @@ export default function NotificationsSettingsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-3 rounded-lg border p-4">
             <Checkbox id="push-everything" disabled />
             <label
               htmlFor="push-everything"
@@ -100,8 +106,8 @@ export default function NotificationsSettingsPage() {
               {t('push-everything')}
             </label>
           </div>
-          <div className="flex items-center space-x-2">
-            <Checkbox id="push-email" defaultChecked disabled/>
+          <div className="flex items-center space-x-3 rounded-lg border p-4">
+            <Checkbox id="push-email" defaultChecked disabled />
             <label
               htmlFor="push-email"
               className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
@@ -109,8 +115,8 @@ export default function NotificationsSettingsPage() {
               {t('push-same-email')}
             </label>
           </div>
-           <div className="flex items-center space-x-2">
-            <Checkbox id="push-nothing" disabled/>
+          <div className="flex items-center space-x-3 rounded-lg border p-4">
+            <Checkbox id="push-nothing" disabled />
             <label
               htmlFor="push-nothing"
               className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"

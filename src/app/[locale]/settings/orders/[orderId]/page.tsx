@@ -335,48 +335,94 @@ export default function OrderTrackingPage({ params }: PageProps) {
                 </p>
               </div>
             ) : (
-              <div className="relative flex justify-between items-center w-full max-w-3xl mx-auto px-4">
-                {/* Stepper Line Background */}
-                <div className="absolute left-8 right-8 top-1/2 h-1 bg-muted -translate-y-1/2 z-0 overflow-hidden rounded-full">
-                  {/* Stepper Line Fill */}
-                  <div 
-                    className="h-full bg-primary transition-all duration-500 ease-in-out"
-                    style={{ 
-                      width: `${(currentStep / 4) * 100}%`
-                    }}
-                  />
+              <div className="relative w-full max-w-3xl mx-auto px-4">
+                {/* Horizontal Stepper (hidden on mobile, visible on sm and above) */}
+                <div className="hidden sm:flex relative justify-between items-center w-full">
+                  {/* Stepper Line Background */}
+                  <div className="absolute left-8 right-8 top-1/2 h-1 bg-muted -translate-y-1/2 z-0 overflow-hidden rounded-full">
+                    {/* Stepper Line Fill */}
+                    <div 
+                      className="h-full bg-primary transition-all duration-500 ease-in-out"
+                      style={{ 
+                        width: `${(currentStep / 4) * 100}%`
+                      }}
+                    />
+                  </div>
+
+                  {/* Steps */}
+                  {steps.map((step, idx) => {
+                    const StepIcon = step.icon;
+                    const isCompleted = idx < currentStep || (currentStep === 4 && idx === 4);
+                    const isActive = idx === currentStep && currentStep !== 4;
+
+                    return (
+                      <div key={idx} className="relative flex flex-col items-center z-10">
+                        <div 
+                          className={`w-12 h-12 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${
+                            isCompleted 
+                              ? 'bg-emerald-500 border-emerald-500 text-white shadow-emerald-200/50 shadow-md' 
+                              : isActive 
+                              ? 'bg-background border-primary text-primary shadow-primary-200 shadow-lg ring-4 ring-primary/20 scale-110' 
+                              : 'bg-background border-muted text-muted-foreground'
+                          }`}
+                        >
+                          {isCompleted ? (
+                            <CheckCircle2 className="h-5 w-5" />
+                          ) : (
+                            <StepIcon className="h-5 w-5" />
+                          )}
+                        </div>
+                        <span className={`text-xs font-semibold mt-3 ${isActive ? 'text-primary font-bold' : isCompleted ? 'text-foreground' : 'text-muted-foreground'}`}>
+                          {step.label}
+                        </span>
+                      </div>
+                    );
+                  })}
                 </div>
 
-                {/* Steps */}
-                {steps.map((step, idx) => {
-                  const StepIcon = step.icon;
-                  const isCompleted = idx < currentStep || (currentStep === 4 && idx === 4);
-                  const isActive = idx === currentStep && currentStep !== 4;
-                  const isFuture = idx > currentStep;
+                {/* Vertical Stepper (visible on mobile, hidden on sm and above) */}
+                <div className="sm:hidden relative flex flex-col gap-6 pl-2">
+                  {/* Vertical Line Background */}
+                  <div className="absolute left-[26px] top-4 bottom-4 w-1 bg-muted z-0 overflow-hidden rounded-full">
+                    {/* Vertical Line Fill */}
+                    <div 
+                      className="w-full bg-emerald-500 transition-all duration-500 ease-in-out"
+                      style={{ 
+                        height: `${(currentStep / 4) * 100}%`
+                      }}
+                    />
+                  </div>
 
-                  return (
-                    <div key={idx} className="relative flex flex-col items-center z-10">
-                      <div 
-                        className={`w-12 h-12 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${
-                          isCompleted 
-                            ? 'bg-emerald-500 border-emerald-500 text-white shadow-emerald-200/50 shadow-md' 
-                            : isActive 
-                            ? 'bg-background border-primary text-primary shadow-primary-200 shadow-lg ring-4 ring-primary/20 scale-110' 
-                            : 'bg-background border-muted text-muted-foreground'
-                        }`}
-                      >
-                        {isCompleted ? (
-                          <CheckCircle2 className="h-5 w-5" />
-                        ) : (
-                          <StepIcon className="h-5 w-5" />
-                        )}
+                  {/* Steps */}
+                  {steps.map((step, idx) => {
+                    const StepIcon = step.icon;
+                    const isCompleted = idx < currentStep || (currentStep === 4 && idx === 4);
+                    const isActive = idx === currentStep && currentStep !== 4;
+
+                    return (
+                      <div key={idx} className="relative flex items-center gap-4 z-10">
+                        <div 
+                          className={`w-10 h-10 rounded-full border-2 flex items-center justify-center shrink-0 transition-all duration-300 ${
+                            isCompleted 
+                              ? 'bg-emerald-500 border-emerald-500 text-white shadow-emerald-200/50 shadow-md' 
+                              : isActive 
+                              ? 'bg-background border-primary text-primary shadow-primary-200 shadow-lg ring-4 ring-primary/20 scale-110' 
+                              : 'bg-background border-muted text-muted-foreground'
+                          }`}
+                        >
+                          {isCompleted ? (
+                            <CheckCircle2 className="h-4 w-4" />
+                          ) : (
+                            <StepIcon className="h-4 w-4" />
+                          )}
+                        </div>
+                        <span className={`text-sm font-semibold ${isActive ? 'text-primary font-bold' : isCompleted ? 'text-foreground' : 'text-muted-foreground'}`}>
+                          {step.label}
+                        </span>
                       </div>
-                      <span className={`text-xs font-semibold mt-3 ${isActive ? 'text-primary font-bold' : isCompleted ? 'text-foreground' : 'text-muted-foreground'}`}>
-                        {step.label}
-                      </span>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
             )}
           </CardContent>
@@ -441,14 +487,14 @@ export default function OrderTrackingPage({ params }: PageProps) {
                 {order.statusHistory.slice().reverse().map((log, idx) => (
                   <div key={idx} className="relative">
                     {/* Bullet marker */}
-                    <div className={`absolute -left-[31px] top-1.5 w-4.5 h-4.5 rounded-full border-4 border-background flex items-center justify-center ${
+                    <div className={`absolute -left-8 top-1.5 w-4 h-4 rounded-full border-4 border-background flex items-center justify-center ${
                       idx === 0 
                         ? log.status === 'Cancelled' ? 'bg-destructive' : 'bg-primary' 
-                        : 'bg-muted-foreground/50'
+                        : 'bg-muted-foreground'
                     }`} />
                     
                     <div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
                         <h4 className={`font-semibold text-sm ${idx === 0 ? 'text-foreground font-bold text-base' : 'text-muted-foreground'}`}>
                           {log.title}
                         </h4>

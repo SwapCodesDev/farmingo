@@ -87,14 +87,14 @@ export default function MyOrdersPage() {
                         const statusColor = statusConfig[status].color;
                         return (
                         <Card key={order.id}>
-                            <CardHeader className="flex flex-row justify-between items-start">
-                                <div>
+                            <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                                <div className="space-y-1">
                                     <CardTitle className="text-base font-medium">{t('order-id', { id: order.id.slice(0, 8).toUpperCase() })}</CardTitle>
                                     <CardDescription>
                                         {t('order-placed-on', { date: formatTimestamp(order.createdAt, { format: 'full', addSuffix: false }) })}
                                     </CardDescription>
                                 </div>
-                                <div className="text-right">
+                                <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-start w-full sm:w-auto gap-2">
                                     <Badge variant="secondary" className="flex items-center gap-2">
                                         <div className={`h-2 w-2 rounded-full ${statusColor}`} />
                                         {order.status}

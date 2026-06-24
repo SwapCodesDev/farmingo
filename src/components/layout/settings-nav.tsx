@@ -34,7 +34,7 @@ export function SettingsNav() {
   ];
 
   return (
-    <nav className="flex space-x-2 overflow-x-auto pb-1 lg:flex-col lg:space-x-0 lg:space-y-1 lg:overflow-x-visible lg:pb-0">
+    <nav className="flex space-x-2 overflow-x-auto pb-1 px-4 lg:px-0 lg:flex-col lg:space-x-0 lg:space-y-1 lg:overflow-x-visible lg:pb-0">
       {sidebarNavItems.map((item) => (
         <Link
           key={item.href}

@@ -95,23 +95,23 @@ export default function TranslationSettingsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6 pt-6">
-          <div className="flex items-center justify-between rounded-lg border p-4">
+          <div className="flex flex-row items-start justify-between gap-4 rounded-lg border p-4">
             <div className="space-y-0.5">
               <Label htmlFor="auto-community-posts" className="text-base">{t('community-posts')}</Label>
               <p className="text-sm text-muted-foreground">
                 {t('community-posts-desc')}
               </p>
             </div>
-            <Switch id="auto-community-posts" />
+            <Switch id="auto-community-posts" className="mt-0.5" />
           </div>
-           <div className="flex items-center justify-between rounded-lg border p-4">
+          <div className="flex flex-row items-start justify-between gap-4 rounded-lg border p-4">
             <div className="space-y-0.5">
               <Label htmlFor="auto-market-posts" className="text-base">{t('market-posts')}</Label>
-               <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-muted-foreground">
                 {t('market-posts-desc')}
               </p>
             </div>
-            <Switch id="auto-market-posts" />
+            <Switch id="auto-market-posts" className="mt-0.5" />
           </div>
         </CardContent>
       </Card>
