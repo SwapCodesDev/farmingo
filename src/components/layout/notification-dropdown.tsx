@@ -184,7 +184,7 @@ export default function NotificationDropdown() {
         </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent className="w-[360px] md:w-[420px] p-0" align="end">
+      <DropdownMenuContent className="w-[calc(100vw-2rem)] sm:w-[360px] md:w-[420px] p-0" align="end">
         {/* Header */}
         <div className="flex items-center justify-between border-b px-4 py-3">
           <div className="flex items-center gap-2">

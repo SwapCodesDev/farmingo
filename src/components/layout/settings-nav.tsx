@@ -34,7 +34,7 @@ export function SettingsNav() {
   ];
 
   return (
-    <nav className="flex space-x-2 lg:flex-col lg:space-x-0 lg:space-y-1">
+    <nav className="flex space-x-2 overflow-x-auto pb-1 lg:flex-col lg:space-x-0 lg:space-y-1 lg:overflow-x-visible lg:pb-0">
       {sidebarNavItems.map((item) => (
         <Link
           key={item.href}
@@ -44,7 +44,7 @@ export function SettingsNav() {
             pathname === item.href
               ? 'bg-muted hover:bg-muted'
               : 'hover:bg-transparent hover:underline',
-            'justify-start'
+            'justify-start shrink-0'
           )}
         >
           {item.title}

@@ -322,9 +322,9 @@ export default function OrderTrackingPage({ params }: PageProps) {
         )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Stepper Card */}
-        <Card className="md:col-span-3 overflow-hidden shadow-sm">
+        <Card className="lg:col-span-3 overflow-hidden shadow-sm">
           <CardHeader className="bg-muted/40 pb-4">
             <CardTitle className="text-base font-medium">Delivery Timeline</CardTitle>
           </CardHeader>
@@ -386,7 +386,7 @@ export default function OrderTrackingPage({ params }: PageProps) {
         </Card>
 
         {/* Left Columns - Details */}
-        <div className="md:col-span-2 space-y-6">
+        <div className="lg:col-span-2 space-y-6">
           {/* Order Summary & Address */}
           <Card className="shadow-sm">
             <CardHeader>

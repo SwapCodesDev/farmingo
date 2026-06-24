@@ -515,7 +515,7 @@ export function MarketplaceClient() {
             {activeTab === 'indirect' ? (
                 <CreateMarketplacePostDialog onSuccess={() => fetchMarketplacePosts(true)}>
                 <Button
-                    className="fixed bottom-6 right-6 rounded-full shadow-lg"
+                    className="fixed bottom-20 md:bottom-6 right-6 rounded-full shadow-lg"
                     aria-label="Create Post"
                 >
                     <Edit className="mr-2 h-4 w-4" />
@@ -523,7 +523,7 @@ export function MarketplaceClient() {
                 </Button>
                 </CreateMarketplacePostDialog>
             ) : (
-                <div className="fixed bottom-6 right-6 flex flex-col items-end gap-4 z-50">
+                <div className="fixed bottom-20 md:bottom-6 right-6 flex flex-col items-end gap-4 z-50">
                     <Link href="/cart" className="group flex items-center justify-end">
                         <span className="bg-card text-card-foreground shadow-md rounded-md px-3 py-2 text-sm font-medium mr-3 opacity-0 scale-95 -translate-x-2 group-hover:opacity-100 group-hover:scale-100 group-hover:translate-x-0 transition-all duration-200 ease-in-out">{t('view-cart')}</span>
                         <div className="bg-primary text-primary-foreground h-12 w-12 rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">

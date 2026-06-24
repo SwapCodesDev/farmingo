@@ -10,10 +10,14 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
+  DropdownMenuPortal,
 } from '@/components/ui/dropdown-menu';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { useAuth, useUser } from '@/firebase';
-import { Bell, LogOut, Search, User as UserIcon, Settings } from 'lucide-react';
+import { Bell, LogOut, Search, User as UserIcon, Settings, Sun, Moon, Languages } from 'lucide-react';
 import { Link, useRouter, usePathname } from '@/i18n/routing';
 import { signOut } from 'firebase/auth';
 import { ThemeToggle } from './theme-toggle';
@@ -22,9 +26,10 @@ import NotificationDropdown from './notification-dropdown';
 import { Input } from '../ui/input';
 import { Breadcrumbs } from './breadcrumbs';
 import { useSearch } from '@/context/search-provider';
-import { useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useState, useTransition } from 'react';
+import { useTranslations, useLocale } from 'next-intl';
 import { LogoutDialog } from './logout-dialog';
+import { useTheme } from 'next-themes';
 
 export function Header() {
   const { user } = useUser();
@@ -33,10 +38,20 @@ export function Header() {
   const router = useRouter();
   const { searchTerm, setSearchTerm } = useSearch();
   const t = useTranslations('Navigation');
+  const tSettings = useTranslations('Settings');
+  const locale = useLocale();
+  const { setTheme } = useTheme();
+  const [isPending, startTransition] = useTransition();
 
   // State for the community search bar
   const [communitySearchQuery, setCommunitySearchQuery] = useState('');
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
+
+  const changeLanguage = (nextLocale: string) => {
+    startTransition(() => {
+      router.replace(pathname, { locale: nextLocale });
+    });
+  };
 
   const handleLogout = async () => {
     if (auth) {
@@ -90,8 +105,12 @@ export function Header() {
 
 
       <div className="flex items-center gap-2">
-        <ThemeToggle />
-        <LanguageSwitcher />
+        <div className="hidden sm:block">
+          <ThemeToggle />
+        </div>
+        <div className="hidden sm:block">
+          <LanguageSwitcher />
+        </div>
         {user && <NotificationDropdown />}
 
         {user ? (
@@ -133,6 +152,51 @@ export function Header() {
                   <span>{t('settings')}</span>
                 </Link>
               </DropdownMenuItem>
+
+              {/* Mobile-only Theme Submenu */}
+              <DropdownMenuSub>
+                <DropdownMenuSubTrigger className="sm:hidden">
+                  <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                  <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                  <span className="ml-6">{tSettings('theme') || 'Theme'}</span>
+                </DropdownMenuSubTrigger>
+                <DropdownMenuPortal>
+                  <DropdownMenuSubContent>
+                    <DropdownMenuItem onClick={() => setTheme('light')}>
+                      {tSettings('theme-light') || 'Light'}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setTheme('dark')}>
+                      {tSettings('theme-dark') || 'Dark'}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setTheme('system')}>
+                      {tSettings('theme-system') || 'System'}
+                    </DropdownMenuItem>
+                  </DropdownMenuSubContent>
+                </DropdownMenuPortal>
+              </DropdownMenuSub>
+
+              {/* Mobile-only Language Submenu */}
+              <DropdownMenuSub>
+                <DropdownMenuSubTrigger className="sm:hidden">
+                  <Languages className="mr-2 h-4 w-4" />
+                  <span>Language</span>
+                </DropdownMenuSubTrigger>
+                <DropdownMenuPortal>
+                  <DropdownMenuSubContent>
+                    <DropdownMenuItem onClick={() => changeLanguage('en')} disabled={locale === 'en'}>
+                      English
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => changeLanguage('hi')} disabled={locale === 'hi'}>
+                      हिन्दी (Hindi)
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => changeLanguage('mr')} disabled={locale === 'mr'}>
+                      मराठी (Marathi)
+                    </DropdownMenuItem>
+                  </DropdownMenuSubContent>
+                </DropdownMenuPortal>
+              </DropdownMenuSub>
+
+              <DropdownMenuSeparator className="sm:hidden" />
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={() => setLogoutDialogOpen(true)}

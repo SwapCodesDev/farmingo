@@ -4,7 +4,7 @@ import { MessagesClient } from '@/components/features/messages/messages-client';
 import { useUser } from '@/firebase';
 import { Card, CardContent } from '@/components/ui/card';
 import { Suspense } from 'react';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { useIsMobileOrTablet } from '@/hooks/use-mobile';
 import { MessageSquare } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
@@ -12,7 +12,7 @@ import { ConversationSkeleton } from '@/components/features/shared/skeletons';
 
 export default function MessagesPage() {
   const { user, loading } = useUser();
-  const isMobile = useIsMobile();
+  const isMobile = useIsMobileOrTablet();
   const t = useTranslations('Messages');
 
   if (loading) {

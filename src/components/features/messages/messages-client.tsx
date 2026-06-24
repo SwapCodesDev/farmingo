@@ -13,7 +13,7 @@ import { useTranslations } from 'next-intl';
 import type { User } from 'firebase/auth';
 import { useFirestore, useCollection } from '@/firebase';
 import { collection, query, where, Timestamp } from 'firebase/firestore';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { useIsMobileOrTablet } from '@/hooks/use-mobile';
 import { markMessageAsDelivered } from '@/lib/actions/messages';
 import { EmptyState } from '@/components/features/shared/empty-state';
 
@@ -44,7 +44,7 @@ export function MessagesClient({ currentUser }: MessagesClientProps) {
   const pathname = usePathname();
   const firestore = useFirestore();
   const [searchTerm, setSearchTerm] = useState('');
-  const isMobile = useIsMobile();
+  const isMobile = useIsMobileOrTablet();
   const t = useTranslations('Messages');
 
   const conversationsQuery = useMemo(() => {

@@ -316,11 +316,11 @@ export function MessagesSkeleton() {
   return (
     <div className="grid grid-cols-12 gap-6 h-[calc(100vh-8.5rem)] w-full animate-in fade-in duration-500">
       {/* Sidebar Skeleton */}
-      <div className="col-span-12 md:col-span-4 h-full">
+      <div className="col-span-12 lg:col-span-4 h-full">
         <MessagesSidebarSkeleton />
       </div>
       {/* Chat Pane Skeleton */}
-      <div className="hidden md:block md:col-span-8 h-full">
+      <div className="hidden lg:block lg:col-span-8 h-full">
         <ConversationSkeleton />
       </div>
     </div>
@@ -521,8 +521,8 @@ export function OrderTrackingSkeleton() {
         <Skeleton className="h-14 w-48 rounded-lg" />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="md:col-span-3 border-muted/50">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <Card className="lg:col-span-3 border-muted/50">
           <CardHeader className="bg-muted/40 pb-4">
             <Skeleton className="h-5 w-32 rounded-md" />
           </CardHeader>
@@ -539,7 +539,7 @@ export function OrderTrackingSkeleton() {
           </CardContent>
         </Card>
 
-        <div className="md:col-span-2 space-y-6">
+        <div className="lg:col-span-2 space-y-6">
           <Card className="border-muted/50">
             <CardHeader>
               <Skeleton className="h-5 w-32 rounded-md" />

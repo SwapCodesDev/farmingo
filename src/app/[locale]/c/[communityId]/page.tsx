@@ -220,15 +220,15 @@ export default function CommunitySubPage({ params }: { params: Promise<{ communi
       </div>
       
       {/* Main Content */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="md:col-span-2 space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 space-y-6">
           <Suspense fallback={<PostListSkeleton />}>
             <PostList communityId={communityId} />
           </Suspense>
         </div>
 
         {/* Sidebar */}
-        <div className="md:col-span-1 space-y-6">
+        <div className="lg:col-span-1 space-y-6">
           <Card>
             <CardHeader>
               <CardTitle className="text-sm font-medium flex justify-between items-center">

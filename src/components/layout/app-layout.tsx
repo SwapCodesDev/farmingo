@@ -65,7 +65,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       </Sidebar>
       <SidebarInset>
         <Header />
-        <main className="p-4 pb-20 sm:p-6 sm:pb-6 lg:p-8 bg-background">
+        <main className="p-4 pb-20 md:p-6 md:pb-6 lg:p-8 bg-background">
           <PageTransition>{children}</PageTransition>
         </main>
         <BottomNav />

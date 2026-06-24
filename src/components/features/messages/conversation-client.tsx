@@ -7,7 +7,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { Send, ArrowLeft, Loader2, Check, CheckCheck, ImageIcon, X } from 'lucide-react';
 import { Link } from '@/i18n/routing';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { useIsMobileOrTablet } from '@/hooks/use-mobile';
 import { useFirestore, useDoc, useCollection, useUser } from '@/firebase';
 import { doc, collection, query, orderBy, Timestamp } from 'firebase/firestore';
 import { sendMessage, markConversationAsRead, markMessagesAsRead } from '@/lib/actions/messages';
@@ -49,7 +49,7 @@ interface ConversationClientProps {
 }
 
 export function ConversationClient({ conversationId }: ConversationClientProps) {
-  const isMobile = useIsMobile();
+  const isMobile = useIsMobileOrTablet();
   const firestore = useFirestore();
   const { user: currentUser, loading: userLoading } = useUser();
   const [message, setMessage] = useState('');

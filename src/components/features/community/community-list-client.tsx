@@ -123,7 +123,7 @@ export function CommunityListClient() {
             {user && (
                 <CreateCommunityDialog>
                     <Button
-                        className="fixed bottom-6 right-6 rounded-full shadow-lg"
+                        className="fixed bottom-20 md:bottom-6 right-6 rounded-full shadow-lg"
                         aria-label="Create New Community"
                     >
                         <Plus className="mr-2 h-4 w-4" />

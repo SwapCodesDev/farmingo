@@ -104,7 +104,7 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-col gap-10 pb-10">
       {/* Hero Header Section */}
-      <div className="relative overflow-hidden rounded-[2.5rem] bg-background border border-primary/10 p-8 md:p-12 shadow-sm">
+      <div className="relative overflow-hidden rounded-2xl md:rounded-[2.5rem] bg-background border border-primary/10 p-4 sm:p-8 md:p-12 shadow-sm">
         {/* Decorative background elements */}
         <div className="absolute -top-24 -right-24 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse" />
         <div className="absolute -bottom-24 -left-24 w-72 h-72 bg-accent/5 rounded-full blur-3xl" />
@@ -175,7 +175,7 @@ export default function DashboardPage() {
               <Card
                 key={feature.title}
                 className={cn(
-                    "group relative flex flex-col overflow-hidden transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 border-primary/5 rounded-[2rem]",
+                    "group relative flex flex-col overflow-hidden transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 border-primary/5 rounded-2xl md:rounded-[2rem]",
                     feature.featured ? "lg:col-span-6" : "lg:col-span-4"
                 )}
               >

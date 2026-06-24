@@ -76,7 +76,7 @@ export function Breadcrumbs() {
   });
 
   return (
-    <nav aria-label="Breadcrumbs" className="flex items-center text-sm text-muted-foreground">
+    <nav aria-label="Breadcrumbs" className="hidden md:flex items-center text-sm text-muted-foreground">
       <ol className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
         {items.map((item, index) => {
           const isLast = index === items.length - 1;

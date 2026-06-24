@@ -264,7 +264,7 @@ export default function ProfilePage() {
         </CardHeader>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-4 gap-2 p-6 bg-muted/20 text-center">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 p-6 bg-muted/20 text-center">
           {[
             { label: t('posts'), count: stats.posts, icon: MessageSquare },
             { label: t('comments') || 'Comments', count: stats.comments, icon: Heart },
@@ -287,11 +287,11 @@ export default function ProfilePage() {
 
       {/* Tabs list */}
       <Tabs defaultValue="posts" className="w-full">
-        <TabsList className="grid w-full grid-cols-4 bg-muted/30 p-1 rounded-xl">
-          <TabsTrigger value="posts" className="rounded-lg py-2 font-semibold transition-all">{t('posts')}</TabsTrigger>
-          <TabsTrigger value="comments" className="rounded-lg py-2 font-semibold transition-all">Comments</TabsTrigger>
-          <TabsTrigger value="followers" className="rounded-lg py-2 font-semibold transition-all">{t('followers')}</TabsTrigger>
-          <TabsTrigger value="following" className="rounded-lg py-2 font-semibold transition-all">{t('following')}</TabsTrigger>
+        <TabsList className="flex overflow-x-auto whitespace-nowrap scrollbar-none md:grid md:grid-cols-4 w-full bg-muted/30 p-1 rounded-xl">
+          <TabsTrigger value="posts" className="rounded-lg py-2 font-semibold transition-all shrink-0">{t('posts')}</TabsTrigger>
+          <TabsTrigger value="comments" className="rounded-lg py-2 font-semibold transition-all shrink-0">Comments</TabsTrigger>
+          <TabsTrigger value="followers" className="rounded-lg py-2 font-semibold transition-all shrink-0">{t('followers')}</TabsTrigger>
+          <TabsTrigger value="following" className="rounded-lg py-2 font-semibold transition-all shrink-0">{t('following')}</TabsTrigger>
         </TabsList>
 
         {/* Posts Tab */}
