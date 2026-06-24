@@ -42,7 +42,46 @@
       "community": "Connect with fellow farmers and share knowledge."
     },
     "no-matching-ai": "No matching AI tools found.",
-    "no-matching-platform": "No matching platform features found."
+    "no-matching-platform": "No matching platform features found.",
+    "powered-by-ai": "Powered by AI",
+    "greeting": {
+      "morning": "Good Morning",
+      "afternoon": "Good Afternoon",
+      "evening": "Good Evening",
+      "night": "Good Night"
+    },
+    "quick-actions-title": "Quick Actions",
+    "quick-actions": {
+      "scan-crop": "Scan Crop",
+      "check-weather": "Check Weather",
+      "market-prices": "Market Prices",
+      "crop-advice": "Crop Advice",
+      "marketplace": "Marketplace",
+      "community": "Community"
+    },
+    "stats": {
+      "today": "Today's Date",
+      "season": "Season",
+      "tip": "Tip of the Day",
+      "ai-tools": "AI Tools",
+      "ai-tools-count": "5 AI tools available",
+      "seasons": {
+        "kharif": "Kharif Season (Jun–Oct)",
+        "rabi": "Rabi Season (Nov–Feb)",
+        "zaid": "Zaid Season (Mar–May)"
+      },
+      "tips": {
+        "tip-1": "Use vermicompost to boost soil health naturally.",
+        "tip-2": "Get your soil tested at a local KVK before sowing.",
+        "tip-3": "Install drip irrigation to save water and cut costs.",
+        "tip-4": "Practice crop rotation with pulses to fix nitrogen.",
+        "tip-5": "Spray neem oil to control pests without chemicals.",
+        "tip-6": "Check APMC mandi rates before selling your produce.",
+        "tip-7": "Sow Kharif crops after the first good monsoon rains."
+      }
+    },
+    "ai-insights-desc": "Leverage AI to make smarter farming decisions",
+    "priority-analysis": "Priority Analysis"
   },
   "Welcome": {
     "tagline": "Get AI-powered crop insights, connect with a community of farmers, and trade on our exclusive marketplace.",
