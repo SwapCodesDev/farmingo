@@ -59,3 +59,30 @@ export function getApiEndpoint(
   return envUrlVar;
 }
 
+export function generateHashId(input: string): string {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let hash1 = 5381;
+  let hash2 = 8904;
+  
+  for (let i = 0; i < input.length; i++) {
+    const char = input.charCodeAt(i);
+    hash1 = ((hash1 << 5) + hash1) ^ char;
+    hash2 = ((hash2 << 7) + hash2) ^ char;
+  }
+  
+  let result = '';
+  let val1 = Math.abs(hash1);
+  let val2 = Math.abs(hash2);
+  
+  for (let i = 0; i < 4; i++) {
+    result += chars[val1 % 62];
+    val1 = Math.floor(val1 / 62);
+    
+    result += chars[val2 % 62];
+    val2 = Math.floor(val2 / 62);
+  }
+  
+  return result;
+}
+
+

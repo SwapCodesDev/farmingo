@@ -10,6 +10,7 @@ import {
   increment,
   runTransaction,
   serverTimestamp,
+  setDoc,
   updateDoc,
   writeBatch,
 } from 'firebase/firestore';
@@ -19,6 +20,7 @@ import {
 } from '@/firebase/errors';
 import type { User } from 'firebase/auth';
 import type { UserProfile } from '@/types';
+import { generateHashId } from '@/lib/utils';
 
 export type MarketplacePostData = {
   itemName: string;
@@ -53,10 +55,12 @@ export async function createMarketplacePost(
     downvotes: [],
   };
 
-  const postsCollection = collection(firestore, 'marketplacePosts');
-  addDoc(postsCollection, newPost).catch(async (serverError) => {
+  const postId = generateHashId(`${Date.now()}-${user.uid}`);
+  const postRef = doc(firestore, 'marketplacePosts', postId);
+  
+  setDoc(postRef, newPost).catch(async (serverError) => {
     const permissionError = new FirestorePermissionError({
-      path: postsCollection.path,
+      path: postRef.path,
       operation: 'create',
       requestResourceData: newPost,
     });

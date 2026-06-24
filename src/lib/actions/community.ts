@@ -23,6 +23,7 @@ import {
 } from '@/firebase/errors';
 import type { User } from 'firebase/auth';
 import type { UserProfile, Post, Comment, PostData } from '@/types';
+import { generateHashId } from '@/lib/utils';
 
 export async function createPost(
   firestore: Firestore,
@@ -37,10 +38,11 @@ export async function createPost(
   const batch = writeBatch(firestore);
 
   const postsCollection = collection(firestore, 'posts');
-  const newPostRef = doc(postsCollection);
+  const postId = generateHashId(`${Date.now()}-${user.uid}`);
+  const newPostRef = doc(postsCollection, postId);
 
   const newPost = {
-    id: newPostRef.id,
+    id: postId,
     uid: user.uid,
     author: username,
     authorPhotoURL: userData?.photoURL || user.photoURL || '',

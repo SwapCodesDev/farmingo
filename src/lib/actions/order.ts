@@ -9,6 +9,7 @@ import {
     query,
     where,
     getDocs,
+    setDoc,
 } from 'firebase/firestore';
 import { errorEmitter } from '@/firebase/error-emitter';
 import {
@@ -91,7 +92,8 @@ export async function createOrder(
     };
 
     try {
-        await addDoc(ordersCollection, newOrder);
+        const orderRef = doc(ordersCollection, orderId);
+        await setDoc(orderRef, newOrder);
         return orderId;
     } catch (serverError: any) {
         const permissionError = new FirestorePermissionError({
