@@ -93,7 +93,21 @@
     "stat-products-lbl": "Products Listed",
     "stat-posts-lbl": "Shared Discussions",
     "stat-communities-lbl": "Active Communities",
-    "footer-text": "Farmingo © 2026. Cultivating the future of intelligent agriculture."
+    "footer-text": "Farmingo © 2026. Cultivating the future of intelligent agriculture.",
+    "how-it-works": "How It Works",
+    "how-it-works-desc": "Get started in three simple steps and transform how you farm.",
+    "step-1-title": "Scan & Analyze",
+    "step-1-desc": "Upload crop photos, enter your soil data, or share your location. Our AI instantly processes your inputs.",
+    "step-2-title": "Get AI Insights",
+    "step-2-desc": "Receive personalized recommendations, disease diagnoses, price forecasts, and weather-based farming advice.",
+    "step-3-title": "Grow & Trade",
+    "step-3-desc": "Act on insights to boost your yield, then sell directly on our marketplace and connect with the community.",
+    "cta-heading": "Ready to Farm Smarter?",
+    "cta-desc": "Join thousands of farmers already using AI-powered insights to increase yield and connect with buyers directly.",
+    "cta-button": "Get Started for Free",
+    "trust-free": "100% Free",
+    "trust-multilingual": "Multilingual",
+    "trust-ai": "AI-Powered"
   },
   "Auth": {
     "login-title": "Login",
